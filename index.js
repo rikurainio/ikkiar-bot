@@ -3,9 +3,6 @@ const Discord = require('discord.js')
 const bot = new Discord.Client({intents: ['GUILDS', 'GUILD_MESSAGES']})
 const fs = require('fs')
 
-//connect mongodb
-connectDB()
-
 bot.on('ready', () => {
     console.log('the bot is running!')
 })
