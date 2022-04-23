@@ -10,9 +10,6 @@ const schema = mongoose.Schema({
   roles: {
     main: { type: String, required: true },
     second: { type: String, required: true },
-    third: { type: String },
-    fourth: { type: String },
-    fifth: { type: String }
   },
   bio: {
       type: String
@@ -26,6 +23,7 @@ const schema = mongoose.Schema({
       type: Number,
       default: 0
   }
+  
 })
 
 schema.set('toJSON', {

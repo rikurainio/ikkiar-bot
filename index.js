@@ -25,21 +25,16 @@ client.once('ready', () => {
 	console.log('Ready!');
 });
 
-
 client.on('message', message => {
-	console.log('msg:', message)
-
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
 
 	const args = message.content.slice(prefix.length).trim().split(' ');
 	const command = args.shift().toLowerCase();
-
 	console.log('onmessage command arg:', command)
 });
 
-
+// GETS CALLED WHEN THE CLIENT INTERACTS
 client.on('interactionCreate', async interaction => {
-	console.log('interaction')
 	if (!interaction.isCommand()) return;
 
 	const command = client.commands.get(interaction.commandName);
