@@ -17,5 +17,4 @@ bot.on('typingStart', message => {
     message.reply('dont you try to type anything! 😡')
 })
 
-
 bot.login(process.env.BOT_TOKEN)
