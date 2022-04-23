@@ -47,17 +47,22 @@ module.exports = {
 			discordId: id,
 			role: reply
 		}
+		const queuers = await Queuer.find({})
+		const queueSize = queuers.length
 
-		const newQueuer = new Queuer(newQueueUser)
-
-		try {
-			const savedQueuer = await newQueuer.save()
-			console.log('saved queuer: ', savedQueuer)
-			await interaction.reply('Queued ' + reply.toString());
+		if(queueSize < 10){
+			try {
+				const newQueuer = new Queuer(newQueueUser)
+				const savedQueuer = await newQueuer.save()
+				console.log('saved queuer: ', savedQueuer)
+				console.log('queuesize2: ', queueSize)
+				await interaction.reply('🐒 ' + name.toString() + ' queued ' + reply.toString() + '.')
+			}
+			catch (error) {
+				console.log('INSIDE', error)
+				await interaction.reply('You are in queue already!')
+			}
 		}
-		catch (error) {
-			await interaction.reply('You are in queue already!')
-		}
-
+		await interaction.reply('Queue is full 🥵 (10/10)')
 	},
 };
