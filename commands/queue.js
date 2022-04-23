@@ -1,5 +1,9 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
+// MONGO
+//const User = require('../models/user')
+const Queuer = require('../models/queuer')
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('queue')
@@ -19,6 +23,8 @@ module.exports = {
 	async execute(interaction) {
 		let reply = ''
 		const role = interaction.options._hoistedOptions[0]['value']
+		const id = interaction.user.id
+		const name = interaction.user.username
 
 		if(role === 'top'){
 			reply = 'top'
@@ -35,6 +41,23 @@ module.exports = {
 		if(role === 'support'){
 			reply = 'support'
 		}
-		await interaction.reply('Queued ' + reply.toString());
+
+		const newQueueUser = {
+			discordName: name,
+			discordId: id,
+			role: reply
+		}
+
+		const newQueuer = new Queuer(newQueueUser)
+
+		try {
+			const savedQueuer = await newQueuer.save()
+			console.log('saved queuer: ', savedQueuer)
+			await interaction.reply('Queued ' + reply.toString());
+		}
+		catch (error) {
+			await interaction.reply('You are in queue already!')
+		}
+
 	},
 };

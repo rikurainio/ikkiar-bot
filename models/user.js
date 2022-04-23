@@ -14,6 +14,8 @@ const schema = mongoose.Schema({
   bio: {
       type: String
   },
+  discordId: { type: String },
+
   points: {
       type: Number,
       required: true,

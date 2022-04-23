@@ -1,5 +1,15 @@
 require('dotenv').config()
 const fs = require('node:fs');
+const mongoose = require('mongoose')
+
+//CONNECT TO DB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('connected to MongoDB')
+  })
+  .catch((error) => {
+    console.log('error connection to MongoDB:', error.message)
+  })
 
 // DISCORD.JS CLASSES
 const { Client, Collection, Intents} = require('discord.js')
