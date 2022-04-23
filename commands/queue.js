@@ -56,7 +56,7 @@ module.exports = {
 				const savedQueuer = await newQueuer.save()
 				console.log('saved queuer: ', savedQueuer)
 				console.log('queuesize2: ', queueSize)
-				await interaction.reply('🐒 ' + name.toString() + ' queued ' + reply.toString() + '.')
+				await interaction.reply(name.toString() + ' queued ' + reply.toString() + '.')
 			}
 			catch (error) {
 				console.log('INSIDE', error)

@@ -5,6 +5,6 @@ module.exports = {
 		.setName('leaderboard')
 		.setDescription('Show your inhouse leaderboard'),
 	async execute(interaction) {
-		await interaction.reply('leaderboard placeholder.');
+		await interaction.reply('👑 Leaderboard');
 	},
 };

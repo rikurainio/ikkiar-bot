@@ -11,6 +11,6 @@ module.exports = {
 		
 	async execute(interaction) {
 		const deleteResult = await Queuer.deleteMany({})
-		await interaction.reply('Queue reset');
+		await interaction.reply('🧹 Queue reset');
 	},
 };
