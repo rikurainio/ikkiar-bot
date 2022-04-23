@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { saveMatch, getMatches } = require('../utils/matchtools')
+const { saveMatch, getMatches, getMatchHistoryLength, validateUserAndMatch } = require('../utils/matchtools')
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,7 +15,14 @@ module.exports = {
         const matchId = interaction.options._hoistedOptions[0]['value']
 
         const res = await saveMatch(matchId)
+        const amountOfMatchesSaved = await getMatchHistoryLength()
 
-		await interaction.reply('🐵 Ikkiar remembers this match now :)');
+        if(res.includes('🐵')){
+            await interaction.reply(res + '\n' + 'monke brain is storing ' + amountOfMatchesSaved + ' matches.');
+        }
+        else{
+            await interaction.reply(res + '\n' + 'monke brain is storing ' + amountOfMatchesSaved + ' matches.');
+
+        }
 	},
 };

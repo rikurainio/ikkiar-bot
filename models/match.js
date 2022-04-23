@@ -2,7 +2,7 @@ const { type } = require('express/lib/response')
 const mongoose = require('mongoose')
 
 const schema = mongoose.Schema({
-        any: { type: mongoose.Schema.Types.Mixed }
+        gameData: { type: mongoose.Schema.Types.Mixed }
 })
 
 schema.set('toJSON', {
