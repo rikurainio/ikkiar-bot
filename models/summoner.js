@@ -15,7 +15,6 @@ const schema = mongoose.Schema({
       type: String
   },
   discordId: { type: String },
-
   points: {
       type: Number,
       required: true,
@@ -36,4 +35,4 @@ schema.set('toJSON', {
   }
 })
 
-module.exports = mongoose.model('User', schema)
+module.exports = mongoose.model('Summoner', schema)
