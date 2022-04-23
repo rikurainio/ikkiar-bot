@@ -1,20 +1,57 @@
 require('dotenv').config()
-const Discord = require('discord.js')
-const bot = new Discord.Client({intents: ['GUILDS', 'GUILD_MESSAGES']})
-const fs = require('fs')
+const fs = require('node:fs');
 
-bot.on('ready', () => {
-    console.log('the bot is running!')
-})
+// DISCORD.JS CLASSES
+const { Client, Collection, Intents} = require('discord.js')
 
-bot.on('messageCreate', message => {
-    if(message.content === 'hi'){
-        message.reply('hi :)')
-    }
-})
+// CREATE NEW CLIENT
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+client.commands = new Collection();
 
-bot.on('typingStart', message => {
-    message.reply('dont you try to type anything! 😡')
-})
+const commandFiles = fs
+					.readdirSync('./commands')
+					.filter(file => file.endsWith('.js'))
 
-bot.login(process.env.BOT_TOKEN)
+for(const file of commandFiles){
+	const command = require(`./commands/${file}`)
+	// Set a new item in the Collection
+	// With the key as the command name and the value as the exported module
+	client.commands.set(command.data.name, command);
+}
+
+
+// WHEN CLIENT IS READY
+client.once('ready', () => {
+	console.log('Ready!');
+});
+
+
+client.on('message', message => {
+	console.log('msg:', message)
+
+	if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+	const args = message.content.slice(prefix.length).trim().split(' ');
+	const command = args.shift().toLowerCase();
+
+	console.log('onmessage command arg:', command)
+});
+
+
+client.on('interactionCreate', async interaction => {
+	console.log('interaction')
+	if (!interaction.isCommand()) return;
+
+	const command = client.commands.get(interaction.commandName);
+
+	if (!command) return;
+
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	}
+});
+
+client.login(process.env.BOT_TOKEN);
