@@ -1,5 +1,9 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
+// MONGO
+//const User = require('../models/user')
+const Queuer = require('../models/queuer')
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('queuecancel')
@@ -8,6 +12,14 @@ module.exports = {
 	async execute(interaction) {
 		const name = interaction.user.username
 		const id = interaction.user.id
-		await interaction.reply('Queue cancelled for ' + name);
+
+		const deletedQueuer = await Queuer.deleteOne({ discordId: id })
+
+		if(deletedQueuer.deletedCount === 1){
+			await interaction.reply('Queue cancelled for ' + name);
+		}
+		else{
+			await interaction.reply('You are not in a queue')
+		}
 	},
 };

@@ -63,6 +63,8 @@ module.exports = {
 				await interaction.reply('You are in queue already!')
 			}
 		}
-		await interaction.reply('Queue is full 🥵 (10/10)')
+		else{
+			await interaction.reply('Queue is full 🥵 (10/10)')
+		}
 	},
 };
