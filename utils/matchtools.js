@@ -102,19 +102,25 @@ const queueSummoner = async (user) => {
         // IF DISCORD USER IS ALREADY ACTIVE IN QUEUE
         const foundUser = await Queuer.findOne({ discordId: user.discordId})
         if(foundUser){
-            
             // IF HE WANTED TO CHANGE THE ROLE
             if(user.role !== foundUser.role){
                 foundUser.role = user.role
                 await foundUser.save()
             }
         }
-        
         else {
             // IF DISCORD USER IS NOT IN ACTIVE QUEUE ALREADY
             const newQueuer = new Queuer(user)
             await newQueuer.save()
         }
+    }
+}
+
+const unqueueSummoner = async (user) => {
+    // FIND THE USER TO UNQUEUE FROM DB
+    const foundUser = await Queuer.findOne({ discordId: user.discordId })
+    if(foundUser){
+        await foundUser.remove()
     }
 }
 
@@ -140,4 +146,5 @@ const getUpdatedQueueStatusText = async () => {
     return content
 }
 
-module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound, getUpdatedQueueStatusText, queueSummoner }
+module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
+                     getUpdatedQueueStatusText, queueSummoner, unqueueSummoner }

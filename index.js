@@ -2,7 +2,7 @@ require('dotenv').config()
 const fs = require('node:fs');
 const mongoose = require('mongoose')
 
-const { getUpdatedQueueStatusText, queueSummoner } = require('./utils/matchtools')
+const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner } = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -67,31 +67,41 @@ client.on('interactionCreate', async interaction => {
 			discordId: id
 		}
 		
-		if(interaction.customId === 'topbutton'){
-			role = 'top'
-			newQueueUser.role = 'top'
+		if(interaction.customId === 'cancelbutton'){
+			await unqueueSummoner(newQueueUser)
+			const newMessageContent = await getUpdatedQueueStatusText()
+			await message.edit(newMessageContent)
+			interaction.deferUpdate(newQueueUser)
 		}
-		if(interaction.customId === 'junglebutton'){
-			role = 'jungle'
-			newQueueUser.role = 'jungle'
+		else {
+			if(interaction.customId === 'topbutton'){
+				console.log(interaction)
+				interaction.component.setStyle('SUCCESS')
+				role = 'top'
+				newQueueUser.role = 'top'
+			}
+			if(interaction.customId === 'junglebutton'){
+				role = 'jungle'
+				newQueueUser.role = 'jungle'
+			}
+			if(interaction.customId === 'midbutton'){
+				role = 'mid'
+				newQueueUser.role = 'mid'
+			}
+			if(interaction.customId === 'adcbutton'){
+				role = 'adc'
+				newQueueUser.role = 'adc'
+			}
+			if(interaction.customId === 'supportbutton'){
+				role = 'support'
+				newQueueUser.role = 'support'
+			}
+	
+			const queueResponse = await queueSummoner(newQueueUser)
+			const newMessageContent = await getUpdatedQueueStatusText()
+			await message.edit(newMessageContent)
+			interaction.deferUpdate()
 		}
-		if(interaction.customId === 'midbutton'){
-			role = 'mid'
-			newQueueUser.role = 'mid'
-		}
-		if(interaction.customId === 'adcbutton'){
-			role = 'adc'
-			newQueueUser.role = 'adc'
-		}
-		if(interaction.customId === 'supportbutton'){
-			role = 'support'
-			newQueueUser.role = 'support'
-		}
-
-		const queueResponse = await queueSummoner(newQueueUser)
-		const newMessageContent = await getUpdatedQueueStatusText()
-		await message.edit(newMessageContent)
-		interaction.deferUpdate()
 	}
 
 

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
+const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } = require('discord.js');
 
 // MONGO
 //const User = require('../models/user')
@@ -67,13 +67,22 @@ module.exports = {
 					.setEmoji('967566780274999326'),
 			);
 
+		const row2 = new MessageActionRow()
+				.addComponents(
+					new MessageButton()
+						.setCustomId('cancelbutton')
+						.setLabel('cancel queue')
+						.setStyle('SECONDARY')
+						.setEmoji('✖')
+				)
+
 		await interaction.reply({ content:
 			"```" + "ini\n" + "[" + queuers.length + " Summoners in queue]\n" 
 			+ "\n🦏 top: " + top 
 			+ "\n🦥 jungle: " + jungle 
 			+ "\n🧙 mid: " + mid 
 			+ "\n🏹 ad: " + adc 
-			+ "\n🐈 sup: " + support + "```", components: [row]}
+			+ "\n🐈 sup: " + support + "```", components: [row, row2]}
 		);
 	},
 };
