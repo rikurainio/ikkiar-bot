@@ -12,6 +12,7 @@ module.exports = {
 
 
 	async execute(interaction) {
+        console.log(interaction)
         const matchId = interaction.options._hoistedOptions[0]['value']
 
         const res = await saveMatch(matchId)

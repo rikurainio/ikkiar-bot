@@ -33,8 +33,6 @@ module.exports = {
 			}
 		})
 
-        console.log(queuers)
-
 		await interaction.reply(
 			"```" + "ini\n" + "[" + queuers.length + " Summoners in queue]\n" 
 			+ "\n🦏 top: " + top 

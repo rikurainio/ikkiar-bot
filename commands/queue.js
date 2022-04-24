@@ -55,7 +55,6 @@ module.exports = {
 		// IF DISCORD USER IS ALREADY ACTIVE IN QUEUE
 		const foundUser = await Queuer.findOne({ discordId: id})
 		if(foundUser){
-			console.log('already in queue')
 			foundUser.role = reply
 			await foundUser.save()
 			await interaction.reply(name.toString() + ' queued ' + reply.toString() + '.')
@@ -66,12 +65,9 @@ module.exports = {
 				try {
 					const newQueuer = new Queuer(newQueueUser)
 					const savedQueuer = await newQueuer.save()
-					console.log('saved queuer: ', savedQueuer)
-					console.log('queuesize2: ', queueSize)
 					await interaction.reply(name.toString() + ' queued ' + reply.toString() + '.')
 				}
 				catch (error) {
-					console.log('INSIDE', error)
 					await interaction.reply('You are in queue already!')
 				}
 			}

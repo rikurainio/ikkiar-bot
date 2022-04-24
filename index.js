@@ -56,6 +56,7 @@ client.on('interactionCreate', async interaction => {
 		// GET PRESSER DISCORD USER DETAILS
 		const id = interaction.user.id
 		const name = interaction.user.username
+		const timeNow = Date.now()
 		let role = ''
 
 		// DEV HELP
@@ -64,7 +65,8 @@ client.on('interactionCreate', async interaction => {
 
 		const newQueueUser = {
 			discordName: name,
-			discordId: id
+			discordId: id,
+			queuedAt: timeNow
 		}
 		
 		if(interaction.customId === 'cancelbutton'){
