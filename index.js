@@ -43,7 +43,6 @@ client.on('message', message => {
 
 	const args = message.content.slice(prefix.length).trim().split(' ');
 	const command = args.shift().toLowerCase();
-	console.log('onmessage command arg:', command)
 });
 
 // GETS CALLED WHEN THE CLIENT INTERACTS
@@ -61,7 +60,6 @@ client.on('interactionCreate', async interaction => {
 
 		// DEV HELP
 		const message = interaction.message
-		console.log('msg: ', message.content)
 
 		const newQueueUser = {
 			discordName: name,
@@ -77,7 +75,6 @@ client.on('interactionCreate', async interaction => {
 		}
 		else {
 			if(interaction.customId === 'topbutton'){
-				console.log(interaction)
 				interaction.component.setStyle('SUCCESS')
 				role = 'top'
 				newQueueUser.role = 'top'

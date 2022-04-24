@@ -103,9 +103,11 @@ const queueSummoner = async (user) => {
         // IF DISCORD USER IS ALREADY ACTIVE IN QUEUE
         const foundUser = await Queuer.findOne({ discordId: user.discordId})
         if(foundUser){
+
             // IF HE WANTED TO CHANGE THE ROLE
             if(user.role !== foundUser.role){
                 foundUser.role = user.role
+                foundUser.queuedAt = Date.now()
                 await foundUser.save()
             }
         }
@@ -144,6 +146,15 @@ const getTimeStamp = () => {
     return returnText
 }
 
+const getPriorities = async () => {
+    const queuers = await Queuer.find({})
+    queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
+    console.log('after sort', queuers)
+    const queuersSortedByQueuedAt = queuers.map((queuer, idx) =>  idx + '. ' + queuer.discordName)
+    console.log('after map', queuersSortedByQueuedAt)
+    return queuersSortedByQueuedAt
+}
+
 const getUpdatedQueueStatusText = async (name, actionMessage) => {
     const queuers = await Queuer.find({})
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
@@ -170,4 +181,6 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 }
 
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
-                     getUpdatedQueueStatusText, queueSummoner, unqueueSummoner }
+                     getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
+                    , getPriorities
+                    }
