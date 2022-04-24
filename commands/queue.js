@@ -50,21 +50,32 @@ module.exports = {
 		const queuers = await Queuer.find({})
 		const queueSize = queuers.length
 
-		if(queueSize < 10){
-			try {
-				const newQueuer = new Queuer(newQueueUser)
-				const savedQueuer = await newQueuer.save()
-				console.log('saved queuer: ', savedQueuer)
-				console.log('queuesize2: ', queueSize)
-				await interaction.reply(name.toString() + ' queued ' + reply.toString() + '.')
-			}
-			catch (error) {
-				console.log('INSIDE', error)
-				await interaction.reply('You are in queue already!')
-			}
+		// IF DISCORD USER IS ALREADY ACTIVE IN QUEUE
+		const foundUser = await Queuer.findOne({ discordId: id})
+		if(foundUser){
+			console.log('already in queue')
+			foundUser.role = reply
+			await foundUser.save()
+			await interaction.reply(name.toString() + ' queued ' + reply.toString() + '.')
 		}
 		else{
-			await interaction.reply('Queue is full 🥵 (10/10)')
+			// IF THE QUEUE IS FULL ( 10 ) ATM
+			if(queueSize < 10){
+				try {
+					const newQueuer = new Queuer(newQueueUser)
+					const savedQueuer = await newQueuer.save()
+					console.log('saved queuer: ', savedQueuer)
+					console.log('queuesize2: ', queueSize)
+					await interaction.reply(name.toString() + ' queued ' + reply.toString() + '.')
+				}
+				catch (error) {
+					console.log('INSIDE', error)
+					await interaction.reply('You are in queue already!')
+				}
+			}
+			else{
+				await interaction.reply('Queue is full 🥵 (10/10)')
+			}
 		}
 	},
 };
