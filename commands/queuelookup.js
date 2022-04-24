@@ -36,7 +36,12 @@ module.exports = {
         console.log(queuers)
 
 		await interaction.reply(
-			"```" + "ini\n" + "[" + queuers.length + " Summoners in queue] \n \n" + "🦏 top: " + top +" 🦥 jungle: " + jungle + " 🧙 mid: " + mid + " 🏹 ad: " + adc +" 🐈 sup: " + support + "```"
+			"```" + "ini\n" + "[" + queuers.length + " Summoners in queue]\n" 
+			+ "\n🦏 top: " + top 
+			+ "\n🦥 jungle: " + jungle 
+			+ "\n🧙 mid: " + mid 
+			+ "\n🏹 ad: " + adc 
+			+ "\n🐈 sup: " + support + "```"
 		);
 	},
 };
