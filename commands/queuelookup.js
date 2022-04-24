@@ -6,7 +6,7 @@ const Queuer = require('../models/queuer')
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('queuesummoners')
+		.setName('queuelookup')
 		.setDescription('Check who is in queue'),
 
 
@@ -34,6 +34,9 @@ module.exports = {
 		})
 
         console.log(queuers)
-		await interaction.reply('**'+ queuers.length + ' people in queue**\ntop: ' + top + ' \njunglers: ' + jungle + ' \nmids: ' + mid + ' \nadcs: ' + adc + ' \nsupports: ' + support + ' ');
+
+		await interaction.reply(
+			"```" + "ini\n" + "[" + queuers.length + " Summoners in queue] \n \n" + "🦏 top: " + top +" 🦥 jungle: " + jungle + " 🧙 mid: " + mid + " 🏹 ad: " + adc +" 🐈 sup: " + support + "```"
+		);
 	},
 };
