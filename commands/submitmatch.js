@@ -18,10 +18,10 @@ module.exports = {
         const amountOfMatchesSaved = await getMatchHistoryLength()
 
         if(res.includes('🐵')){
-            await interaction.reply(res + '\n' + 'monke brain is storing ' + amountOfMatchesSaved + ' matches.');
+            await interaction.reply(res);
         }
         else{
-            await interaction.reply(res + '\n' + 'monke brain is storing ' + amountOfMatchesSaved + ' matches.');
+            await interaction.reply(res);
 
         }
 	},

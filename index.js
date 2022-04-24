@@ -2,6 +2,8 @@ require('dotenv').config()
 const fs = require('node:fs');
 const mongoose = require('mongoose')
 
+const { getUpdatedQueueStatusText, queueSummoner } = require('./utils/matchtools')
+
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
@@ -12,7 +14,8 @@ mongoose.connect(process.env.MONGO_URI)
   })
 
 // DISCORD.JS CLASSES
-const { Client, Collection, Intents} = require('discord.js')
+const { Client, Collection, Intents} = require('discord.js');
+const { ButtonBuilder } = require('@discordjs/builders');
 
 // CREATE NEW CLIENT
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
@@ -45,6 +48,54 @@ client.on('message', message => {
 
 // GETS CALLED WHEN THE CLIENT INTERACTS
 client.on('interactionCreate', async interaction => {
+
+	
+	// TODO: MOVE THESE BUTTON HANDLERS TO THEIR OWN MODULES
+	if (interaction.isButton()){
+
+		// GET PRESSER DISCORD USER DETAILS
+		const id = interaction.user.id
+		const name = interaction.user.username
+		let role = ''
+
+		// DEV HELP
+		const message = interaction.message
+		console.log('msg: ', message.content)
+
+		const newQueueUser = {
+			discordName: name,
+			discordId: id
+		}
+		
+		if(interaction.customId === 'topbutton'){
+			role = 'top'
+			newQueueUser.role = 'top'
+		}
+		if(interaction.customId === 'junglebutton'){
+			role = 'jungle'
+			newQueueUser.role = 'jungle'
+		}
+		if(interaction.customId === 'midbutton'){
+			role = 'mid'
+			newQueueUser.role = 'mid'
+		}
+		if(interaction.customId === 'adcbutton'){
+			role = 'adc'
+			newQueueUser.role = 'adc'
+		}
+		if(interaction.customId === 'supportbutton'){
+			role = 'support'
+			newQueueUser.role = 'support'
+		}
+
+		const queueResponse = await queueSummoner(newQueueUser)
+		const newMessageContent = await getUpdatedQueueStatusText()
+		await message.edit(newMessageContent)
+		interaction.deferUpdate()
+	}
+
+
+	// IF INTERACTION WAS NOT A BUTTON INTERACTION ==>
 	if (!interaction.isCommand()) return;
 
 	const command = client.commands.get(interaction.commandName);
