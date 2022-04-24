@@ -77,7 +77,7 @@ module.exports = {
 				)
 
 		await interaction.reply({ content:
-			"```" + "ini\n" + "[" + queuers.length + " Summoners in queue]\n" 
+			"```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n" 
 			+ "\n🦏 top: " + top 
 			+ "\n🦥 jungle: " + jungle 
 			+ "\n🧙 mid: " + mid 

@@ -69,7 +69,7 @@ client.on('interactionCreate', async interaction => {
 		
 		if(interaction.customId === 'cancelbutton'){
 			await unqueueSummoner(newQueueUser)
-			const newMessageContent = await getUpdatedQueueStatusText()
+			const newMessageContent = await getUpdatedQueueStatusText(name, 'left')
 			await message.edit(newMessageContent)
 			interaction.deferUpdate(newQueueUser)
 		}
@@ -98,7 +98,7 @@ client.on('interactionCreate', async interaction => {
 			}
 	
 			const queueResponse = await queueSummoner(newQueueUser)
-			const newMessageContent = await getUpdatedQueueStatusText()
+			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued')
 			await message.edit(newMessageContent)
 			interaction.deferUpdate()
 		}

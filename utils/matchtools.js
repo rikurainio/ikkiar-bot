@@ -124,7 +124,7 @@ const unqueueSummoner = async (user) => {
     }
 }
 
-const getUpdatedQueueStatusText = async () => {
+const getUpdatedQueueStatusText = async (name, actionMessage) => {
     const queuers = await Queuer.find({})
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
 
@@ -136,12 +136,15 @@ const getUpdatedQueueStatusText = async () => {
         if(summoner.role === 'support' ) { support += 1 }
     })
 
-    const content = "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]\n" 
+    const content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n" 
     + "\n🦏 top: " + top 
     + "\n🦥 jungle: " + jungle 
     + "\n🧙 mid: " + mid 
     + "\n🏹 ad: " + adc 
-    + "\n🐈 sup: " + support + "```"
+    + "\n🐈 sup: " + support
+    + "\n"
+    + "\n______________________________________"
+    + "\n> [" + name + "] " + actionMessage + "\n```"
 
     return content
 }
