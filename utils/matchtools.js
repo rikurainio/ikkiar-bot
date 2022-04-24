@@ -1,3 +1,4 @@
+const { TimestampStyles } = require('@discordjs/builders')
 const axios = require('axios')
 
 // MONGO
@@ -124,6 +125,25 @@ const unqueueSummoner = async (user) => {
     }
 }
 
+const getTimeStamp = () => {
+    const time = new Date()
+    let month = time.getMonth() + 1
+    let day = time.getDate()
+    let hour = time.getHours()
+    let minute = time.getMinutes()
+    let second = time.getSeconds()
+    
+    day = day.toString().length < 2 ? "0" + day.toString() : day.toString()
+    month = month.toString().length < 2 ? "0" + month.toString() : month.toString()
+    hour = hour.toString().length < 2 ? "0" + hour.toString() : hour.toString()
+    minute = minute.toString().length < 2 ? "0" + minute.toString() : minute.toString()
+    second = second.toString().length < 2 ? "0" + second.toString() : second.toString()
+
+    const timeStamp = month + '/' + day + ' ' + hour + ':' + minute + ':' + second
+    const returnText = timeStamp.toString()
+    return returnText
+}
+
 const getUpdatedQueueStatusText = async (name, actionMessage) => {
     const queuers = await Queuer.find({})
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
@@ -144,7 +164,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     + "\n🐈 sup: " + support
     + "\n"
     + "\n______________________________________"
-    + "\n> [" + name + "] " + actionMessage + "\n```"
+    + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
 
     return content
 }
