@@ -454,7 +454,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         + "\n🏹 ad: " + adc 
         + "\n🐈 sup: " + support
         + "\n"
-        + "\n______________________________________"
+        + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
 
         return content
@@ -468,7 +468,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         + "\n🏹 ad: " + adc 
         + "\n🐈 sup: " + support
         + "\n"
-        + "\n______________________________________"
+        + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
     
         + "```"
