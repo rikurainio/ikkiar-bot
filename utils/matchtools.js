@@ -91,60 +91,73 @@ const selectFastestTenSummoners = async () => {
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
     const selected = []
 
-    summonersByQueueTime.forEach(summoner => {
-        if(summoner.role === 'top'){
-            if(top < 2){
-                selected.push(summoner)
+    summonersByQueueTime.forEach((summoner, idx) => {
+        if(selected.length < 10){
+            if(summoner.role === 'top'){
+                if(top < 2){
+                    selected.push(summoner)
+                }
+                top += 1
             }
-            top += 1
-        }
-        if(summoner.role === 'jungle'){
-            if(jungle < 2){
-                selected.push(summoner)
+            if(summoner.role === 'jungle'){
+                if(jungle < 2){
+                    selected.push(summoner)
+                }
+                jungle += 1
             }
-            jungle += 1
-        }
-        if(summoner.role === 'mid'){
-            if(mid < 2){
-                selected.push(summoner)
+            if(summoner.role === 'mid'){
+                if(mid < 2){
+                    selected.push(summoner)
+                }
+                mid += 1
             }
-            mid += 1
-        }
-        if(summoner.role === 'adc'){
-            if(adc < 2){
-                selected.push(summoner)
+            if(summoner.role === 'adc'){
+                if(adc < 2){
+                    selected.push(summoner)
+                }
+                adc += 1
             }
-            adc += 1
-        }
-        if(summoner.role === 'support' ){
-            if(support < 2){
-                selected.push(summoner)
+            if(summoner.role === 'support' ){
+                if(support < 2){
+                    selected.push(summoner)
+                }
+                support += 1
             }
-            support += 1
         }
+        
     })
-    return summonersByQueueTime
+    if(selected.length === 10){
+        return selected
+    }
+    else {
+        return []
+    }
 }
 
 const matchMake = async () => {
     const summonerLobby = await selectFastestTenSummoners()
-    let answer = ''
 
-    console.log('matchMake lobby:', summonerLobby)
-
-    let teams = []
-    let blueTeam = []
-    let redTeam = []
-
-    teams.push(blueTeam, redTeam)
-
-    summonerLobby.forEach(summoner => {
-        answer += "\n" + summoner.discordName
-    })
-
-    let title = "\n CURRENT LOBBY:\n"
-    let wrapAnswer = "```ini\n" + title + answer + "\n```"
-    return wrapAnswer
+    if(summonerLobby.length == 10){
+        let answer = ''
+        console.log('matchMake lobby:', summonerLobby)
+    
+        let teams = []
+        let blueTeam = []
+        let redTeam = []
+    
+        teams.push(blueTeam, redTeam)
+    
+        summonerLobby.forEach((summoner, idx) => {
+            answer += "\n" + summoner.discordName
+        })
+    
+        let title = "\nCURRENT LOBBY:\n"
+        let wrapAnswer = "```ini\n" + title + answer + "\n```"
+        return wrapAnswer
+    }
+    else {
+        return 'LOBBY HAS NOT BEEN FORMED YET'
+    }
 }
 
 // RETURNS QUEUE SIZE
