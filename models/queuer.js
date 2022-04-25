@@ -7,7 +7,8 @@ const schema = mongoose.Schema({
     role: { type: String, required: true },
     rating: { type: Number, default: 1500},
 
-    queuedAt: { type: Number, required: true }
+    queuedAt: { type: Number, required: true },
+    accepted: { type: Boolean, default: false }
 })
 
 schema.set('toJSON', {

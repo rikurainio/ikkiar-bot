@@ -58,6 +58,22 @@ const getMatchHistoryLength = async () => {
     return response.length
 }
 
+const setAccepted = async (user, boolean) => {
+    // FIND THE USER TO UNQUEUE FROM DB
+    console.log('[x] setAccepted with boolean and userid:', user.discordId, 'setAccepted:', boolean)
+
+    try {
+        const foundUser = await Queuer.findOne({ discordId: user.discordId })
+        if(foundUser){
+            foundUser.accepted = boolean
+            await foundUser.save()
+        }
+    }
+    catch (error) {
+        console.log('could not change boolean of user.', error)
+    }
+}
+
 const matchFound = async () => {
     const queuers = await Queuer.find({})
 		let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
@@ -146,6 +162,8 @@ const selectFastestTenSummoners = async () => {
 }
 
 const matchMake = async () => {
+
+    // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
     const summonerLobby = await selectFastestTenSummoners()
 
     if(summonerLobby.length == 10){
@@ -349,5 +367,6 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
-                    ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame
+                    ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
+                    setAccepted
                     }
