@@ -254,6 +254,15 @@ const unqueueSummoner = async (user) => {
     }
 }
 
+const unqueueAFKsDuplicates = async () => {
+    const lobby = await selectFastestTenSummoners()
+    lobby.forEach(async summoner => {
+        if(summoner.accepted === false){
+            await Queuer.deleteMany({ discordId: summoner.discordId })
+        }
+    })
+}
+
 const unqueueAFKs = async () => {
     const lobby = await selectFastestTenSummoners()
     lobby.forEach(async summoner => {
@@ -302,7 +311,9 @@ const getPriorities2 = async () => {
 
 // RETURNS TRUE IF THERE ARE AT LEAST 2 OF EVERY ROLE
 const enoughSummoners = async () => {
-    const querers = await Queuer.find({})
+    let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
+
+    const queuers = await Queuer.find({})
     queuers.forEach(summoner => {
         if(summoner.role === 'top')      { top += 1}
         if(summoner.role === 'jungle')   { jungle += 1 }
@@ -310,12 +321,14 @@ const enoughSummoners = async () => {
         if(summoner.role === 'adc')      { adc += 1 }
         if(summoner.role === 'support' ) { support += 1 }
     })
+    console.log('roles amounts in checker: ', top, jungle, mid, support, adc)
     if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
+        console.log('ENOUGH? LOL')
         return true;
     }
+    console.log('NOT ENOUGH OMEGALUL')
     return false;
 }
-
 
 const getUpdatedQueueStatusText = async (name, actionMessage) => {
     const queuers = await Queuer.find({})
@@ -397,5 +410,5 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
                     ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
-                    setAccepted, setEveryAccepted, unqueueAFKs
+                    setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates
                     }

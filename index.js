@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const mongoose = require('mongoose')
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
-		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs } = require('./utils/matchtools')
+		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs, enoughSummoners, unqueueAFKsDuplicates } = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -46,10 +46,6 @@ client.on('message', message => {
 	//const args = message.content.slice(prefix.length).trim().split(' ');
 	// const command = args.shift().toLowerCase();
 });
-
-client.on('messageReactionAdd', (reaction_orig, user) => {
-	console.log('messagereaction', user)
-})
 
 // GETS CALLED WHEN THE CLIENT INTERACTS
 client.on('interactionCreate', async interaction => {
@@ -101,94 +97,68 @@ client.on('interactionCreate', async interaction => {
 				role = 'support'
 				newQueueUser.role = 'support'
 			}
+		
+			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
-			
+			await message.edit(newMessageContent)
 
-			// VER 1
-			// BASICALLY CHECK IF IKKIAR RENDERED MATCH FOUND TEXTBOX
-			if(!newMessageContent.includes('LOBBY FOUND')){
-				await message.edit(newMessageContent)
-				await interaction.deferUpdate()
-			}
-			else{
-				await message.edit(newMessageContent)
+			const handleRunning = async () => {
+				
+				if(await enoughSummoners()){
+					const popMsg = await interaction.channel.send('```\nAccept | Decline\n```')
+					await popMsg.react('✅')
+					await popMsg.react('❌')
 
-				const popMsg = await interaction.channel.send('```\nAccept | Decline\n```')
-				await popMsg.react('✅')
-				await popMsg.react('❌')
-
-				//console.log(popMsg)
-
-				// COLLECTOR 
-				const filter = (reaction, user) => {
-					return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
-				};
-				const filter2 = (reactin, user) => {
-					return true
-				}
-
-				const collector = popMsg.createReactionCollector({ filter, time: 30000 });
-
-				// COLLECTOR
-				collector.on('collect', async (reaction, user) => {
-
-					// HANDLE ACCEPT MATCH/GAME
-					if(reaction.emoji.name == '✅'){
-						console.log('user accepts')
-						await setAccepted({ discordId: user.id}, true)
-						const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
-						await message.edit(newMessageContent)
-					}
-
-					// HANDLE DECLINE LOBBY
-					if(reaction.emoji.name == '❌'){
-						console.log('user cancels')
-						await unqueueSummoner({ discordId: user.id })
-						const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
-						await message.edit(newMessageContent)
-						await popMsg.delete()
-						return
-					}
-					//console.log('user: ', user.username, 'reacted with:', reaction.emoji.name)
-				});
-
-				// AFTER 2 MINUTES
-				collector.on('end', async (collected) => {
-					if(popMsg){
-						try {
-							await popMsg.delete()
-						} catch(err){ console.log('error deleting popmsg', error )}
-					}
-					console.log(collected.size + '/ 10 accepted in time.')
 					
-					await unqueueAFKs()
+					/////////////////////////////////////////////////////////////////////////////////////////////////
+					// COLLECTOR //////////////////////////////////////////////////////////////////////////////////
+					const filter = (reaction, user) => {
+						return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
+					};
+					const collector = popMsg.createReactionCollector({ filter, time: 10000 });
 
-					setTimeout(async () => {
-						const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking')
-						await message.edit(newMessageContent)
-					}, 2000)
-				});
+					collector.on('collect', async (reaction, user) => {
+						// HANDLE ACCEPT MATCH/GAME
+						if(reaction.emoji.name == '✅'){
+							//console.log('user accepts')
+							await setAccepted({ discordId: user.id}, true)
+							const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
+							await message.edit(newMessageContent)
+						}
+						// HANDLE DECLINE LOBBY
+						if(reaction.emoji.name == '❌'){
+							//console.log('user cancels')
+							await unqueueSummoner({ discordId: user.id })
+							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
+							await message.edit(newMessageContent)
+							await popMsg.delete()
+							return
+						}});
 
-				await interaction.deferUpdate()
-				/*
-				message.awaitReactions({ filter, max: 1, time: 60000, errors: ['time']})
-					.then(collected => {
-						const reaction = collected.first()
-						console.log('collected:', collected)
-						if(reaction.emoji.name === '✅'){
-							message.reply('You accepted')
+
+					// COLLECTOR END ///////////////////////////////////////////////////////////////////////////////
+					collector.on('end', async (collected) => {
+						if(popMsg){
+							try {
+								await popMsg.delete()
+							} catch(err){ console.log('error deleting popmsg', error )}
 						}
-						else{
-							message.reply('You cancelled')
+						await unqueueAFKsDuplicates()
+						if(enoughSummoners()){
+							handleRunning()
 						}
-					})
-					.catch(collected => {
-						message.reply('You did not react or there was an error')
-					})
-				*/
+					});
+				}
+				else{
+					const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'thinks we need more players!')
+					await message.edit(newMessageContent)
+					return
+				}
+				
 			}
-	
+			await handleRunning()
+			await interaction.deferUpdate()
 		}
 	}
 
