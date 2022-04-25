@@ -103,6 +103,8 @@ client.on('interactionCreate', async interaction => {
 			// BASICALLY CHECK IF IKKIAR RENDERED MATCH FOUND TEXTBOX
 			if(!newMessageContent.includes('MATCH FOUND')){
 				await message.edit(newMessageContent)
+				await message.react('✔')
+				await message.react('❌')
 				await interaction.deferUpdate()
 			}
 			else{

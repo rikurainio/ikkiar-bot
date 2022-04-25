@@ -72,13 +72,13 @@ module.exports = {
 				.addComponents(
 					new MessageButton()
 						.setCustomId('cancelbutton')
-						.setLabel('cancel queue')
+						.setLabel('leave')
 						.setStyle('SECONDARY')
 						.setEmoji('✖')
 				)
 
 		await interaction.reply({ content:
-			"```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n" 
+			"```" + "ini\n" + "Press role icon below to join Queue." + "\n[" + queuers.length + " Summoners in queue]\n" 
 			+ "\n🦏 top: " + top 
 			+ "\n🦥 jungle: " + jungle 
 			+ "\n🧙 mid: " + mid 

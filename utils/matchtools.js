@@ -328,8 +328,8 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
     + "```"
     + "MATCH FOUND"
-    + "\n Blue Team"
     + await matchMake()
+    + "\n\n[Accept]/[Decline]"
     + "```"
 
     return content
