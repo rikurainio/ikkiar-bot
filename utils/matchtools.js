@@ -86,6 +86,67 @@ const matchFound = async () => {
         return false
 }
 
+const selectFastestTenSummoners = async () => {
+    const summonersByQueueTime = await getPriorities2()
+    let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
+    const selected = []
+
+    summonersByQueueTime.forEach(summoner => {
+        if(summoner.role === 'top'){
+            if(top < 2){
+                selected.push(summoner)
+            }
+            top += 1
+        }
+        if(summoner.role === 'jungle'){
+            if(jungle < 2){
+                selected.push(summoner)
+            }
+            jungle += 1
+        }
+        if(summoner.role === 'mid'){
+            if(mid < 2){
+                selected.push(summoner)
+            }
+            mid += 1
+        }
+        if(summoner.role === 'adc'){
+            if(adc < 2){
+                selected.push(summoner)
+            }
+            adc += 1
+        }
+        if(summoner.role === 'support' ){
+            if(support < 2){
+                selected.push(summoner)
+            }
+            support += 1
+        }
+    })
+    return summonersByQueueTime
+}
+
+const matchMake = async () => {
+    const summonerLobby = await selectFastestTenSummoners()
+    let answer = ''
+
+    console.log('matchMake lobby:', summonerLobby)
+
+    let teams = []
+    let blueTeam = []
+    let redTeam = []
+
+    teams.push(blueTeam, redTeam)
+
+    summonerLobby.forEach(summoner => {
+        answer += "\n" + summoner.discordName
+    })
+
+    let title = "\n CURRENT LOBBY:\n"
+    let wrapAnswer = "```ini\n" + title + answer + "\n```"
+    return wrapAnswer
+}
+
 // RETURNS QUEUE SIZE
 const checkQueueSize = async () => {
     const queuers = await Queuer.find({})
@@ -151,6 +212,7 @@ const getTimeStamp = () => {
     return returnText
 }
 
+// GIVES QUICK REPRESENTABLE FORM
 const getPriorities = async () => {
     const queuers = await Queuer.find({})
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
@@ -158,6 +220,14 @@ const getPriorities = async () => {
     const queuersSortedByQueuedAt = queuers.map((queuer, idx) =>  idx + '. ' + queuer.discordName)
     console.log('after map', queuersSortedByQueuedAt)
     return queuersSortedByQueuedAt
+}
+
+// GIVES FULL OBJECTS
+const getPriorities2 = async () => {
+    const queuers = await Queuer.find({})
+    queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
+    console.log('after sort', queuers)
+    return queuers
 }
 
 // RETURNS TRUE IF THERE ARE AT LEAST 2 OF EVERY ROLE
@@ -260,5 +330,5 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
-                    ,getPriorities, enoughSummoners
+                    ,getPriorities, enoughSummoners, matchMake
                     }
