@@ -2,7 +2,8 @@ require('dotenv').config()
 const fs = require('node:fs');
 const mongoose = require('mongoose')
 
-const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner, summonerCanAcceptGame, setAccepted } = require('./utils/matchtools')
+const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
+		summonerCanAcceptGame, setAccepted, setEveryAccepted } = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)

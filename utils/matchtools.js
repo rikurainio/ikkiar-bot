@@ -58,6 +58,15 @@ const getMatchHistoryLength = async () => {
     return response.length
 }
 
+const setEveryAccepted = async (boolean) => {
+    try {
+        await Queuer.updateMany({}, { accepted: boolean })
+    }
+    catch (error) {
+        console.log('error setting every single documents accepted values')
+    }
+}
+
 const setAccepted = async (user, boolean) => {
     // FIND THE USER TO UNQUEUE FROM DB
     console.log('[x] setAccepted with boolean and userid:', user.discordId, 'setAccepted:', boolean)
@@ -332,6 +341,8 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
 
     if(!matchReady){
+        await setEveryAccepted(false)
+
         content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
         + "\nQueue Status: " + readyMessage 
         + "\n🦏 top: " + top 
@@ -368,5 +379,5 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
                     ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
-                    setAccepted
+                    setAccepted, setEveryAccepted
                     }
