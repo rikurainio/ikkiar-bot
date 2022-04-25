@@ -96,7 +96,7 @@ client.on('interactionCreate', async interaction => {
 				newQueueUser.role = 'support'
 			}
 			const queueResponse = await queueSummoner(newQueueUser)
-			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued')
+			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
 			await message.edit(newMessageContent)
 			interaction.deferUpdate()
 		}
