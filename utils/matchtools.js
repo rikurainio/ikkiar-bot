@@ -67,6 +67,22 @@ const setEveryAccepted = async (boolean) => {
     }
 }
 
+const find10Accepts = async () => {
+    let acceptCount = 0
+    const summoners = await Queuer.find({})
+
+    summoners.forEach(summoner => {
+        if(summoner.accepted === true){
+            acceptCount += 1
+        }
+    })
+
+    if(acceptCount === 10){
+        return true
+    }
+    return false
+}
+
 const setAccepted = async (user, boolean) => {
     // FIND THE USER TO UNQUEUE FROM DB
     console.log('[x] setAccepted with boolean and userid:', user.discordId, 'setAccepted:', boolean)
@@ -191,8 +207,22 @@ const matchMake = async () => {
             answer += "\n" + (summoner.accepted ? '✅' : '⬛') + summoner.discordName + ' (' + summoner.role + ')'
         })
     
-        let title = "\nLOBBY FOUND:\n"
+        let title = "\nQueue pop: summoners have to accept match to generate teams:"
         let wrapAnswer = "\n" + title + answer + "\n"
+        
+        if(await find10Accepts()){
+            title = '[TEAMS]\n'
+            answer = 
+                '\n| Blue Team' 
+                + '\nmembers here'
+                + '\n\n| Red Team'
+                + '\nmembers here'
+                + '\n\nRemember to include \'ikkiar\' in the name of the'
+                + '\nCustom Game if you want to save the match later on.'
+                + '\n\n> This info box will disappear in 15 minutes'
+            wrapAnswer = "ini\n" + title + answer + "\n"
+        }
+
         return wrapAnswer
     }
     else {
@@ -410,5 +440,6 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
                     ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
-                    setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates
+                    setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
+                    find10Accepts
                     }

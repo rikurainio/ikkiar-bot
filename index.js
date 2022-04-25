@@ -3,7 +3,8 @@ const fs = require('node:fs');
 const mongoose = require('mongoose')
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
-		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs, enoughSummoners, unqueueAFKsDuplicates } = require('./utils/matchtools')
+		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs,
+		 enoughSummoners, unqueueAFKsDuplicates, find10Accepts } = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -123,6 +124,11 @@ client.on('interactionCreate', async interaction => {
 						if(reaction.emoji.name == '✅'){
 							//console.log('user accepts')
 							await setAccepted({ discordId: user.id}, true)
+
+							// ONLY WHILE DEV
+							await setEveryAccepted(true)
+
+
 							const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
 							await message.edit(newMessageContent)
 						}
@@ -144,11 +150,20 @@ client.on('interactionCreate', async interaction => {
 								await popMsg.delete()
 							} catch(err){ console.log('error deleting popmsg', error )}
 						}
-						await unqueueAFKsDuplicates()
-						const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking...')
-						await message.edit(newMessageContent)
-						if(enoughSummoners()){
-							handleRunning()
+
+						// WAIT A BIT IF ALL 10 SUMMONERS ACTUALLY ACCEPTED
+						if(await find10Accepts()){
+
+
+							// SHOW GAME INFORMATION FOR 15 minutes.
+							setTimeout(async () => {
+								await unqueueAFKsDuplicates()
+								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking...')
+								await message.edit(newMessageContent)
+								if(enoughSummoners()){
+									handleRunning()
+								}
+							}, 900000)
 						}
 					});
 				}
@@ -158,7 +173,17 @@ client.on('interactionCreate', async interaction => {
 				
 			}
 			await handleRunning()
-			await interaction.deferUpdate()
+			try{
+				if(interaction){
+					await interaction.deferUpdate()
+				}
+				else{
+					return
+				}
+			}
+			catch (err){
+				console.log('last row err', err)
+			}
 		}
 	}
 
