@@ -175,7 +175,7 @@ const matchMake = async () => {
     // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
     const summonerLobby = await selectFastestTenSummoners()
 
-    if(summonerLobby.length == 10){
+    if(summonerLobby.length >= 10){
         let answer = ''
         //console.log('matchMake lobby:', summonerLobby)
     
@@ -190,7 +190,7 @@ const matchMake = async () => {
         })
     
         let title = "\nCURRENT LOBBY:\n"
-        let wrapAnswer = "\n" + title + answer + "\n"
+        let wrapAnswer = "\n" + answer + "\n"
         return wrapAnswer
     }
     else {
@@ -238,11 +238,20 @@ const queueSummoner = async (user) => {
 
 const unqueueSummoner = async (user) => {
     // FIND THE USER TO UNQUEUE FROM DB
-    console.log('[x] unqueue called with user:', user)
     const foundUser = await Queuer.findOne({ discordId: user.discordId })
     if(foundUser){
+        console.log('removing from queue: ', foundUser.discordName)
         await foundUser.remove()
     }
+}
+
+const unqueueAFKs = async () => {
+    const lobby = await selectFastestTenSummoners()
+    lobby.forEach(async summoner => {
+        if(summoner.accepted === false){
+            await unqueueSummoner(summoner)
+        }
+    })
 }
 
 const getTimeStamp = () => {
@@ -356,28 +365,30 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
         return content
     }
-    content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
-    + "\nQueue Status: " + readyMessage 
-    + "\n🦏 top: " + top 
-    + "\n🦥 jungle: " + jungle 
-    + "\n🧙 mid: " + mid 
-    + "\n🏹 ad: " + adc 
-    + "\n🐈 sup: " + support
-    + "\n"
-    + "\n______________________________________"
-    + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
-
-    + "```"
-    + "MATCH FOUND"
-    + await matchMake()
-    + "\n"
-    + "```"
-
-    return content
+    else{
+        content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
+        + "\nQueue Status: " + readyMessage 
+        + "\n🦏 top: " + top 
+        + "\n🦥 jungle: " + jungle 
+        + "\n🧙 mid: " + mid 
+        + "\n🏹 ad: " + adc 
+        + "\n🐈 sup: " + support
+        + "\n"
+        + "\n______________________________________"
+        + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
+    
+        + "```"
+        + "MATCH FOUND"
+        + await matchMake()
+        + "\n"
+        + "```"
+    
+        return content
+    }
 }
 
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
                     ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
-                    setAccepted, setEveryAccepted
+                    setAccepted, setEveryAccepted, unqueueAFKs
                     }

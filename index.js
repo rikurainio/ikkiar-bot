@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const mongoose = require('mongoose')
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
-		summonerCanAcceptGame, setAccepted, setEveryAccepted } = require('./utils/matchtools')
+		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs } = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -123,7 +123,7 @@ client.on('interactionCreate', async interaction => {
 					return true
 				}
 
-				const collector = popMsg.createReactionCollector({ filter, time: 120000 });
+				const collector = popMsg.createReactionCollector({ filter, time: 60000 });
 
 				// COLLECTOR
 				collector.on('collect', async (reaction, user) => {
@@ -132,7 +132,7 @@ client.on('interactionCreate', async interaction => {
 					if(reaction.emoji.name == '✅'){
 						console.log('user accepts')
 						await setAccepted({ discordId: user.id}, true)
-						const newMessageContent = await getUpdatedQueueStatusText(name, 'declined')
+						const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
 						await message.edit(newMessageContent)
 					}
 
@@ -141,7 +141,7 @@ client.on('interactionCreate', async interaction => {
 						console.log('user cancels')
 						await unqueueSummoner({ discordId: user.id })
 						await setAccepted({ discordId: user.id}, false)
-						const newMessageContent = await getUpdatedQueueStatusText(name, 'declined')
+						const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
 						await message.edit(newMessageContent)
 					}
 
@@ -149,8 +149,13 @@ client.on('interactionCreate', async interaction => {
 				});
 
 				// AFTER 2 MINUTES
-				collector.on('end', collected => {
+				collector.on('end', async (collected) => {
+					await popMsg.delete()
+					console.log('CCCCCCCCCCCC', collected)
 					console.log(collected.size + '/ 10 accepted in time.')
+					await unqueueAFKs()
+					const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking')
+					await message.edit(newMessageContent)
 				});
 
 				await interaction.deferUpdate()
