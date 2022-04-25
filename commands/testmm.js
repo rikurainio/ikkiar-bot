@@ -7,6 +7,6 @@ module.exports = {
 		.setDescription('Test Ikkiar match making'),
 	async execute(interaction) {
 		const mmAnswer = await matchMake()
-		await interaction.reply({ content: mmAnswer });
+		await interaction.reply({ content: 'This command has been disabled KEKW' });
 	},
 };

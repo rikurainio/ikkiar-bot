@@ -85,7 +85,7 @@ const find10Accepts = async () => {
 
 const setAccepted = async (user, boolean) => {
     // FIND THE USER TO UNQUEUE FROM DB
-    console.log('[x] setAccepted with boolean and userid:', user.discordId, 'setAccepted:', boolean)
+    //console.log('[x] setAccepted with boolean and userid:', user.discordId, 'setAccepted:', boolean)
 
     try {
         const foundUser = await Queuer.findOne({ discordId: user.discordId })
@@ -220,7 +220,7 @@ const matchMake = async () => {
 
             summonersByRoles.forEach(roleArray => {
                 let teamIndex = Math.floor(Math.random() * 2)
-                console.log('rolearray:', roleArray)
+                //console.log('rolearray:', roleArray)
 
                 if(teamIndex === 0){
                     blueTeam.push(roleArray[0].discordName)
@@ -284,19 +284,17 @@ const queueSummoner = async (user) => {
         const foundUser = await Queuer.findOne({ discordId: user.discordId})
         if(foundUser){
 
+            // IF HE WANTED TO CHANGE THE ROLE
+            if(user.role !== foundUser.role){
+            foundUser.role = user.role
+            foundUser.queuedAt = Date.now()
+            await foundUser.save()
+            }
+            /*
             const temp = Queuer(user)
             await temp.save()
             /*
-           
             /*
-
-            /*
-            // IF HE WANTED TO CHANGE THE ROLE
-             if(user.role !== foundUser.role){
-                foundUser.role = user.role
-                foundUser.queuedAt = Date.now()
-                await foundUser.save()
-            }
             */
         }
         else {
@@ -314,7 +312,7 @@ const unqueueSummoner = async (user) => {
     if(!user.accepted){
         const foundUser = await Queuer.findOne({ discordId: user.discordId })
         if(foundUser){
-            console.log('removing from queue: ', foundUser.discordName, 'his accepted status is: ', foundUser.accepted, 'gv: ', user.accepted)
+            //console.log('removing from queue: ', foundUser.discordName, 'his accepted status is: ', foundUser.accepted, 'gv: ', user.accepted)
             await foundUser.remove()
         }
     }
@@ -387,12 +385,13 @@ const enoughSummoners = async () => {
         if(summoner.role === 'adc')      { adc += 1 }
         if(summoner.role === 'support' ) { support += 1 }
     })
-    console.log('roles amounts in checker: ', top, jungle, mid, support, adc)
+    
+    //console.log('roles amounts in checker: ', top, jungle, mid, support, adc)
     if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
-        console.log('ENOUGH? LOL')
+        //console.log('ENOUGH? LOL')
         return true;
     }
-    console.log('NOT ENOUGH OMEGALUL')
+    //console.log('NOT ENOUGH OMEGALUL')
     return false;
 }
 

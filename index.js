@@ -1,6 +1,7 @@
 require('dotenv').config()
 const fs = require('node:fs');
 const mongoose = require('mongoose')
+const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } = require('discord.js');
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs,
@@ -55,6 +56,7 @@ client.on('interactionCreate', async interaction => {
 	// TODO: MOVE THESE BUTTON HANDLERS TO THEIR OWN MODULES
 	if (interaction.isButton()){
 
+
 		// GET PRESSER DISCORD USER DETAILS
 		const id = interaction.user.id
 		const name = interaction.user.username
@@ -77,6 +79,19 @@ client.on('interactionCreate', async interaction => {
 			await interaction.deferUpdate(newQueueUser)
 		}
 		else {
+			const comps = interaction.message.components
+			console.log('comps: ', comps)
+			/*
+			comps.forEach((comp, idx) => {
+				//console.log(idx + '.', comp)
+				comp.components.forEach((button, idx) => {
+					console.log(idx + ':', button)
+					button.disabled = true
+				})
+			})
+			*/
+
+
 			if(interaction.customId === 'topbutton'){
 				interaction.component.setStyle('SUCCESS')
 				role = 'top'
@@ -98,7 +113,117 @@ client.on('interactionCreate', async interaction => {
 				role = 'support'
 				newQueueUser.role = 'support'
 			}
-		
+			
+
+			//RECREATE DISABLED ROWS BECAUSE MONKE
+			const row = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('topbutton')
+					.setLabel('top')
+					.setStyle('SECONDARY')
+					.setEmoji('967566780295950416')
+					.setDisabled(true),
+
+				new MessageButton()
+					.setCustomId('junglebutton')
+					.setLabel('jungle')
+					.setStyle('SECONDARY')
+					.setEmoji('967566779998146660')
+					.setDisabled(true),
+
+				new MessageButton()
+					.setCustomId('midbutton')
+					.setLabel('mid')
+					.setStyle('SECONDARY')
+					.setEmoji('967566780090421288')
+					.setDisabled(true),
+
+				new MessageButton()
+					.setCustomId('adcbutton')
+					.setLabel('adc')
+					.setStyle('SECONDARY')
+					.setEmoji('967566779515826218')
+					.setDisabled(true),
+
+				new MessageButton()
+					.setCustomId('supportbutton')
+					.setLabel('support')
+					.setStyle('SECONDARY')
+					.setEmoji('967566780274999326')
+					.setDisabled(true),
+			);
+			const row2 = new MessageActionRow()
+					.addComponents(
+						new MessageButton()
+							.setCustomId('cancelbutton')
+							.setLabel('leave')
+							.setStyle('SECONDARY')
+							.setEmoji('✖')
+							.setDisabled(true)
+					)
+
+			//RECREATE ENABLED ROWS BECAUSE MONKE
+			const row3 = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('topbutton')
+					.setLabel('top')
+					.setStyle('SECONDARY')
+					.setEmoji('967566780295950416')
+					.setDisabled(false),
+
+				new MessageButton()
+					.setCustomId('junglebutton')
+					.setLabel('jungle')
+					.setStyle('SECONDARY')
+					.setEmoji('967566779998146660')
+					.setDisabled(false),
+
+				new MessageButton()
+					.setCustomId('midbutton')
+					.setLabel('mid')
+					.setStyle('SECONDARY')
+					.setEmoji('967566780090421288')
+					.setDisabled(false),
+
+				new MessageButton()
+					.setCustomId('adcbutton')
+					.setLabel('adc')
+					.setStyle('SECONDARY')
+					.setEmoji('967566779515826218')
+					.setDisabled(false),
+
+				new MessageButton()
+					.setCustomId('supportbutton')
+					.setLabel('support')
+					.setStyle('SECONDARY')
+					.setEmoji('967566780274999326')
+					.setDisabled(false),
+			);
+			const row4 = new MessageActionRow()
+					.addComponents(
+						new MessageButton()
+							.setCustomId('cancelbutton')
+							.setLabel('leave')
+							.setStyle('SECONDARY')
+							.setEmoji('✖')
+							.setDisabled(false)
+					)
+
+
+			// DELETE BUTTONS
+			//interaction.update({ components: []})
+
+			//!!! RATE LIMITS BUTTONS TO AVOID CRASHING
+			// DISABLE ROWS
+			await message.edit({ components: [row, row2]})
+			
+			// ENABLE AFTER x MS
+			setTimeout(async () => {
+				await message.edit({ components: [row3, row4]})
+			}, 4000)
+
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
@@ -157,7 +282,7 @@ client.on('interactionCreate', async interaction => {
 
 							// SHOW GAME INFORMATION FOR 15 minutes.
 							setTimeout(async () => {
-								await unqueueAFKsDuplicates()
+								await unqueueAFKs()
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking...')
 								await message.edit(newMessageContent)
 								if(enoughSummoners()){
@@ -175,7 +300,8 @@ client.on('interactionCreate', async interaction => {
 			await handleRunning()
 			try{
 				if(interaction){
-					await interaction.deferUpdate()
+					//console.log(interaction)
+					interaction.deferUpdate()
 				}
 				else{
 					return
@@ -183,6 +309,7 @@ client.on('interactionCreate', async interaction => {
 			}
 			catch (err){
 				console.log('last row err', err)
+				return
 			}
 		}
 	}
@@ -199,6 +326,7 @@ client.on('interactionCreate', async interaction => {
 		await command.execute(interaction);
 	} catch (error) {
 		console.error(error);
+		return
 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
 });
