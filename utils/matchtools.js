@@ -86,6 +86,17 @@ const matchFound = async () => {
         return false
 }
 
+const summonerCanAcceptGame = async (checkId) => {
+    let can = false;
+    const summoners = await selectFastestTenSummoners()
+
+    summoners.forEach(summoner => {
+        if(summoner['discordId'].toString() === checkId.toString()){ can = true }
+    })
+    console.log('summoner can value:', can)
+    return can
+}
+
 const selectFastestTenSummoners = async () => {
     const summonersByQueueTime = await getPriorities2()
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
@@ -139,7 +150,7 @@ const matchMake = async () => {
 
     if(summonerLobby.length == 10){
         let answer = ''
-        console.log('matchMake lobby:', summonerLobby)
+        //console.log('matchMake lobby:', summonerLobby)
     
         let teams = []
         let blueTeam = []
@@ -200,6 +211,7 @@ const queueSummoner = async (user) => {
 
 const unqueueSummoner = async (user) => {
     // FIND THE USER TO UNQUEUE FROM DB
+    console.log('[x] unqueue called with user:', user)
     const foundUser = await Queuer.findOne({ discordId: user.discordId })
     if(foundUser){
         await foundUser.remove()
@@ -229,9 +241,9 @@ const getTimeStamp = () => {
 const getPriorities = async () => {
     const queuers = await Queuer.find({})
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
-    console.log('after sort', queuers)
+    //console.log('after sort', queuers)
     const queuersSortedByQueuedAt = queuers.map((queuer, idx) =>  idx + '. ' + queuer.discordName)
-    console.log('after map', queuersSortedByQueuedAt)
+    //console.log('after map', queuersSortedByQueuedAt)
     return queuersSortedByQueuedAt
 }
 
@@ -239,7 +251,7 @@ const getPriorities = async () => {
 const getPriorities2 = async () => {
     const queuers = await Queuer.find({})
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
-    console.log('after sort', queuers)
+    //console.log('after sort', queuers)
     return queuers
 }
 
@@ -329,7 +341,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     + "```"
     + "MATCH FOUND"
     + await matchMake()
-    + "\n\n[Accept]/[Decline]"
+    + "\n"
     + "```"
 
     return content
@@ -337,5 +349,5 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
-                    ,getPriorities, enoughSummoners, matchMake
+                    ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame
                     }

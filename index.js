@@ -2,7 +2,7 @@ require('dotenv').config()
 const fs = require('node:fs');
 const mongoose = require('mongoose')
 
-const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner } = require('./utils/matchtools')
+const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner, summonerCanAcceptGame } = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -39,7 +39,7 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
-	console.log(message)
+	//console.log(message)
 	// if (!message.content.startsWith(prefix) || message.author.bot) return;
 	//const args = message.content.slice(prefix.length).trim().split(' ');
 	// const command = args.shift().toLowerCase();
@@ -103,41 +103,46 @@ client.on('interactionCreate', async interaction => {
 			// BASICALLY CHECK IF IKKIAR RENDERED MATCH FOUND TEXTBOX
 			if(!newMessageContent.includes('MATCH FOUND')){
 				await message.edit(newMessageContent)
-				await message.react('✔')
-				await message.react('❌')
 				await interaction.deferUpdate()
 			}
 			else{
 				await message.edit(newMessageContent)
 
-				/*
-				const popMsg = await interaction.channel.send('Queue pop lulmao yuppers')
+				const popMsg = await interaction.channel.send('```\nAccept | Decline\n```')
 				await popMsg.react('✅')
 				await popMsg.react('❌')
 
-				console.log(popMsg)
+				//console.log(popMsg)
 
 				// COLLECTOR 
 				const filter = (reaction, user) => {
-					console.log('filter proc', reaction)
-					return ['✅', '❌'].includes(reaction.emoji.name)
+					return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
 				};
 				const filter2 = (reactin, user) => {
 					return true
 				}
 
-				const collector = popMsg.createReactionCollector({ filter, time: 1500000 });
+				const collector = popMsg.createReactionCollector({ filter, time: 120000 });
 
-				collector.on('collect', (reaction, user) => {
-					console.log('collected x proc')
-					
+				// COLLECTOR
+				collector.on('collect', async (reaction, user) => {
+					if(reaction.emoji.name == '✅'){
+						console.log('user accepts')
+					}
+					if(reaction.emoji.name == '❌'){
+						console.log('user cancels')
+						await unqueueSummoner({ discordId: user.id })
+						const newMessageContent = await getUpdatedQueueStatusText(name, 'declined')
+						await message.edit(newMessageContent)
+					}
+
+					console.log('user: ', user.username, 'reacted with:', reaction.emoji.name)
 				});
 
+				// AFTER 2 MINUTES
 				collector.on('end', collected => {
-					console.log('collected all proc')
+					console.log(collected.size + '/ 10 accepted in time.')
 				});
-
-				*/
 
 				await interaction.deferUpdate()
 				/*
