@@ -148,11 +148,11 @@ const matchMake = async () => {
         teams.push(blueTeam, redTeam)
     
         summonerLobby.forEach((summoner, idx) => {
-            answer += "\n" + summoner.discordName
+            answer += "\n" + summoner.discordName + ' (' + summoner.role + ')'
         })
     
         let title = "\nCURRENT LOBBY:\n"
-        let wrapAnswer = "```ini\n" + title + answer + "\n```"
+        let wrapAnswer = "\n" + title + answer + "\n"
         return wrapAnswer
     }
     else {
@@ -329,13 +329,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     + "```"
     + "MATCH FOUND"
     + "\n Blue Team"
-    + "\n playerlist here"
-    + "\n "
-    + "\n Read Team"
-    + "\n playerlist here"
-    + "\n "
-    + "\n "
-    + "\n All of the Summoners need to ready up"
+    + await matchMake()
     + "```"
 
     return content

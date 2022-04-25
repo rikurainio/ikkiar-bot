@@ -99,9 +99,6 @@ client.on('interactionCreate', async interaction => {
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
 			
 
-			
-
-
 			// VER 1
 			// BASICALLY CHECK IF IKKIAR RENDERED MATCH FOUND TEXTBOX
 			if(!newMessageContent.includes('MATCH FOUND')){
@@ -111,6 +108,7 @@ client.on('interactionCreate', async interaction => {
 			else{
 				await message.edit(newMessageContent)
 
+				/*
 				const popMsg = await interaction.channel.send('Queue pop lulmao yuppers')
 				await popMsg.react('✅')
 				await popMsg.react('❌')
@@ -126,7 +124,7 @@ client.on('interactionCreate', async interaction => {
 					return true
 				}
 
-				const collector = popMsg.createReactionCollector({ filter2, time: 1500000 });
+				const collector = popMsg.createReactionCollector({ filter, time: 1500000 });
 
 				collector.on('collect', (reaction, user) => {
 					console.log('collected x proc')
@@ -137,6 +135,7 @@ client.on('interactionCreate', async interaction => {
 					console.log('collected all proc')
 				});
 
+				*/
 
 				await interaction.deferUpdate()
 				/*
