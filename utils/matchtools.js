@@ -189,20 +189,11 @@ const selectFastestTenSummoners = async () => {
 
 
 const matchMake = async () => {
-
     // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
     const summonerLobby = await selectFastestTenSummoners()
 
     if(summonerLobby.length >= 10){
         let answer = ''
-        //console.log('matchMake lobby:', summonerLobby)
-    
-        let teams = []
-        let blueTeam = []
-        let redTeam = []
-    
-        teams.push(blueTeam, redTeam)
-    
         summonerLobby.forEach((summoner, idx) => {
             answer += "\n" + (summoner.accepted ? '✅' : '⬛') + summoner.discordName + ' (' + summoner.role + ')'
         })
@@ -211,12 +202,57 @@ const matchMake = async () => {
         let wrapAnswer = "\n" + title + answer + "\n"
         
         if(await find10Accepts()){
+            //console.log('SL: ', summonerLobby)
+            let tops = summonerLobby.filter(summoner => summoner.role === 'top')
+            let jungles = summonerLobby.filter(summoner => summoner.role === 'jungle')
+            let mids = summonerLobby.filter(summoner => summoner.role === 'mid')
+            let adcs = summonerLobby.filter(summoner => summoner.role === 'adc')
+            let supports = summonerLobby.filter(summoner => summoner.role === 'support')
+
+            let summonersByRoles = []
+            summonersByRoles.push(tops, jungles, mids, adcs, supports)
+            //onsole.log('SbyR:', summonersByRoles)
+
+            // 0 WILL GO TO BLUE TEAM, 1 TO RED
+            let blueTeam = []
+            let redTeam = []
+
+
+            summonersByRoles.forEach(roleArray => {
+                let teamIndex = Math.floor(Math.random() * 2)
+                console.log('rolearray:', roleArray)
+
+                if(teamIndex === 0){
+                    blueTeam.push(roleArray[0].discordName)
+                    redTeam.push(roleArray[1].discordName)
+                }
+                else{
+                    redTeam.push(roleArray[0].discordName)
+                    blueTeam.push(roleArray[1].discordName)
+                }
+            })
+
+            let blueTeamText = 
+                   '\ntop: ' + blueTeam[0] 
+                +  '\njungle: ' + blueTeam[1] 
+                +  '\nmid: ' + blueTeam[2] 
+                +  '\nadc: ' + blueTeam[3] 
+                +  '\nsupport: ' + blueTeam[4] 
+
+            let redTeamText = 
+                '\ntop: ' + redTeam[0] 
+             +  '\njungle: ' + redTeam[1] 
+             +  '\nmid: ' + redTeam[2] 
+             +  '\nadc: ' + redTeam[3] 
+             +  '\nsupport: ' + redTeam[4] 
+
+
             title = '[TEAMS]\n'
             answer = 
                 '\n| Blue Team' 
-                + '\nmembers here'
+                + '\n' + blueTeamText
                 + '\n\n| Red Team'
-                + '\nmembers here'
+                + '\n' + redTeamText
                 + '\n\nRemember to include \'ikkiar\' in the name of the'
                 + '\nCustom Game if you want to save the match later on.'
                 + '\n\n> This info box will disappear in 15 minutes'
