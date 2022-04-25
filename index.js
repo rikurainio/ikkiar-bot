@@ -79,19 +79,6 @@ client.on('interactionCreate', async interaction => {
 			await interaction.deferUpdate(newQueueUser)
 		}
 		else {
-			const comps = interaction.message.components
-			console.log('comps: ', comps)
-			/*
-			comps.forEach((comp, idx) => {
-				//console.log(idx + '.', comp)
-				comp.components.forEach((button, idx) => {
-					console.log(idx + ':', button)
-					button.disabled = true
-				})
-			})
-			*/
-
-
 			if(interaction.customId === 'topbutton'){
 				interaction.component.setStyle('SUCCESS')
 				role = 'top'
@@ -114,7 +101,6 @@ client.on('interactionCreate', async interaction => {
 				newQueueUser.role = 'support'
 			}
 			
-
 			//RECREATE DISABLED ROWS BECAUSE MONKE
 			const row = new MessageActionRow()
 			.addComponents(
@@ -222,7 +208,9 @@ client.on('interactionCreate', async interaction => {
 			// ENABLE AFTER x MS
 			setTimeout(async () => {
 				await message.edit({ components: [row3, row4]})
-			}, 4000)
+			}, 3000)
+
+
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
