@@ -145,14 +145,14 @@ client.on('interactionCreate', async interaction => {
 							} catch(err){ console.log('error deleting popmsg', error )}
 						}
 						await unqueueAFKsDuplicates()
+						const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking...')
+						await message.edit(newMessageContent)
 						if(enoughSummoners()){
 							handleRunning()
 						}
 					});
 				}
 				else{
-					const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'thinks we need more players!')
-					await message.edit(newMessageContent)
 					return
 				}
 				
