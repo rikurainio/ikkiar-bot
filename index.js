@@ -18,7 +18,7 @@ const { Client, Collection, Intents} = require('discord.js');
 const { ButtonBuilder } = require('@discordjs/builders');
 
 // CREATE NEW CLIENT
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 client.commands = new Collection();
 
 const commandFiles = fs
@@ -39,10 +39,10 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
-
-	const args = message.content.slice(prefix.length).trim().split(' ');
-	const command = args.shift().toLowerCase();
+	console.log(message)
+	// if (!message.content.startsWith(prefix) || message.author.bot) return;
+	//const args = message.content.slice(prefix.length).trim().split(' ');
+	// const command = args.shift().toLowerCase();
 });
 
 // GETS CALLED WHEN THE CLIENT INTERACTS
@@ -97,6 +97,10 @@ client.on('interactionCreate', async interaction => {
 			}
 			const queueResponse = await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
+			
+
+			
+
 
 			// VER 1
 			// BASICALLY CHECK IF IKKIAR RENDERED MATCH FOUND TEXTBOX
@@ -106,9 +110,51 @@ client.on('interactionCreate', async interaction => {
 			}
 			else{
 				await message.edit(newMessageContent)
-				await message.react('✅')
-				await message.react('❌')
+
+				const popMsg = await interaction.channel.send('Queue pop lulmao yuppers')
+				await popMsg.react('✅')
+				await popMsg.react('❌')
+
+				console.log(popMsg)
+
+				// COLLECTOR 
+				const filter = (reaction, user) => {
+					console.log('filter proc', reaction)
+					return ['✅', '❌'].includes(reaction.emoji.name)
+				};
+				const filter2 = (reactin, user) => {
+					return true
+				}
+
+				const collector = popMsg.createReactionCollector({ filter2, time: 1500000 });
+
+				collector.on('collect', (reaction, user) => {
+					console.log('collected x proc')
+					
+				});
+
+				collector.on('end', collected => {
+					console.log('collected all proc')
+				});
+
+
 				await interaction.deferUpdate()
+				/*
+				message.awaitReactions({ filter, max: 1, time: 60000, errors: ['time']})
+					.then(collected => {
+						const reaction = collected.first()
+						console.log('collected:', collected)
+						if(reaction.emoji.name === '✅'){
+							message.reply('You accepted')
+						}
+						else{
+							message.reply('You cancelled')
+						}
+					})
+					.catch(collected => {
+						message.reply('You did not react or there was an error')
+					})
+				*/
 			}
 	
 		}
