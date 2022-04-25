@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } = require('discord.js');
+const { getUpdatedQueueStatusText } = require('../utils/matchtools')
 
 // MONGO
 //const User = require('../models/user')
@@ -82,7 +83,10 @@ module.exports = {
 			+ "\n🦥 jungle: " + jungle 
 			+ "\n🧙 mid: " + mid 
 			+ "\n🏹 ad: " + adc 
-			+ "\n🐈 sup: " + support + "```", components: [row, row2]}
+			+ "\n🐈 sup: " + support
+			+ "\n"
+			+ "\n______________________________________"
+			+ "\n>" + "```", components: [row, row2]}
 		);
 	},
 };

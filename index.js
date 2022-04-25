@@ -71,7 +71,7 @@ client.on('interactionCreate', async interaction => {
 			await unqueueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'left')
 			await message.edit(newMessageContent)
-			interaction.deferUpdate(newQueueUser)
+			await interaction.deferUpdate(newQueueUser)
 		}
 		else {
 			if(interaction.customId === 'topbutton'){
@@ -97,8 +97,20 @@ client.on('interactionCreate', async interaction => {
 			}
 			const queueResponse = await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
-			await message.edit(newMessageContent)
-			interaction.deferUpdate()
+
+			// VER 1
+			// BASICALLY CHECK IF IKKIAR RENDERED MATCH FOUND TEXTBOX
+			if(!newMessageContent.includes('MATCH FOUND')){
+				await message.edit(newMessageContent)
+				await interaction.deferUpdate()
+			}
+			else{
+				await message.edit(newMessageContent)
+				await message.react('✅')
+				await message.react('❌')
+				await interaction.deferUpdate()
+			}
+	
 		}
 	}
 

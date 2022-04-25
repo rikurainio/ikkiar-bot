@@ -95,7 +95,7 @@ const checkQueueSize = async () => {
 
 const queueSummoner = async (user) => {
     // IF QUEUE IS FULL
-    if(await checkQueueSize() === 10){
+    if(await checkQueueSize() === 40){
         console.log('queue is full')
     }
     else{
@@ -104,12 +104,17 @@ const queueSummoner = async (user) => {
         const foundUser = await Queuer.findOne({ discordId: user.discordId})
         if(foundUser){
 
+            const temp = Queuer(user)
+            await temp.save()
+
+            /*
             // IF HE WANTED TO CHANGE THE ROLE
             if(user.role !== foundUser.role){
                 foundUser.role = user.role
                 foundUser.queuedAt = Date.now()
                 await foundUser.save()
             }
+            */
         }
         else {
             // IF DISCORD USER IS NOT IN ACTIVE QUEUE ALREADY
@@ -174,6 +179,8 @@ const enoughSummoners = async () => {
 
 const getUpdatedQueueStatusText = async (name, actionMessage) => {
     const queuers = await Queuer.find({})
+    let matchReady = false
+    let content = ''
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
     let readyMessage = 'Waiting for more Summoners to queue'
 
@@ -187,29 +194,45 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
     if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
         readyMessage = 'Ready to play!'
+        matchReady = true
     }
     if(top < 2 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
-        if(top == 1){ readyMessage= 'need 1 more top' }
-        readyMessage= 'need 2 top laners'
+        if(top === 1){ readyMessage= 'need 1 more top' }
+        else { readyMessage= 'need 2 top laners' }
     }
     if(top > 1 && jungle < 2 && mid > 1 && adc > 1 && support > 1){
-        if(jungle == 1){ readyMessage= 'need 1 more jungler' }
-        readyMessage= 'need 2 junglers'
+        if(jungle === 1){ readyMessage='need 1 more jungler' }
+        else { readyMessage= 'need 2 junglers' }
     }
     if(top > 1 && jungle > 1 && mid < 2 && adc > 1 && support > 1){
-        if(mid == 1){ readyMessage= 'need 1 more mid' }
-        readyMessage= 'need 2 mid laners'
+        if(mid === 1){ readyMessage= 'need 1 more mid' }
+        else { readyMessage= 'need 2 mid laners' }
     }
     if(top > 1 && jungle > 1 && mid > 1 && adc < 2 && support > 1){
-        if(adc == 1){ readyMessage= 'need 1 more adc' }
-        readyMessage= 'need 2 adcs'
+        if(adc === 1){ readyMessage= 'need 1 more adc' }
+        else { readyMessage= 'need 2 adcs' }
     }
     if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support < 2){
-        if(support == 1){ readyMessage= 'need 1 more support' }
-        readyMessage= 'need 2 supports'
+        if(support === 1){ readyMessage= 'need 1 more support' }
+        else { readyMessage= 'need 2 supports' }
     }
 
-    const content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
+
+    if(!matchReady){
+        content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
+        + "\nQueue Status: " + readyMessage 
+        + "\n🦏 top: " + top 
+        + "\n🦥 jungle: " + jungle 
+        + "\n🧙 mid: " + mid 
+        + "\n🏹 ad: " + adc 
+        + "\n🐈 sup: " + support
+        + "\n"
+        + "\n______________________________________"
+        + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
+
+        return content
+    }
+    content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
     + "\nQueue Status: " + readyMessage 
     + "\n🦏 top: " + top 
     + "\n🦥 jungle: " + jungle 
@@ -219,6 +242,18 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     + "\n"
     + "\n______________________________________"
     + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
+
+    + "```"
+    + "MATCH FOUND"
+    + "\n Blue Team"
+    + "\n playerlist here"
+    + "\n "
+    + "\n Read Team"
+    + "\n playerlist here"
+    + "\n "
+    + "\n "
+    + "\n All of the Summoners need to ready up"
+    + "```"
 
     return content
 }
