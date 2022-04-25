@@ -76,7 +76,7 @@ client.on('interactionCreate', async interaction => {
 			await unqueueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'left')
 			await message.edit(newMessageContent)
-			await interaction.deferUpdate(newQueueUser)
+			await interaction.deferUpdate()
 		}
 		else {
 			if(interaction.customId === 'topbutton'){
@@ -270,7 +270,9 @@ client.on('interactionCreate', async interaction => {
 
 							// SHOW GAME INFORMATION FOR 15 minutes.
 							setTimeout(async () => {
-								await unqueueAFKs()
+
+								// !use unqueueAFKs normally, unqueueAFKsDuplicates() when developing to accept match for everyone
+								await unqueueAFKsDuplicates()
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking...')
 								await message.edit(newMessageContent)
 								if(enoughSummoners()){
@@ -289,7 +291,7 @@ client.on('interactionCreate', async interaction => {
 			try{
 				if(interaction){
 					//console.log(interaction)
-					interaction.deferUpdate()
+					await interaction.deferUpdate()
 				}
 				else{
 					return

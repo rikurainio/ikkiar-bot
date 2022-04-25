@@ -233,30 +233,31 @@ const matchMake = async () => {
             })
 
             let blueTeamText = 
-                   '\ntop: ' + blueTeam[0] 
-                +  '\njungle: ' + blueTeam[1] 
-                +  '\nmid: ' + blueTeam[2] 
-                +  '\nadc: ' + blueTeam[3] 
+                   '\ntop:     ' + blueTeam[0] 
+                +  '\njungle:  ' + blueTeam[1] 
+                +  '\nmid:     ' + blueTeam[2] 
+                +  '\nadc:     ' + blueTeam[3] 
                 +  '\nsupport: ' + blueTeam[4] 
 
             let redTeamText = 
-                '\ntop: ' + redTeam[0] 
-             +  '\njungle: ' + redTeam[1] 
-             +  '\nmid: ' + redTeam[2] 
-             +  '\nadc: ' + redTeam[3] 
+                '\ntop:     ' + redTeam[0] 
+             +  '\njungle:  ' + redTeam[1] 
+             +  '\nmid:     ' + redTeam[2] 
+             +  '\nadc:     ' + redTeam[3] 
              +  '\nsupport: ' + redTeam[4] 
 
 
-            title = '[TEAMS]\n'
+            title = '🐵 monke formed teams:\n'
             answer = 
-                '\n| Blue Team' 
+                    '\n👥 BLUE' 
                 + '\n' + blueTeamText
-                + '\n\n| Red Team'
+                + '\n\n👥 RED'
                 + '\n' + redTeamText
-                + '\n\nRemember to include \'ikkiar\' in the name of the'
-                + '\nCustom Game if you want to save the match later on.'
+
+                + '\n\n____________________________________________________'
+                + '\nRemember to include \'ikkiar\' in Custom Game name ツ.'
                 + '\n\n> This info box will disappear in 15 minutes'
-            wrapAnswer = "ini\n" + title + answer + "\n"
+            wrapAnswer = "cpp\n" + title + answer + "\n"
         }
 
         return wrapAnswer
@@ -285,15 +286,22 @@ const queueSummoner = async (user) => {
         if(foundUser){
 
             // IF HE WANTED TO CHANGE THE ROLE
-            if(user.role !== foundUser.role){
+           
+            const temp = Queuer(user)
+            await temp.save()
+
+            /*
+
+            const temp = Queuer(user)
+            await temp.save()
+
+            /*
+
+             if(user.role !== foundUser.role){
             foundUser.role = user.role
             foundUser.queuedAt = Date.now()
             await foundUser.save()
             }
-            /*
-            const temp = Queuer(user)
-            await temp.save()
-            /*
             /*
             */
         }
