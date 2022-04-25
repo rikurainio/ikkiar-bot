@@ -131,6 +131,8 @@ client.on('interactionCreate', async interaction => {
 					if(reaction.emoji.name == '✅'){
 						console.log('user accepts')
 						await setAccepted({ discordId: user.id}, true)
+						const newMessageContent = await getUpdatedQueueStatusText(name, 'declined')
+						await message.edit(newMessageContent)
 					}
 
 					// HANDLE DECLINE LOBBY

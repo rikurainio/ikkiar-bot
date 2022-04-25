@@ -177,7 +177,7 @@ const matchMake = async () => {
         teams.push(blueTeam, redTeam)
     
         summonerLobby.forEach((summoner, idx) => {
-            answer += "\n" + summoner.discordName + ' (' + summoner.role + ')'
+            answer += "\n" + (summoner.accepted ? '✅' : '⬛') + summoner.discordName + ' (' + summoner.role + ')'
         })
     
         let title = "\nCURRENT LOBBY:\n"
