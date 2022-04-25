@@ -77,16 +77,8 @@ module.exports = {
 						.setEmoji('✖')
 				)
 
-		await interaction.reply({ content:
-			"```" + "ini\n" + "Press role icon below to join Queue." + "\n[" + queuers.length + " Summoners in queue]\n" 
-			+ "\n🦏 top: " + top 
-			+ "\n🦥 jungle: " + jungle 
-			+ "\n🧙 mid: " + mid 
-			+ "\n🏹 ad: " + adc 
-			+ "\n🐈 sup: " + support
-			+ "\n"
-			+ "\n______________________________________"
-			+ "\n>" + "```", components: [row, row2]}
+		const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking')
+		await interaction.reply({ content: newMessageContent, components: [row, row2] }
 		);
 	},
 };

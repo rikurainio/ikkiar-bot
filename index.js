@@ -17,6 +17,7 @@ mongoose.connect(process.env.MONGO_URI)
 // DISCORD.JS CLASSES
 const { Client, Collection, Intents} = require('discord.js');
 const { ButtonBuilder } = require('@discordjs/builders');
+const { error } = require('node:console');
 
 // CREATE NEW CLIENT
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
@@ -45,6 +46,10 @@ client.on('message', message => {
 	//const args = message.content.slice(prefix.length).trim().split(' ');
 	// const command = args.shift().toLowerCase();
 });
+
+client.on('messageReactionAdd', (reaction_orig, user) => {
+	console.log('messagereaction', user)
+})
 
 // GETS CALLED WHEN THE CLIENT INTERACTS
 client.on('interactionCreate', async interaction => {
@@ -102,7 +107,7 @@ client.on('interactionCreate', async interaction => {
 
 			// VER 1
 			// BASICALLY CHECK IF IKKIAR RENDERED MATCH FOUND TEXTBOX
-			if(!newMessageContent.includes('MATCH FOUND')){
+			if(!newMessageContent.includes('LOBBY FOUND')){
 				await message.edit(newMessageContent)
 				await interaction.deferUpdate()
 			}
@@ -123,7 +128,7 @@ client.on('interactionCreate', async interaction => {
 					return true
 				}
 
-				const collector = popMsg.createReactionCollector({ filter, time: 60000 });
+				const collector = popMsg.createReactionCollector({ filter, time: 30000 });
 
 				// COLLECTOR
 				collector.on('collect', async (reaction, user) => {
@@ -140,22 +145,29 @@ client.on('interactionCreate', async interaction => {
 					if(reaction.emoji.name == '❌'){
 						console.log('user cancels')
 						await unqueueSummoner({ discordId: user.id })
-						await setAccepted({ discordId: user.id}, false)
 						const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
 						await message.edit(newMessageContent)
+						await popMsg.delete()
+						return
 					}
-
-					console.log('user: ', user.username, 'reacted with:', reaction.emoji.name)
+					//console.log('user: ', user.username, 'reacted with:', reaction.emoji.name)
 				});
 
 				// AFTER 2 MINUTES
 				collector.on('end', async (collected) => {
-					await popMsg.delete()
-					console.log('CCCCCCCCCCCC', collected)
+					if(popMsg){
+						try {
+							await popMsg.delete()
+						} catch(err){ console.log('error deleting popmsg', error )}
+					}
 					console.log(collected.size + '/ 10 accepted in time.')
+					
 					await unqueueAFKs()
-					const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking')
-					await message.edit(newMessageContent)
+
+					setTimeout(async () => {
+						const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking')
+						await message.edit(newMessageContent)
+					}, 2000)
 				});
 
 				await interaction.deferUpdate()

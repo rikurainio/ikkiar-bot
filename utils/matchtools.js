@@ -170,6 +170,8 @@ const selectFastestTenSummoners = async () => {
     }
 }
 
+
+
 const matchMake = async () => {
 
     // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
@@ -189,12 +191,12 @@ const matchMake = async () => {
             answer += "\n" + (summoner.accepted ? '✅' : '⬛') + summoner.discordName + ' (' + summoner.role + ')'
         })
     
-        let title = "\nCURRENT LOBBY:\n"
-        let wrapAnswer = "\n" + answer + "\n"
+        let title = "\nLOBBY FOUND:\n"
+        let wrapAnswer = "\n" + title + answer + "\n"
         return wrapAnswer
     }
     else {
-        return 'LOBBY HAS NOT BEEN FORMED YET'
+        return null
     }
 }
 
@@ -218,10 +220,13 @@ const queueSummoner = async (user) => {
 
             const temp = Queuer(user)
             await temp.save()
+            /*
+           
+            /*
 
             /*
             // IF HE WANTED TO CHANGE THE ROLE
-            if(user.role !== foundUser.role){
+             if(user.role !== foundUser.role){
                 foundUser.role = user.role
                 foundUser.queuedAt = Date.now()
                 await foundUser.save()
@@ -238,10 +243,14 @@ const queueSummoner = async (user) => {
 
 const unqueueSummoner = async (user) => {
     // FIND THE USER TO UNQUEUE FROM DB
-    const foundUser = await Queuer.findOne({ discordId: user.discordId })
-    if(foundUser){
-        console.log('removing from queue: ', foundUser.discordName)
-        await foundUser.remove()
+
+    // AVOID TARGETING SUMMONERS WHO CONFIRMED A MATCH
+    if(!user.accepted){
+        const foundUser = await Queuer.findOne({ discordId: user.discordId })
+        if(foundUser){
+            console.log('removing from queue: ', foundUser.discordName, 'his accepted status is: ', foundUser.accepted, 'gv: ', user.accepted)
+            await foundUser.remove()
+        }
     }
 }
 
@@ -348,7 +357,6 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         else { readyMessage= 'need 2 supports' }
     }
 
-
     if(!matchReady){
         await setEveryAccepted(false)
 
@@ -378,7 +386,6 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
     
         + "```"
-        + "MATCH FOUND"
         + await matchMake()
         + "\n"
         + "```"
