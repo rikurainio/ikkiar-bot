@@ -155,9 +155,27 @@ const getPriorities = async () => {
     return queuersSortedByQueuedAt
 }
 
+// RETURNS TRUE IF THERE ARE AT LEAST 2 OF EVERY ROLE
+const enoughSummoners = async () => {
+    const querers = await Queuer.find({})
+    queuers.forEach(summoner => {
+        if(summoner.role === 'top')      { top += 1}
+        if(summoner.role === 'jungle')   { jungle += 1 }
+        if(summoner.role === 'mid')      { mid += 1 }
+        if(summoner.role === 'adc')      { adc += 1 }
+        if(summoner.role === 'support' ) { support += 1 }
+    })
+    if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
+        return true;
+    }
+    return false;
+}
+
+
 const getUpdatedQueueStatusText = async (name, actionMessage) => {
     const queuers = await Queuer.find({})
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
+    let readyMessage = 'Waiting for more Summoners to queue'
 
     queuers.forEach(summoner => {
         if(summoner.role === 'top')      { top += 1}
@@ -167,7 +185,32 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         if(summoner.role === 'support' ) { support += 1 }
     })
 
-    const content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n" 
+    if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
+        readyMessage = 'Ready to play!'
+    }
+    if(top < 2 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
+        if(top == 1){ readyMessage= 'need 1 more top' }
+        readyMessage= 'need 2 top laners'
+    }
+    if(top > 1 && jungle < 2 && mid > 1 && adc > 1 && support > 1){
+        if(jungle == 1){ readyMessage= 'need 1 more jungler' }
+        readyMessage= 'need 2 junglers'
+    }
+    if(top > 1 && jungle > 1 && mid < 2 && adc > 1 && support > 1){
+        if(mid == 1){ readyMessage= 'need 1 more mid' }
+        readyMessage= 'need 2 mid laners'
+    }
+    if(top > 1 && jungle > 1 && mid > 1 && adc < 2 && support > 1){
+        if(adc == 1){ readyMessage= 'need 1 more adc' }
+        readyMessage= 'need 2 adcs'
+    }
+    if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support < 2){
+        if(support == 1){ readyMessage= 'need 1 more support' }
+        readyMessage= 'need 2 supports'
+    }
+
+    const content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
+    + "\nQueue Status: " + readyMessage 
     + "\n🦏 top: " + top 
     + "\n🦥 jungle: " + jungle 
     + "\n🧙 mid: " + mid 
@@ -182,5 +225,5 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
 module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
-                    , getPriorities
+                    ,getPriorities, enoughSummoners
                     }
