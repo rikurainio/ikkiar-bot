@@ -8,6 +8,7 @@ const schema = mongoose.Schema({
     rating: { type: Number, default: 1500},
 
     queuedAt: { type: Number, required: true },
+    inLobby: { type: Boolean, default: false },
     accepted: { type: Boolean, default: false }
 })
 

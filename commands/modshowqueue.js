@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } = require('discord.js');
-const { getUpdatedQueueStatusText } = require('../utils/matchtools')
+const { getUpdatedQueueStatusText, setEveryAccepted, setInitBooleanState } = require('../utils/matchtools')
 
 // MONGO
 //const User = require('../models/user')
@@ -77,6 +77,8 @@ module.exports = {
 						.setEmoji('✖')
 				)
 
+		// INIT STATE
+		await setInitBooleanState(false)
 		const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking')
 		await interaction.reply({ content: newMessageContent, components: [row, row2] }
 		);

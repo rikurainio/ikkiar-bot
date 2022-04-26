@@ -67,6 +67,28 @@ const setEveryAccepted = async (boolean) => {
     }
 }
 
+const dismissAcceptedsOutsideLobby = async () => {
+    const summoners = await Queuer.find({})
+
+    summoners.forEach(async summoner => {
+        if(!summoner.inLobby){
+            //console.log('summoner was not in lobby? {', summoner.inLobby,'}, his accepted value was:', summoner.accepted)
+            summoner.accepted = false
+            await summoner.save()
+            //console.log('summoner was not in lobby, his accepted value is now disabled:', summoner.accepted)
+        }
+    })
+}
+
+const setInitBooleanState = async (boolean) => {
+    try {
+        await Queuer.updateMany({}, { accepted: boolean, inLobby: boolean })
+    }
+    catch (error) {
+        console.log('error setting every single documents accepted & inLobby values')
+    }
+}
+
 const find10Accepts = async () => {
     let acceptCount = 0
     const summoners = await Queuer.find({})
@@ -88,10 +110,13 @@ const setAccepted = async (user, boolean) => {
     //console.log('[x] setAccepted with boolean and userid:', user.discordId, 'setAccepted:', boolean)
 
     try {
-        const foundUser = await Queuer.findOne({ discordId: user.discordId })
+        const foundUser = await Queuer.findById(user.id)
         if(foundUser){
-            foundUser.accepted = boolean
-            await foundUser.save()
+            // QUEUE CAN STORE MAX 10 ACCEPTERS AT ONCE
+            if(!await find10Accepts()){
+                foundUser.accepted = boolean
+                await foundUser.save()
+            }
         }
     }
     catch (error) {
@@ -134,7 +159,7 @@ const summonerCanAcceptGame = async (checkId) => {
     summoners.forEach(summoner => {
         if(summoner['discordId'].toString() === checkId.toString()){ can = true }
     })
-    console.log('summoner can value:', can)
+    //console.log('summoner can value:', can)
     return can
 }
 
@@ -143,8 +168,13 @@ const selectFastestTenSummoners = async () => {
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
     const selected = []
 
-    summonersByQueueTime.forEach((summoner, idx) => {
+    // SUMMONERS IN ORDER OF QUEUEDAT. ITERATE AND GET THE FASTEST 10. FILL 2 SUMMONERS TO EACH ROLE
+    summonersByQueueTime.forEach(async (summoner, idx) => {
         if(selected.length < 10){
+
+            //console.log('index is: ', idx)
+            //console.log('summoner: ', summoner)
+
             if(summoner.role === 'top'){
                 if(top < 2){
                     selected.push(summoner)
@@ -175,6 +205,13 @@ const selectFastestTenSummoners = async () => {
                 }
                 support += 1
             }
+
+            if(idx < 10){
+                // GIVE SELECTED SUMMONERS inLOBBY = TRUE
+                const foundSummoner = await Queuer.findById(summoner.id)
+                foundSummoner.inLobby = true
+                await foundSummoner.save()
+            }
         }
         
     })
@@ -189,8 +226,9 @@ const selectFastestTenSummoners = async () => {
 const matchMake = async () => {
     // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
     const summonerLobby = await selectFastestTenSummoners()
+    //console.log('summonerLobby length is -->', summonerLobby)
 
-    if(summonerLobby.length >= 10){
+    if(summonerLobby.length === 10){
         let answer = ''
         summonerLobby.forEach((summoner, idx) => {
             answer += "\n" + (summoner.accepted ? '✅' : '⬛') + summoner.discordName + ' (' + summoner.role + ')'
@@ -199,8 +237,22 @@ const matchMake = async () => {
         let title = "\nQueue pop: summoners have to accept match to generate teams:"
         let wrapAnswer = "\n" + title + answer + "\n"
         
-        if(await find10Accepts()){
-            //console.log('SL: ', summonerLobby)
+        await dismissAcceptedsOutsideLobby()
+
+        console.log('LobbySize: ', summonerLobby.length)
+
+        // CHECK ACCEPTS ( DEV )
+        let countAccepteds = 0
+
+        summonerLobby.forEach((lobbySummoner, idx) => {
+            console.log('lobbysum ' + idx + ' accepted: ' , lobbySummoner.accepted)
+            if(lobbySummoner.accepted){
+                countAccepteds += 1
+            }
+        })
+
+
+        if(countAccepteds === 10){
             let tops = summonerLobby.filter(summoner => summoner.role === 'top')
             let jungles = summonerLobby.filter(summoner => summoner.role === 'jungle')
             let mids = summonerLobby.filter(summoner => summoner.role === 'mid')
@@ -209,12 +261,10 @@ const matchMake = async () => {
 
             let summonersByRoles = []
             summonersByRoles.push(tops, jungles, mids, adcs, supports)
-            //onsole.log('SbyR:', summonersByRoles)
 
             // 0 WILL GO TO BLUE TEAM, 1 TO RED
             let blueTeam = []
             let redTeam = []
-
 
             summonersByRoles.forEach(roleArray => {
                 let teamIndex = Math.floor(Math.random() * 2)
@@ -245,23 +295,20 @@ const matchMake = async () => {
              +  '\nsupport: ' + redTeam[4] 
 
 
-            title = '🐵 monke formed teams:\n'
+            title = '🐵 monke formed superteams!:\n'
             answer = 
                     '\n👥 BLUE' 
-                + '\n' + blueTeamText
+                + blueTeamText
                 + '\n\n👥 RED'
-                + '\n' + redTeamText
+                +  redTeamText
 
                 + '\n\n____________________________________________________'
                 + '\nRemember to include \'ikkiar\' in Custom Game name ツ.'
-                + '\n\n> This info box will disappear in 5 minutes'
+                + '\n\n> Match info disappears in 5 minutes to re-allow queuing.'
             wrapAnswer = "cpp\n" + title + answer + "\n"
         }
 
         return wrapAnswer
-    }
-    else {
-        return null
     }
 }
 
@@ -490,5 +537,5 @@ module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
                     ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
                     setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
-                    find10Accepts, removeMatchedSummonersFromQueue
+                    find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState
                     }

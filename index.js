@@ -60,10 +60,14 @@ client.on('interactionCreate', async interaction => {
 
 		setTimeout(async () => {
 			if(!deferred){
-				deferred = true
-				await interaction.deferUpdate()
+				try{
+					if(interaction){
+						await interaction.deferUpdate()
+						deferred = true
+					}
+				} catch(err){console.log('error ROW 67')}
 			}
-		}, 3000)
+		}, 0)
 
 		// GET PRESSER DISCORD USER DETAILS
 		const id = interaction.user.id
@@ -226,10 +230,10 @@ client.on('interactionCreate', async interaction => {
 			}
 			*/
 
-			// ENABLE AT LEAST THE LEAVE QUEUE BUTTON
+			// ENABLE ALL BUTTONS BACK AFTER X
 			setTimeout(async () => {
 				await message.edit({ components: [row3, row4]})
-			}, 2500)
+			}, 500)
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
@@ -271,17 +275,18 @@ client.on('interactionCreate', async interaction => {
 								// UNLOCK BUTTONS AFTER 5 minutes
 								await message.edit({ components: [row, row2]})
 
-								const newMessageContent = await getUpdatedQueueStatusText(name, 'match created:')
+								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
 								await message.edit(newMessageContent)
 
 								await removeMatchedSummonersFromQueue()
 								removedMMSFromQueue = true
 
+								// 5 MIN SHOW QUEUE AGAIN NORMALLY. QUEUE SIZE SHOULD BE -10 NOW AFTER LAST MM
 								setTimeout(async () => {
-									await message.edit({ components: [row3, row4]})
+									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'scouting for new lobbies to form:')
+									await message.edit({ content: newMessageContent, components: [row3, row4]})
 								}, 300000)
 							}
-							
 							if(!removedMMSFromQueue){
 								const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
 								await message.edit(newMessageContent)
@@ -321,13 +326,6 @@ client.on('interactionCreate', async interaction => {
 								}
 							}, 300000)
 						}
-						else{
-							try{
-								if(popMsg){
-									await popMsg.delete()
-								}
-							} catch(err){console.log('error deleting popmgs inside colle',err)}
-						}
 					});
 				}
 				else{
@@ -336,19 +334,6 @@ client.on('interactionCreate', async interaction => {
 				
 			}
 			await handleRunning()
-			try{
-				if(interaction){
-					//console.log(interaction)
-					if(!deferred){
-						deferred = true
-						await interaction.deferUpdate()
-					}
-				}
-			}
-			catch (err){
-				console.log('last row err', err)
-				return
-			}
 		}
 	}
 
