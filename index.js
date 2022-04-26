@@ -5,7 +5,7 @@ const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } = req
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs,
-		 enoughSummoners, unqueueAFKsDuplicates, find10Accepts } = require('./utils/matchtools')
+		 enoughSummoners, unqueueAFKsDuplicates, find10Accepts, removeMatchedSummonersFromQueue } = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -216,12 +216,19 @@ client.on('interactionCreate', async interaction => {
 			// DISABLE ROWS
 			await message.edit({ components: [row, row2]})
 			
+			/*
 			// ENABLE AFTER x MS
+			if(!find10Accepts){
+				setTimeout(async () => {
+					await message.edit({ components: [row3, row4]})
+				}, 3000)
+			}
+			*/
+
+			// ENABLE AT LEAST THE LEAVE QUEUE BUTTON
 			setTimeout(async () => {
 				await message.edit({ components: [row3, row4]})
-			}, 3000)
-
-
+			}, 5000)
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
@@ -258,6 +265,15 @@ client.on('interactionCreate', async interaction => {
 										await popMsg.delete()
 									}
 								} catch (err) { console.log('error deleting popmgs inside accept react colle') }
+								
+								// DISABLE BUTTONS
+								// UNLOCK BUTTONS AFTER 5 minutes
+								await message.edit({ components: [row, row2]})
+								await removeMatchedSummonersFromQueue()
+
+								setTimeout(async () => {
+									await message.edit({ components: [row3, row4]})
+								}, 300000)
 							}
 
 							const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
@@ -280,13 +296,16 @@ client.on('interactionCreate', async interaction => {
 					collector.on('end', async (collected) => {
 						// WAIT A BIT IF ALL 10 SUMMONERS ACTUALLY ACCEPTED
 						if(await find10Accepts()){
-							if(popMsg){
-								await popMsg.delete()
-							}
+							try {
+								if(popMsg){
+									await popMsg.delete()
+								}
+							} catch(err){console.log('error deleting popmgs inside colle after find10',err)}
+
 
 							// SHOW GAME INFORMATION FOR 15 minutes.
 							setTimeout(async () => {
-
+							
 								// !use unqueueAFKs normally, unqueueAFKsDuplicates() when developing to accept match for everyone
 								await unqueueAFKsDuplicates()
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking...')
@@ -294,7 +313,7 @@ client.on('interactionCreate', async interaction => {
 								if(enoughSummoners()){
 									handleRunning()
 								}
-							}, 30000)
+							}, 300000)
 						}
 						else{
 							try{

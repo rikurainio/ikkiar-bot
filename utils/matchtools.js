@@ -186,8 +186,6 @@ const selectFastestTenSummoners = async () => {
     }
 }
 
-
-
 const matchMake = async () => {
     // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
     const summonerLobby = await selectFastestTenSummoners()
@@ -287,6 +285,7 @@ const queueSummoner = async (user) => {
 
             // IF HE WANTED TO CHANGE THE ROLE
            
+            // DEV CHANGE OUT TO ROW 294 295
             const temp = Queuer(user)
             await temp.save()
 
@@ -342,6 +341,13 @@ const unqueueAFKs = async () => {
             await unqueueSummoner(summoner)
         }
     })
+}
+
+const removeMatchedSummonersFromQueue = async () => {
+    const matchMade = await find10Accepts()
+    if(matchMade){
+        await Queuer.deleteMany({ accepted: true })
+    }
 }
 
 const getTimeStamp = () => {
@@ -484,5 +490,5 @@ module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
                     ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
                     setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
-                    find10Accepts
+                    find10Accepts, removeMatchedSummonersFromQueue
                     }
