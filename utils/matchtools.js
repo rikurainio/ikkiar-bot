@@ -254,7 +254,7 @@ const matchMake = async () => {
 
                 + '\n\n____________________________________________________'
                 + '\nRemember to include \'ikkiar\' in Custom Game name ツ.'
-                + '\n\n> This info box will disappear in 15 minutes'
+                + '\n\n> This info box will disappear in 5 minutes'
             wrapAnswer = "cpp\n" + title + answer + "\n"
         }
 

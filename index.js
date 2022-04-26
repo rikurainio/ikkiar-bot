@@ -56,6 +56,7 @@ client.on('interactionCreate', async interaction => {
 	// TODO: MOVE THESE BUTTON HANDLERS TO THEIR OWN MODULES
 	if (interaction.isButton()){
 		let deferred = false;
+		let removedMMSFromQueue = false;
 
 		setTimeout(async () => {
 			if(!deferred){
@@ -228,7 +229,7 @@ client.on('interactionCreate', async interaction => {
 			// ENABLE AT LEAST THE LEAVE QUEUE BUTTON
 			setTimeout(async () => {
 				await message.edit({ components: [row3, row4]})
-			}, 5000)
+			}, 2500)
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
@@ -269,17 +270,22 @@ client.on('interactionCreate', async interaction => {
 								// DISABLE BUTTONS
 								// UNLOCK BUTTONS AFTER 5 minutes
 								await message.edit({ components: [row, row2]})
+
+								const newMessageContent = await getUpdatedQueueStatusText(name, 'match created:')
+								await message.edit(newMessageContent)
+
 								await removeMatchedSummonersFromQueue()
+								removedMMSFromQueue = true
 
 								setTimeout(async () => {
 									await message.edit({ components: [row3, row4]})
 								}, 300000)
 							}
-
-							const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
-							await message.edit(newMessageContent)
-
-
+							
+							if(!removedMMSFromQueue){
+								const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
+								await message.edit(newMessageContent)
+							}
 						}
 						// HANDLE DECLINE LOBBY
 						if(reaction.emoji.name == '❌'){
