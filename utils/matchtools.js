@@ -294,7 +294,7 @@ const matchMake = async () => {
              +  '\nsupport: ' + redTeam[4] 
 
 
-            title = '🐵 monke formed superteams!:\n'
+            title = '🐵 monke formed superteams!\n'
             answer = 
                     '\n👥 BLUE' 
                 + blueTeamText
@@ -303,8 +303,8 @@ const matchMake = async () => {
 
                 + '\n\n____________________________________________________'
                 + '\nRemember to include \'ikkiar\' in Custom Game name ツ.'
-                + '\n\n> Match info disappears in 5 minutes to re-allow queuing.'
-            wrapAnswer = "cpp\n" + title + answer + "\n"
+                + '\n\n> Match info disappears in 5 minutes to allow Summoners to queue again'
+            wrapAnswer = "java\n" + title + answer + "\n"
         }
 
         return wrapAnswer

@@ -238,7 +238,7 @@ client.on('interactionCreate', async interaction => {
 				if(!resolvingLobby){
 					await message.edit({ components: [row3, row4]})
 				}
-			}, 2000)
+			}, 5000)
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
@@ -246,8 +246,6 @@ client.on('interactionCreate', async interaction => {
 			await message.edit(newMessageContent)
 
 			const handleRunning = async () => {
-				
-
 
 				if(await enoughSummoners()){
 					resolvingLobby = true;
@@ -318,9 +316,17 @@ client.on('interactionCreate', async interaction => {
 								await message.edit(newMessageContent)
 								await popMsg.delete()
 								popMsgDeleted = true;
+
+								let enough = await enoughSummoners()
+								if(!enough){
+									// GOING SUB 10 STACK
+									// ENABLE BUTTONS
+									await message.edit({ components: [row3, row4]})	
+								}
+
 								await handleRunning()
 							}
-
+							else{
 							// GOING SUB 10 STACK
 							// ENABLE BUTTONS
 							await message.edit({ components: [row3, row4]})
@@ -333,6 +339,8 @@ client.on('interactionCreate', async interaction => {
 							if(!popMsgDeleted){
 								await popMsg.delete()
 							}
+							}
+						
 						}});
 
 
