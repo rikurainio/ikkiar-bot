@@ -55,7 +55,14 @@ client.on('interactionCreate', async interaction => {
 	
 	// TODO: MOVE THESE BUTTON HANDLERS TO THEIR OWN MODULES
 	if (interaction.isButton()){
+		let deferred = false;
 
+		setTimeout(async () => {
+			if(!deferred){
+				deferred = true
+				await interaction.deferUpdate()
+			}
+		}, 3000)
 
 		// GET PRESSER DISCORD USER DETAILS
 		const id = interaction.user.id
@@ -76,7 +83,11 @@ client.on('interactionCreate', async interaction => {
 			await unqueueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'left')
 			await message.edit(newMessageContent)
-			await interaction.deferUpdate()
+			
+			if(!deferred){ 
+				deferred = true
+				await interaction.deferUpdate()
+			}
 		}
 		else {
 			if(interaction.customId === 'topbutton'){
@@ -230,7 +241,7 @@ client.on('interactionCreate', async interaction => {
 					const filter = (reaction, user) => {
 						return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
 					};
-					const collector = popMsg.createReactionCollector({ filter, time: 10000 });
+					const collector = popMsg.createReactionCollector({ filter, time: 900000 });
 
 					collector.on('collect', async (reaction, user) => {
 						// HANDLE ACCEPT MATCH/GAME
@@ -241,9 +252,18 @@ client.on('interactionCreate', async interaction => {
 							// ONLY WHILE DEV
 							await setEveryAccepted(true)
 
+							if(await find10Accepts){
+								try {
+									if(popMsg){
+										await popMsg.delete()
+									}
+								} catch (err) { console.log('error deleting popmgs inside accept react colle') }
+							}
 
 							const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
 							await message.edit(newMessageContent)
+
+
 						}
 						// HANDLE DECLINE LOBBY
 						if(reaction.emoji.name == '❌'){
@@ -258,15 +278,11 @@ client.on('interactionCreate', async interaction => {
 
 					// COLLECTOR END ///////////////////////////////////////////////////////////////////////////////
 					collector.on('end', async (collected) => {
-						if(popMsg){
-							try {
-								await popMsg.delete()
-							} catch(err){ console.log('error deleting popmsg', error )}
-						}
-
 						// WAIT A BIT IF ALL 10 SUMMONERS ACTUALLY ACCEPTED
 						if(await find10Accepts()){
-
+							if(popMsg){
+								await popMsg.delete()
+							}
 
 							// SHOW GAME INFORMATION FOR 15 minutes.
 							setTimeout(async () => {
@@ -278,7 +294,14 @@ client.on('interactionCreate', async interaction => {
 								if(enoughSummoners()){
 									handleRunning()
 								}
-							}, 900000)
+							}, 30000)
+						}
+						else{
+							try{
+								if(popMsg){
+									await popMsg.delete()
+								}
+							} catch(err){console.log('error deleting popmgs inside colle',err)}
 						}
 					});
 				}
@@ -291,10 +314,10 @@ client.on('interactionCreate', async interaction => {
 			try{
 				if(interaction){
 					//console.log(interaction)
-					await interaction.deferUpdate()
-				}
-				else{
-					return
+					if(!deferred){
+						deferred = true
+						await interaction.deferUpdate()
+					}
 				}
 			}
 			catch (err){
@@ -313,10 +336,9 @@ client.on('interactionCreate', async interaction => {
 	if (!command) return;
 
 	try {
-		await command.execute(interaction);
+		if(command) await command.execute(interaction);
 	} catch (error) {
 		console.error(error);
-		return
 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
 });
