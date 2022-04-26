@@ -251,7 +251,6 @@ const matchMake = async () => {
             }
         })
 
-
         if(countAccepteds === 10){
             let tops = summonerLobby.filter(summoner => summoner.role === 'top')
             let jungles = summonerLobby.filter(summoner => summoner.role === 'jungle')

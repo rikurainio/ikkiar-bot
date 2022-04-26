@@ -230,10 +230,14 @@ client.on('interactionCreate', async interaction => {
 			}
 			*/
 
+			let resolvingLobby = false;
 			// ENABLE ALL BUTTONS BACK AFTER X
+			// FREE UP BUTTONS ONLY IF LOBBY IS NOT BEING RESOLVED
 			setTimeout(async () => {
-				await message.edit({ components: [row3, row4]})
-			}, 500)
+				if(!resolvingLobby){
+					await message.edit({ components: [row3, row4]})
+				}
+			}, 2000)
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
@@ -242,18 +246,27 @@ client.on('interactionCreate', async interaction => {
 
 			const handleRunning = async () => {
 				
+
+
 				if(await enoughSummoners()){
+					resolvingLobby = true;
+					let lobbyResolved = false;
+
+					//DISABLE QUEUE BUTTONS WHILE SITUATION IS RESOLVED
+					await message.edit({ components: [row,row2]})
+
+
 					const popMsg = await interaction.channel.send('```\nAccept | Decline\n```')
 					await popMsg.react('✅')
 					await popMsg.react('❌')
-
 					
 					/////////////////////////////////////////////////////////////////////////////////////////////////
 					// COLLECTOR //////////////////////////////////////////////////////////////////////////////////
+					/////////////////////// USER HAS 1 MINUTE ATM TO REACT!!!!! ///////////////////////////////////
 					const filter = (reaction, user) => {
 						return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
 					};
-					const collector = popMsg.createReactionCollector({ filter, time: 900000 });
+					const collector = popMsg.createReactionCollector({ filter, time: 60000 });
 
 					collector.on('collect', async (reaction, user) => {
 						// HANDLE ACCEPT MATCH/GAME
@@ -272,7 +285,6 @@ client.on('interactionCreate', async interaction => {
 								} catch (err) { console.log('error deleting popmgs inside accept react colle') }
 								
 								// DISABLE BUTTONS
-								// UNLOCK BUTTONS AFTER 5 minutes
 								await message.edit({ components: [row, row2]})
 
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
@@ -281,7 +293,7 @@ client.on('interactionCreate', async interaction => {
 								await removeMatchedSummonersFromQueue()
 								removedMMSFromQueue = true
 
-								// 5 MIN SHOW QUEUE AGAIN NORMALLY. QUEUE SIZE SHOULD BE -10 NOW AFTER LAST MM
+								// 15 MIN SHOW QUEUE AGAIN NORMALLY. QUEUE SIZE SHOULD BE -10 NOW AFTER LAST MM
 								setTimeout(async () => {
 									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'scouting for new lobbies to form:')
 									await message.edit({ content: newMessageContent, components: [row3, row4]})
@@ -294,6 +306,11 @@ client.on('interactionCreate', async interaction => {
 						}
 						// HANDLE DECLINE LOBBY
 						if(reaction.emoji.name == '❌'){
+
+							// LOBbY RESOLVES
+							// ENABLE BUTTONS
+							await message.edit({ components: [row3, row4]})
+
 							//console.log('user cancels')
 							await unqueueSummoner({ discordId: user.id })
 							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
