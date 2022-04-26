@@ -20,6 +20,7 @@ mongoose.connect(process.env.MONGO_URI)
 const { Client, Collection, Intents} = require('discord.js');
 const { ButtonBuilder } = require('@discordjs/builders');
 const { error } = require('node:console');
+const { handle } = require('express/lib/application');
 
 // CREATE NEW CLIENT
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
@@ -306,8 +307,21 @@ client.on('interactionCreate', async interaction => {
 						}
 						// HANDLE DECLINE LOBBY
 						if(reaction.emoji.name == '❌'){
+							let popMsgDeleted = false;
+							// RESOLVE IN TWO WAYS
+							// EITHER WE WENT UNDER 2 SUMMONERS PER EACH ROLE
+							// OR THE STACK IS STILL VALID AND LOBBY FORMIN CAN CONTINUE
 
-							// LOBbY RESOLVES
+							if(await enoughSummoners()){
+								await unqueueSummoner({ discordId: user.id })
+								const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
+								await message.edit(newMessageContent)
+								await popMsg.delete()
+								popMsgDeleted = true;
+								await handleRunning()
+							}
+
+							// GOING SUB 10 STACK
 							// ENABLE BUTTONS
 							await message.edit({ components: [row3, row4]})
 
@@ -315,8 +329,10 @@ client.on('interactionCreate', async interaction => {
 							await unqueueSummoner({ discordId: user.id })
 							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
 							await message.edit(newMessageContent)
-							await popMsg.delete()
-							return
+
+							if(!popMsgDeleted){
+								await popMsg.delete()
+							}
 						}});
 
 
