@@ -11,16 +11,16 @@ module.exports = {
             .setDescription('played match GameID from match history')
             .setRequired(true)),
 
-
 	async execute(interaction) {
         const matchId = interaction.options._hoistedOptions[0]['value']
         
         if(await matchAlreadySaved()){
             await interaction.reply({ content: 'Match has already been saved!'})
         }
-
-        const res = await saveMatch(matchId)
-        const amountOfMatchesSaved = await getMatchHistoryLength()
-        await interaction.reply(res);
+        else{
+            const res = await saveMatch(matchId)
+            const amountOfMatchesSaved = await getMatchHistoryLength()
+            await interaction.reply(res);
+        }
 	},
 };

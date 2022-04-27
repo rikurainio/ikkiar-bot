@@ -7,6 +7,7 @@ const { UserContextMenuInteraction } = require('discord.js')
 const Match = require('../models/match')
 const Queuer = require('../models/queuer')
 const { convertRiotMatchToMongoMatch } = require('./matchhistorytools')
+const { handleSummonerUpdatesAfterMatch } = require('./summonertools')
 
 const saveMatch = async (matchId) => {
     // AXIOS GET SETUPS
@@ -47,6 +48,11 @@ const saveMatch = async (matchId) => {
     if(!((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
         const mongoMatch = convertRiotMatchToMongoMatch(response.data)
         const newMatch = new Match({ gameData: mongoMatch})
+
+        // PASS MONGOMATCH TO SUMMONER UTIL
+        // IT WILL COLLECT DATA FOR SUMMONERS ABOUT THE GAME THEY PLAYED
+        await handleSummonerUpdatesAfterMatch(mongoMatch)
+
         const savedMatch = await newMatch.save()
         return '🐵 Ikkiar remembers this match now :).'
     }

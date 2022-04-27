@@ -9,19 +9,26 @@ const schema = mongoose.Schema({
   },
   
   roles: {
-    main: { type: String, required: true },
-    second: { type: String, required: true },
+    main: { type: String },
+    second: { type: String },
   },
 
   discordId: {
     type: String, 
-    required: true 
   },
 
   points: {
     type: Number,
     required: true,
-    default: 0
+    default: 1000
+  },
+
+  wins: {
+    type: Number
+  },
+
+  losses: {
+    type: Number
   },
 
   elo: {

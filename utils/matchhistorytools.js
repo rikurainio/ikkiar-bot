@@ -15,7 +15,8 @@ const getMatches = async () => {
 
 const matchAlreadySaved = async (matchId) => {
     const matchFound = await Match.find({ gameData: { metadata: { matchId: matchId }} })
-    if(matchFound){
+    console.log('matchound: ', matchFound)
+    if(matchFound && matchFound === []){
         return true
     }
     return false
@@ -58,8 +59,10 @@ const convertRiotMatchToMongoMatch = (match) => {
         const { participants, gameDuration, gameCreation, teams,} = info
 
         let summoners = []
-        participants.forEach(p => {
+        participants.forEach((p, idx) => {
             let usefulSummoner = {}
+            usefulSummoner.puuid = metadata.participants[idx]
+
             usefulSummoner.summonerName = p.summonerName
             usefulSummoner.championName = p.championName
             usefulSummoner.championLevel = p.champLevel
