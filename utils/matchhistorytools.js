@@ -38,11 +38,9 @@ const isValidMatchObject = (variable) => {
 const convertRiotMatchToMongoMatch = (match) => {
     let mongoMatch = {}
 
-    // DONT REALLY NEED METADATA...
-    //const metadata = match.toObject().any.metadata
 
     console.log('got match to parse: ', match)
-
+    const metadata = match.metadata
     const info = match.info
 
     // participants = Array of 10 summoners and their data
@@ -77,6 +75,7 @@ const convertRiotMatchToMongoMatch = (match) => {
             summoners.push(usefulSummoner)
         })
 
+        mongoMatch.metadata = metadata
         mongoMatch.gameCreation = gameCreation        
         mongoMatch.gameDuration = gameDuration
         mongoMatch.teams = teams

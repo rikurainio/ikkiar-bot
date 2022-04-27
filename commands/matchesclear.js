@@ -10,9 +10,7 @@ module.exports = {
 		.setDescription('developer tool - empty the match history'),
 		
 	async execute(interaction) {
-		/*
 		const deleteResult = await Match.deleteMany({})
-		*/
-		await interaction.reply('🧹 Match history not reset');
+		await interaction.reply('🧹 Match history reset');
 	},
 };
