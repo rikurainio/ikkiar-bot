@@ -82,7 +82,9 @@ client.on('interactionCreate', async interaction => {
 		const newQueueUser = {
 			discordName: name,
 			discordId: id,
-			queuedAt: timeNow
+			queuedAt: timeNow,
+			inLobby: false,
+			accepted: false
 		}
 		
 		if(interaction.customId === 'cancelbutton'){
@@ -243,7 +245,10 @@ client.on('interactionCreate', async interaction => {
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
-			await message.edit(newMessageContent)
+
+			if(message){
+				await message.edit(newMessageContent)
+			}
 
 			const handleRunning = async () => {
 
@@ -264,7 +269,7 @@ client.on('interactionCreate', async interaction => {
 					const filter = (reaction, user) => {
 						return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
 					};
-					const collector = popMsg.createReactionCollector({ filter, time: 60000 });
+					const collector = popMsg.createReactionCollector({ filter, time: 120000 });
 
 					collector.on('collect', async (reaction, user) => {
 						// HANDLE ACCEPT MATCH/GAME
@@ -273,9 +278,9 @@ client.on('interactionCreate', async interaction => {
 							await setAccepted({ discordId: user.id}, true)
 
 							// ONLY WHILE DEV
-							await setEveryAccepted(true)
+							//await setEveryAccepted(true)
 
-							if(await find10Accepts){
+							if(await find10Accepts()){
 								try {
 									if(popMsg){
 										await popMsg.delete()
@@ -291,7 +296,7 @@ client.on('interactionCreate', async interaction => {
 								await removeMatchedSummonersFromQueue()
 								removedMMSFromQueue = true
 
-								// 15 MIN SHOW QUEUE AGAIN NORMALLY. QUEUE SIZE SHOULD BE -10 NOW AFTER LAST MM
+								// 5 MIN SHOW QUEUE AGAIN NORMALLY. QUEUE SIZE SHOULD BE -10 NOW AFTER LAST MM
 								setTimeout(async () => {
 									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'scouting for new lobbies to form:')
 									if(message){
@@ -307,6 +312,7 @@ client.on('interactionCreate', async interaction => {
 								await message.edit(newMessageContent)
 							}
 						}
+
 						// HANDLE DECLINE LOBBY
 						if(reaction.emoji.name == '❌'){
 							let popMsgDeleted = false;
@@ -350,26 +356,13 @@ client.on('interactionCreate', async interaction => {
 
 					// COLLECTOR END ///////////////////////////////////////////////////////////////////////////////
 					collector.on('end', async (collected) => {
-						// WAIT A BIT IF ALL 10 SUMMONERS ACTUALLY ACCEPTED
-						if(await find10Accepts()){
-							try {
-								if(popMsg){
-									await popMsg.delete()
-								}
-							} catch(err){console.log('error deleting popmgs inside colle after find10',err)}
+						// DEV CHANGE MAYBE
+						// !use unqueueAFKs normally, unqueueAFKsDuplicates() when developing to accept match for everyone
 
-
-							// SHOW GAME INFORMATION FOR 15 minutes.
-							setTimeout(async () => {
-							
-								// !use unqueueAFKs normally, unqueueAFKsDuplicates() when developing to accept match for everyone
-								await unqueueAFKsDuplicates()
-								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking...')
-								await message.edit(newMessageContent)
-								if(enoughSummoners()){
-									handleRunning()
-								}
-							}, 300000)
+						await unqueueAFKs()
+					
+						if(enoughSummoners()){
+							handleRunning()
 						}
 					});
 				}

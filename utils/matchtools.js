@@ -1,5 +1,6 @@
 const { TimestampStyles } = require('@discordjs/builders')
 const axios = require('axios')
+const { UserContextMenuInteraction } = require('discord.js')
 
 // MONGO
 //const User = require('../models/user')
@@ -107,17 +108,11 @@ const find10Accepts = async () => {
 
 const setAccepted = async (user, boolean) => {
     // FIND THE USER TO UNQUEUE FROM DB
-    //console.log('[x] setAccepted with boolean and userid:', user.discordId, 'setAccepted:', boolean)
+    console.log('[x] setAccepted with boolean and userid:', user.discordId, user.accepted, '\nsetting to -->', boolean, '\n\n')
+    console.log('user discord is:', user.discordId)
 
     try {
-        const foundUser = await Queuer.findById(user.id)
-        if(foundUser){
-            // QUEUE CAN STORE MAX 10 ACCEPTERS AT ONCE
-            if(!await find10Accepts()){
-                foundUser.accepted = boolean
-                await foundUser.save()
-            }
-        }
+        await Queuer.updateMany({discordId: user.discordId}, { accepted: boolean })
     }
     catch (error) {
         console.log('could not change boolean of user.', error)
@@ -250,7 +245,7 @@ const matchMake = async () => {
         let title = "\nThese summoners have to Accept | Decline:"
         let wrapAnswer = "**Queue pop!**" + "```java" + "\n" + title + answer + "\n" + "```"
          
-        await dismissAcceptedsOutsideLobby()
+        //await dismissAcceptedsOutsideLobby()
 
         console.log('LobbySize: ', summonerLobby.length)
 
@@ -344,10 +339,13 @@ const queueSummoner = async (user) => {
         if(foundUser){
 
             // IF HE WANTED TO CHANGE THE ROLE
-           
+            if(user.role !== foundUser.role){
+                foundUser.role = user.role
+                foundUser.queuedAt = Date.now()
+                await foundUser.save()
+            }
             // DEV CHANGE OUT TO ROW 294 295
-            const temp = Queuer(user)
-            await temp.save()
+    
 
             /*
 
@@ -356,10 +354,10 @@ const queueSummoner = async (user) => {
 
             /*
 
-             if(user.role !== foundUser.role){
-            foundUser.role = user.role
-            foundUser.queuedAt = Date.now()
-            await foundUser.save()
+            if(user.role !== foundUser.role){
+                foundUser.role = user.role
+                foundUser.queuedAt = Date.now()
+                await foundUser.save()
             }
             /*
             */
