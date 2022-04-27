@@ -40,7 +40,10 @@ const convertRiotMatchToMongoMatch = (match) => {
 
     // DONT REALLY NEED METADATA...
     //const metadata = match.toObject().any.metadata
-    const info = match.toObject().any.info
+
+    console.log('got match to parse: ', match)
+
+    const info = match.info
 
     // participants = Array of 10 summoners and their data
         // gameDuration
@@ -71,7 +74,7 @@ const convertRiotMatchToMongoMatch = (match) => {
             usefulSummoner.teamId = p.teamId
             usefulSummoner.win = p.win
 
-            summonerData.push(usefulSummoner)
+            summoners.push(usefulSummoner)
         })
 
         mongoMatch.gameCreation = gameCreation        
@@ -84,7 +87,7 @@ const convertRiotMatchToMongoMatch = (match) => {
 
 
 const updateLeaderBoard = async () => {
-
+    console.log('update leaderboard called.')
 }
 
 module.exports = { getMatches, updateLeaderBoard, convertRiotMatchToMongoMatch }

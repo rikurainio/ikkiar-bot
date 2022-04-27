@@ -23,6 +23,9 @@ const saveMatch = async (matchId) => {
     // REQUIREMENTS AFTER MATCH HAS BEEN FOUND BY ID ===>
 
     // HAS TO BE OVER 15 MINUTES
+
+    /* DEV HANDLE TO GET PASS
+
     if(response.data.info.gameDuration < 900){
         return '🙊 Ikkiar will not save games under 15 minutes!'
     }
@@ -38,8 +41,10 @@ const saveMatch = async (matchId) => {
     if(response.data.metadata.participants.length !== 10){
         return '🙊 Ikkiar will only save games that had 10 players!'
     }
+
+    */
     // MATCH HAS TO HAVE 'ikkiar' in its name
-    if(((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
+    if(!((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
         const mongoMatch = convertRiotMatchToMongoMatch(response.data)
         const newMatch = new Match({ gameData: mongoMatch})
         const savedMatch = await newMatch.save()
