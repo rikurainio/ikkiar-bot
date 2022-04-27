@@ -7,22 +7,31 @@ const schema = mongoose.Schema({
     minLength: 3,
     maxLength: 16
   },
+  
   roles: {
     main: { type: String, required: true },
     second: { type: String, required: true },
   },
-  bio: {
-      type: String
+
+  discordId: {
+    type: String, 
+    required: true 
   },
-  discordId: { type: String },
+
   points: {
-      type: Number,
-      required: true,
-      default: 0
+    type: Number,
+    required: true,
+    default: 0
   },
+
   elo: {
-      type: Number,
-      default: 0
+    type: Number,
+    default: 0
+  },
+
+  puuid: {
+    type: String,
+    required: true
   }
   
 })
