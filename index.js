@@ -255,13 +255,13 @@ client.on('interactionCreate', async interaction => {
 				if(await enoughSummoners()){
 					resolvingLobby = true;
 					let lobbyResolved = false;
+					let tagSummonersContent = await getLobbySummonerNamesToTag()
 
 					//DISABLE QUEUE BUTTONS WHILE SITUATION IS RESOLVED
 					await message.edit({ components: [row,row2]})
-					const popMsg = await interaction.channel.send('\n**Accept** | **Decline**\n')
+					const popMsg = await interaction.channel.send(tagSummonersContent + '\n**Accept** | **Decline**\n')
 					await popMsg.react('✅')
 					await popMsg.react('❌')
-					let tagSummonersContent = await getLobbySummonerNamesToTag()
 					
 					/////////////////////////////////////////////////////////////////////////////////////////////////
 					// COLLECTOR //////////////////////////////////////////////////////////////////////////////////
