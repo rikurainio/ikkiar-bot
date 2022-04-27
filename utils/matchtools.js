@@ -245,7 +245,7 @@ const matchMake = async () => {
             answer += "\n" + (summoner.accepted ? '✅' : '⬛') + summoner.discordName + ' (' + summoner.role + ')'
         })
     
-        let title = "\nQueue pop: summoners have to accept match to generate teams:"
+        let title = "\nQueue pop: These summoners have to Accept/Decline:"
         let wrapAnswer = "\n" + title + answer + "\n"
         
         await dismissAcceptedsOutsideLobby()
@@ -533,7 +533,9 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         + "\n"
         + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
-    
+        
+        + '\n\n'
+
         + "```"
         + await matchMake()
         + "\n"

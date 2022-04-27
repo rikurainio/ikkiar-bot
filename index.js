@@ -297,8 +297,13 @@ client.on('interactionCreate', async interaction => {
 								// 15 MIN SHOW QUEUE AGAIN NORMALLY. QUEUE SIZE SHOULD BE -10 NOW AFTER LAST MM
 								setTimeout(async () => {
 									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'scouting for new lobbies to form:')
-									await message.edit({ content: newMessageContent, components: [row3, row4]})
+									if(message){
+										try{
+											await message.edit({ content: newMessageContent, components: [row3, row4]})
+										} catch(err){console.log('error enabling buttons after 5 minutes. ', err)}
+									}
 								}, 300000)
+								
 							}
 							if(!removedMMSFromQueue){
 								const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
