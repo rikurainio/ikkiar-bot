@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { matchAlreadySaved } = require('../utils/matchhistorytools');
 const { saveMatch, getMatchHistoryLength } = require('../utils/matchtools')
 
 module.exports = {
@@ -13,17 +14,13 @@ module.exports = {
 
 	async execute(interaction) {
         const matchId = interaction.options._hoistedOptions[0]['value']
-
+        
+        if(await matchAlreadySaved()){
+            await interaction.reply({ content: 'Match has already been saved!'})
+        }
 
         const res = await saveMatch(matchId)
         const amountOfMatchesSaved = await getMatchHistoryLength()
-
-        if(res.includes('🐵')){
-            await interaction.reply(res);
-        }
-        else{
-            await interaction.reply(res);
-
-        }
+        await interaction.reply(res);
 	},
 };

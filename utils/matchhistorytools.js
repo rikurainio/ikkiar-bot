@@ -13,6 +13,14 @@ const getMatches = async () => {
     }
 }
 
+const matchAlreadySaved = async (matchId) => {
+    const matchFound = await Match.find({ gameData: { metadata: { matchId: matchId }} })
+    if(matchFound){
+        return true
+    }
+    return false
+}
+
 // RETURNS TRUE IF GIVEN OBJECT IS RIOT GAMES STYLE MATCH OBJECT
 const isValidMatchObject = (variable) => {
     if(typeof(variable) === 'object'){
@@ -89,4 +97,7 @@ const updateLeaderBoard = async () => {
     console.log('update leaderboard called.')
 }
 
-module.exports = { getMatches, updateLeaderBoard, convertRiotMatchToMongoMatch }
+module.exports = { getMatches, updateLeaderBoard, convertRiotMatchToMongoMatch,
+                    matchAlreadySaved
+
+}
