@@ -223,6 +223,17 @@ const selectFastestTenSummoners = async () => {
     }
 }
 
+const getLobbySummonerNamesToTag = async () => {
+    let tagMessageContent = ''
+
+    fastestSummoners = await selectFastestTenSummoners()
+    fastestSummoners.forEach(summoner => {
+        tagMessageContent += '<@'+ summoner.discordId +'> '
+    })
+
+    return tagMessageContent
+}
+
 const matchMake = async () => {
     // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
     const summonerLobby = await selectFastestTenSummoners()
@@ -536,5 +547,6 @@ module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
                      getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
                     ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
                     setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
-                    find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState
+                    find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState,
+                    getLobbySummonerNamesToTag
                     }

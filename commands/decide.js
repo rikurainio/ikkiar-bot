@@ -4,7 +4,7 @@ const axios = require('axios');
 
 const ikkiarYesNos =
 						[
-						'No, Nope, Not this time, No way, Certainly Not, I think not, Ikkiar thinks no', 'OMEGALUL NO', 'Nay',
+						'No', 'Nope', 'Not this time', 'No way', 'Certainly Not', 'I think not', 'Ikkiar thinks no', 'OMEGALUL NO', 'Nay',
 
 						'Yes', 'Yep', 'Ye', 'Yuppers', 'Yeppers', 'YASS', 'Of course', 'Yay', 'Ikkiar says yes'
 						]

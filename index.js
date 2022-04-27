@@ -5,7 +5,7 @@ const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } = req
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs,
-		 enoughSummoners, unqueueAFKsDuplicates, find10Accepts, removeMatchedSummonersFromQueue } = require('./utils/matchtools')
+		 enoughSummoners, unqueueAFKsDuplicates, find10Accepts, removeMatchedSummonersFromQueue, getLobbySummonerNamesToTag} = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -238,7 +238,7 @@ client.on('interactionCreate', async interaction => {
 				if(!resolvingLobby){
 					await message.edit({ components: [row3, row4]})
 				}
-			}, 5000)
+			}, 2000)
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			const queueResponse = await queueSummoner(newQueueUser)
@@ -258,6 +258,8 @@ client.on('interactionCreate', async interaction => {
 					const popMsg = await interaction.channel.send('```\nAccept | Decline\n```')
 					await popMsg.react('✅')
 					await popMsg.react('❌')
+					let tagSummonersContent = await getLobbySummonerNamesToTag()
+					await popMsg.edit({ content: tagSummonersContent })
 					
 					/////////////////////////////////////////////////////////////////////////////////////////////////
 					// COLLECTOR //////////////////////////////////////////////////////////////////////////////////
