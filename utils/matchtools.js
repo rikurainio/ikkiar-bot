@@ -6,10 +6,9 @@ const { UserContextMenuInteraction } = require('discord.js')
 //const User = require('../models/user')
 const Match = require('../models/match')
 const Queuer = require('../models/queuer')
+const { convertRiotMatchToMongoMatch } = require('./matchhistorytools')
 
 const saveMatch = async (matchId) => {
-
-
     // AXIOS GET SETUPS
     const searchParam = 'EUW1_' + matchId
     let config = {
@@ -40,8 +39,9 @@ const saveMatch = async (matchId) => {
         return '🙊 Ikkiar will only save games that had 10 players!'
     }
     // MATCH HAS TO HAVE 'ikkiar' in its name
-    if( ((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
-        const newMatch = new Match({ gameData: response.data})
+    if(((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
+        const mongoMatch = convertRiotMatchToMongoMatch(response.data)
+        const newMatch = new Match({ gameData: mongoMatch})
         const savedMatch = await newMatch.save()
         return '🐵 Ikkiar remembers this match now :).'
     }

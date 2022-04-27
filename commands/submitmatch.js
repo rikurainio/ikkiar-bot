@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { saveMatch, getMatches, getMatchHistoryLength, validateUserAndMatch } = require('../utils/matchtools')
+const { saveMatch, getMatchHistoryLength } = require('../utils/matchtools')
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -13,6 +13,7 @@ module.exports = {
 
 	async execute(interaction) {
         const matchId = interaction.options._hoistedOptions[0]['value']
+
 
         const res = await saveMatch(matchId)
         const amountOfMatchesSaved = await getMatchHistoryLength()
