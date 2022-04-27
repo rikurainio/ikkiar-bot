@@ -245,9 +245,11 @@ const matchMake = async () => {
             answer += "\n" + (summoner.accepted ? '✅' : '⬛') + summoner.discordName + ' (' + summoner.role + ')'
         })
     
-        let title = "\nQueue pop: These summoners have to Accept/Decline:"
-        let wrapAnswer = "\n" + title + answer + "\n"
-        
+        //const reactionEmoji = message.guild.emojis.cache.find(emoji => emoji.name === 'greenalert');
+
+        let title = "\nThese summoners have to Accept | Decline:"
+        let wrapAnswer = "**Queue pop!**" + "```java" + "\n" + title + answer + "\n" + "```"
+         
         await dismissAcceptedsOutsideLobby()
 
         console.log('LobbySize: ', summonerLobby.length)
@@ -315,7 +317,8 @@ const matchMake = async () => {
                 + '\n\n____________________________________________________'
                 + '\nRemember to include \'ikkiar\' in Custom Game name ツ.'
                 + '\n\n> Match info disappears in 5 minutes to allow Summoners to queue again'
-            wrapAnswer = "java\n" + title + answer + "\n"
+
+            wrapAnswer = "```" + "java\n" + title + answer + "\n" + "```"
         }
 
         return wrapAnswer
@@ -509,13 +512,13 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     if(!matchReady){
         await setEveryAccepted(false)
 
-        content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
-        + "\nQueue Status: " + readyMessage 
-        + "\n🦏 top: " + top 
+        content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
+        + "\nstatus: " + readyMessage + '\n'
+        + "\n🦏 top:    " + top 
         + "\n🦥 jungle: " + jungle 
-        + "\n🧙 mid: " + mid 
-        + "\n🏹 ad: " + adc 
-        + "\n🐈 sup: " + support
+        + "\n🧙 mid:    " + mid 
+        + "\n🏹 adc:    " + adc 
+        + "\n⚡ sup:    " + support
         + "\n"
         + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
@@ -523,23 +526,21 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         return content
     }
     else{
-        content = "```" + "ini\n" + "Press wanted role icon below to Queue" + "\n[" + queuers.length + " Summoners in queue]\n"
-        + "\nQueue Status: " + readyMessage 
-        + "\n🦏 top: " + top 
+        content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
+        + "\nstatus: " + readyMessage + '\n'
+        + "\n🦏 top:    " + top 
         + "\n🦥 jungle: " + jungle 
-        + "\n🧙 mid: " + mid 
-        + "\n🏹 ad: " + adc 
-        + "\n🐈 sup: " + support
+        + "\n🧙 mid:    " + mid 
+        + "\n🏹 adc:    " + adc 
+        + "\n⚡ sup:    " + support
         + "\n"
         + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
         
         + '\n\n'
 
-        + "```"
         + await matchMake()
         + "\n"
-        + "```"
     
         return content
     }
