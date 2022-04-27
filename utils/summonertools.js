@@ -9,6 +9,7 @@ const handleSummonerUpdatesAfterMatch = async (mongoMatch) => {
     // COMPARE TEAMS THAT PLAYED
     const blueTeam = getBlueTeam(summoners)
     const redTeam = getRedTeam(summoners)
+    
     const betterTeam = calculateTeamSkillDifference(blueTeam, redTeam)
     //const fx = Math.floor(Math.random() * 1)
 
@@ -103,7 +104,11 @@ const updateSummonerStats = async (puuid, pointsAmount, win) => {
 }
 
 const getPointsByPuuId = async (puuid) => {
-    const summoner = await Summoner.findOne({ puuid: puuid})
+    const summoner = await Summoner.findOne({ puuid: puuid })
+    console.log('found sum by puuid:' ,summoner)
+    if(!summoner){
+        return 1000
+    }
     return summoner.points
 }
 
@@ -118,6 +123,10 @@ const createSummoner = async (summoner) => {
 
 const deleteSummoner = async (puuid) => {
     await Summoner.findOneAndRemove({puuid: puuid})
+}
+
+const clearSummoners = async (puuid) => {
+    await Summoner.deleteMany({})
 }
 
 const updateSummoner = async (puuid, update) => {
@@ -142,5 +151,5 @@ const findSummonerByDiscordId = async (discordId) => {
 module.exports = { 
     getSummoners, resetSummoners, createSummoner, deleteSummoner, updateSummoner,
     findSummonerByPuuId, findSummonerByName, findSummonerByDiscordId,
-    handleSummonerUpdatesAfterMatch,
+    handleSummonerUpdatesAfterMatch, clearSummoners
 }

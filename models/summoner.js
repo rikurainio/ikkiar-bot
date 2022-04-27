@@ -24,11 +24,13 @@ const schema = mongoose.Schema({
   },
 
   wins: {
-    type: Number
+    type: Number,
+    required: true
   },
 
   losses: {
-    type: Number
+    type: Number,
+    required: true
   },
 
   elo: {
