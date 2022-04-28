@@ -136,13 +136,13 @@ module.exports = {
 						await interaction.followUp({ embeds: [historyEmbed] }).then(msg =>{
 							setTimeout(async () => {
 								await msg.delete()
-							}, 110000)
+							}, 43190000)
 						})
 					})
 					
 					setTimeout(async () => {
 						await handleRunning()
-					}, 120000)
+					}, 43200000)
 				}		
 				
 				await handleRunning()
