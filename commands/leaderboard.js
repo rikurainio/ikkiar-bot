@@ -50,24 +50,15 @@ module.exports = {
 			let totalgames = s.wins + s.losses
 			let winratio = s.wins/totalgames
 			let wr = winratio * 100
+			let additionalNewLine = (idx === 2 || idx === 9) ? '\n\n' : '\n'
 
 			message 
 				+= (idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' 
 					: (idx > 9 ? '🐒' :'🏅'))))
 				+ getSpaces(s.username) + getPointSpaces(s.points.toString())
-				+ getGamesSpaces(totalgames.toString()) + getWRSpaces(wr.toString()) + '\n' 
+				+ getGamesSpaces(totalgames.toString()) + getWRSpaces(wr.toString()) + additionalNewLine
 		})
 
-		const historyEmbed = new MessageEmbed()
-								.setColor('#38b259')
-								.setTitle(newdate.toString())
-								.setDescription(findWinnerText(teams) + '\n match id: [' + mid + ']')
-								.addFields(
-									{ name: 'Blue Team', value: blueTexts, inline: true },	
-									{ name: 'Red Team', value: redTexts, inline: true })
-
-
-		//await interaction.followUp({ embeds: [historyEmbed] })
 		await updateLeaderBoard()
 		await interaction.reply({ content: nav + title + header + message + fot });
 	},
