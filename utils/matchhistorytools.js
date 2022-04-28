@@ -73,6 +73,6 @@ const getMatchHistoryData = async () => {
 }
 
 module.exports = { 
-    getMatches, updateLeaderBoard, convertRiotMatchToMongoMatch,
+    getMatches, convertRiotMatchToMongoMatch,
     matchAlreadySaved, getMatchHistoryData
 }
