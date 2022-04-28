@@ -1,5 +1,4 @@
 const { getPriorities } = require('../utils/matchtools')
-
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {

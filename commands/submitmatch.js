@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { matchAlreadySaved } = require('../utils/matchhistorytools');
-const { saveMatch, getMatchHistoryLength } = require('../utils/matchtools')
+const { saveMatch } = require('../utils/matchtools')
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -19,7 +19,6 @@ module.exports = {
         }
         else{
             const res = await saveMatch(matchId)
-            const amountOfMatchesSaved = await getMatchHistoryLength()
             await interaction.reply(res);
         }
 	},

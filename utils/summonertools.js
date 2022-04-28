@@ -1,17 +1,15 @@
 const Summoner = require("../models/summoner")
 
+
 // TAKES IN MONGO MATCH AND UPDATES SCORES ETC
 const handleSummonerUpdatesAfterMatch = async (mongoMatch) => {
-    //console.log('got mongomatch: ', mongoMatch)
-    const { metadata, teams, summoners } = mongoMatch
+    const { metadata, summoners } = mongoMatch
     const { participants: puuids } = metadata
 
     // COMPARE TEAMS THAT PLAYED
     const blueTeam = getBlueTeam(summoners)
     const redTeam = getRedTeam(summoners)
-    
     const betterTeam = calculateTeamSkillDifference(blueTeam, redTeam)
-    //const fx = Math.floor(Math.random() * 1)
 
     summoners.forEach(async (summoner, idx) => {
         // we need to create a new summoner document if its his/her first game in ikkiar
@@ -105,7 +103,6 @@ const updateSummonerStats = async (puuid, pointsAmount, win) => {
 
 const getPointsByPuuId = async (puuid) => {
     const summoner = await Summoner.findOne({ puuid: puuid })
-    //console.log('found sum by puuid:' ,summoner)
     if(!summoner){
         return 1000
     }
@@ -113,7 +110,7 @@ const getPointsByPuuId = async (puuid) => {
 }
 
 const resetSummoners = async () => {
-    const deletedSummoners = await Summoner.deleteMany({})
+    await Summoner.deleteMany({})
 }
 
 const createSummoner = async (summoner) => {
@@ -125,7 +122,7 @@ const deleteSummoner = async (puuid) => {
     await Summoner.findOneAndRemove({puuid: puuid})
 }
 
-const clearSummoners = async (puuid) => {
+const clearSummoners = async () => {
     await Summoner.deleteMany({})
 }
 
@@ -158,15 +155,6 @@ const getLeaderboardData = async () => {
     }
     return formattedSummoners
 }
-
-/*
-const getLeaderboardText = async () => {
-    const data = getLeaderboardData()
-    let message = ''
-
-
-}
-*/
 
 module.exports = { 
     getSummoners, resetSummoners, createSummoner, deleteSummoner, updateSummoner,

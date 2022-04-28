@@ -1,6 +1,4 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
-const axios = require('axios');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -22,10 +20,10 @@ module.exports = {
             messageContent = '🙊 karjista'
         }
         if(random >= 96 && random < 98){
-            messageContent = '🙈 ei huutista'
+            messageContent = '🙊💧 itkistä'
         }
         if(random >= 98 && random < 100){
-            messageContent = '🙈 ei huutista'
+            messageContent = '🙉 myötistä'
         }
         if(random === 100){
             messageContent = '🐒 loppu se vitun huutistelu'

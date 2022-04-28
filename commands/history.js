@@ -1,10 +1,9 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, Message, DiscordAPIError } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { getMatchHistoryData } = require('../utils/matchhistorytools');
 
 const findWinnerText = (teams) => {
 	var wonTeam = ''
-
 	teams.forEach(team => {
 		if(team.win){
 			wonTeam = team.teamId === 100 ? 'Blue win' : 'Red win'
@@ -13,22 +12,12 @@ const findWinnerText = (teams) => {
 	return wonTeam
 }
 
-const findTeamColorText = (teams) => {
-	if(team.teamId === 100){
-		return 'Blue'
-	}
-	else{
-		return 'Red'
-	}
-}
-
 const fixLength = (word, n) => {
 	while(word.toString().length < n){
 		word += " "
 	}
 	return word
 }
-
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -45,32 +34,19 @@ module.exports = {
 						matchCount += 1
 						const temp = JSON.stringify(match)
 						const m = JSON.parse(temp)
-						//console.log(Object.keys(m))
-
 						const game = m.gameData
-						//console.log(game)
-
 						const mid = game.metadata.matchId
 						const created = game.gameCreation
 						const duration = game.gameDuration
 						const teams = game.teams
 						const summoners = game.summoners
-						//console.log(mid, created, duration, teams, summoners)
-
-						let summonersTexts = ''
 
 						let blueTexts = ''
 						let redTexts = ''
 
-						
 						// SUMMONE TEXTS
 						summoners.forEach((summoner, idx) => {
-
-							let summonerText = ''
 							let summonerName = ''
-							
-						
-							
 							let champion = summoner.championName + ''
 
 							// SECOND LINE
@@ -120,10 +96,7 @@ module.exports = {
 						var day = dateObj.getDate();
 						var year = dateObj.getFullYear();
 
-						newdate =     day + '/' 
-									+ month + '/' 
-									+ year 
-
+						newdate = day + '/' + month + '/' + year 
 
 						const historyEmbed = new MessageEmbed()
 						.setColor('#38b259')
@@ -132,6 +105,7 @@ module.exports = {
 						.addFields(
 							{ name: 'Blue Team', value: blueTexts, inline: true },	
 							{ name: 'Red Team', value: redTexts, inline: true },)
+
 
 						await interaction.followUp({ embeds: [historyEmbed] }).then(msg =>{
 							setTimeout(async () => {

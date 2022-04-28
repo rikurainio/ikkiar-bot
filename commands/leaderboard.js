@@ -44,7 +44,6 @@ module.exports = {
 		let message = ''
 
 		const data = await getLeaderboardData()
-		//console.log('data: ', data)
 
 		data.forEach((s, idx) => {
 			let totalgames = s.wins + s.losses

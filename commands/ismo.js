@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const QUOTES = [
-
     "Minulla ei ole mitään peliriippuvuutta, USKO SE JO!!",
     "Voi perhanan perhana sun kanssas!",
     "JA NYT SINÄ PIDÄT TURPAS KIINNI!",
@@ -23,7 +22,6 @@ const QUOTES = [
     "Mulla vaan jotenki päässä naksahti..",
     "Mulla vaan jotenki pimeni päässä..",
 ]
-
 
 module.exports = {
 	data: new SlashCommandBuilder()

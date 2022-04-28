@@ -1,7 +1,4 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-
-// MONGO
-//const User = require('../models/user')
 const Queuer = require('../models/queuer')
 
 module.exports = {

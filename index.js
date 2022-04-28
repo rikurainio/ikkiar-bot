@@ -216,34 +216,16 @@ client.on('interactionCreate', async interaction => {
 							.setDisabled(false)
 					)
 
-
-			// DELETE BUTTONS
-			//interaction.update({ components: []})
-
-			//!!! RATE LIMITS BUTTONS TO AVOID CRASHING
-			// DISABLE ROWS
-			await message.edit({ components: [row, row2]})
-			
-			/*
-			// ENABLE AFTER x MS
-			if(!find10Accepts){
-				setTimeout(async () => {
-					await message.edit({ components: [row3, row4]})
-				}, 3000)
-			}
-			*/
-
 			let resolvingLobby = false;
-			// ENABLE ALL BUTTONS BACK AFTER X
-			// FREE UP BUTTONS ONLY IF LOBBY IS NOT BEING RESOLVED
+			await message.edit({ components: [row, row2]})
 			setTimeout(async () => {
 				if(!resolvingLobby){
 					await message.edit({ components: [row3, row4]})
 				}
-			}, 2000)
+			}, 2500)
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
-			const queueResponse = await queueSummoner(newQueueUser)
+			await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
 
 			if(message){
@@ -263,6 +245,8 @@ client.on('interactionCreate', async interaction => {
 					await popMsg.react('✅')
 					await popMsg.react('❌')
 					
+
+
 					/////////////////////////////////////////////////////////////////////////////////////////////////
 					// COLLECTOR //////////////////////////////////////////////////////////////////////////////////
 					/////////////////////// USER HAS 1 MINUTE ATM TO REACT!!!!! ///////////////////////////////////
@@ -270,6 +254,7 @@ client.on('interactionCreate', async interaction => {
 						return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
 					};
 					const collector = popMsg.createReactionCollector({ filter, time: 120000 });
+
 
 					collector.on('collect', async (reaction, user) => {
 						// HANDLE ACCEPT MATCH/GAME
@@ -281,17 +266,11 @@ client.on('interactionCreate', async interaction => {
 							//await setEveryAccepted(true)
 
 							if(await find10Accepts()){
-								try {
-									if(popMsg){
-										await popMsg.delete()
-									}
-								} catch (err) { console.log('error deleting popmgs inside accept react colle') }
 								
-								// DISABLE BUTTONS
-								await message.edit({ components: [row, row2]})
-
+								// REMOVE POPMSG AND DISABLE BUTTONS IF MATCH IS MADE
+								await popMsg.delete()
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
-								await message.edit(newMessageContent)
+								await message.edit({ content: newMessageContent, compontents: [row, row2]})
 
 								await removeMatchedSummonersFromQueue()
 								removedMMSFromQueue = true
@@ -302,7 +281,7 @@ client.on('interactionCreate', async interaction => {
 									if(message){
 										try{
 											await message.edit({ content: newMessageContent, components: [row3, row4]})
-										} catch(err){console.log('error enabling buttons after 5 minutes. ', err)}
+										} 	catch(err){console.log('error enabling buttons after 5 minutes. ', err)}
 									}
 								}, 300000)
 								
@@ -313,62 +292,52 @@ client.on('interactionCreate', async interaction => {
 							}
 						}
 
+
 						// HANDLE DECLINE LOBBY
 						if(reaction.emoji.name == '❌'){
-							let popMsgDeleted = false;
+
 							// RESOLVE IN TWO WAYS
 							// EITHER WE WENT UNDER 2 SUMMONERS PER EACH ROLE
-							// OR THE STACK IS STILL VALID AND LOBBY FORMIN CAN CONTINUE
+							// OR THE STACK IS STILL VALID AND LOBBY FORMING CAN CONTINUE
 
 							if(await enoughSummoners()){
 								await unqueueSummoner({ discordId: user.id })
 								const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
 								await message.edit(newMessageContent)
 								await popMsg.delete()
-								popMsgDeleted = true;
 
 								let enough = await enoughSummoners()
+
 								if(!enough){
-									// GOING SUB 10 STACK
-									// ENABLE BUTTONS
 									await message.edit({ components: [row3, row4]})	
 								}
-
 								await handleRunning()
 							}
 							else{
-							// GOING SUB 10 STACK
-							// ENABLE BUTTONS
-							await message.edit({ components: [row3, row4]})
-
-							//console.log('user cancels')
-							await unqueueSummoner({ discordId: user.id })
-							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
-							await message.edit(newMessageContent)
-
-							if(!popMsgDeleted){
+								await unqueueSummoner({ discordId: user.id })
+								const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
+								await message.edit({content: newMessageContent, components: [row3, row4]})
 								await popMsg.delete()
 							}
-							}
-						
 						}});
 
-
-					// COLLECTOR END ///////////////////////////////////////////////////////////////////////////////
 					collector.on('end', async (collected) => {
-						// DEV CHANGE MAYBE
-						// !use unqueueAFKs normally, unqueueAFKsDuplicates() when developing to accept match for everyone
 
 						await unqueueAFKs()
-					
-						if(enoughSummoners()){
+						await message.edit({ components: [row3, row4]})
+						if(await enoughSummoners()){
 							handleRunning()
 						}
+						else{
+							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
+							await message.edit({ content: newMessageContent, components: [row3, row4]})
+						}
 					});
+
+
+
 				}
-				else{
-					return
-				}
+				else { return }
 				
 			}
 			await handleRunning()
@@ -376,13 +345,12 @@ client.on('interactionCreate', async interaction => {
 	}
 
 
+	
 	// IF INTERACTION WAS NOT A BUTTON INTERACTION ==>
 	if (!interaction.isCommand()) return;
 
 	const command = client.commands.get(interaction.commandName);
-
 	if (!command) return;
-
 	try {
 		if(command) await command.execute(interaction);
 	} catch (error) {

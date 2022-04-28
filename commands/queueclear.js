@@ -1,7 +1,4 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-
-// MONGO
-//const User = require('../models/user')
 const Queuer = require('../models/queuer')
 
 module.exports = {
@@ -10,7 +7,7 @@ module.exports = {
 		.setDescription('developer tool - empty the queue'),
 		
 	async execute(interaction) {
-		const deleteResult = await Queuer.deleteMany({})
+		await Queuer.deleteMany({})
 		await interaction.reply('🧹 Queue reset');
 	},
 };

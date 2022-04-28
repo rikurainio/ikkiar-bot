@@ -119,9 +119,6 @@ const find10Accepts = async () => {
 
 const setAccepted = async (user, boolean) => {
     // FIND THE USER TO UNQUEUE FROM DB
-    //console.log('[x] setAccepted with boolean and userid:', user.discordId, user.accepted, '\nsetting to -->', boolean, '\n\n')
-    //console.log('user discord is:', user.discordId)
-
     try {
         await Queuer.updateMany({discordId: user.discordId}, { accepted: boolean })
     }
@@ -165,7 +162,6 @@ const summonerCanAcceptGame = async (checkId) => {
     summoners.forEach(summoner => {
         if(summoner['discordId'].toString() === checkId.toString()){ can = true }
     })
-    //console.log('summoner can value:', can)
     return can
 }
 
@@ -177,9 +173,6 @@ const selectFastestTenSummoners = async () => {
     // SUMMONERS IN ORDER OF QUEUEDAT. ITERATE AND GET THE FASTEST 10. FILL 2 SUMMONERS TO EACH ROLE
     summonersByQueueTime.forEach(async (summoner, idx) => {
         if(selected.length < 10){
-
-            //console.log('index is: ', idx)
-            //console.log('summoner: ', summoner)
 
             if(summoner.role === 'top'){
                 if(top < 2){
@@ -231,19 +224,19 @@ const selectFastestTenSummoners = async () => {
 
 const getLobbySummonerNamesToTag = async () => {
     let tagMessageContent = ''
-
-    fastestSummoners = await selectFastestTenSummoners()
+    const fastestSummoners = await selectFastestTenSummoners()
+    
     fastestSummoners.forEach(summoner => {
         tagMessageContent += '<@'+ summoner.discordId +'> '
     })
-
     return tagMessageContent
 }
 
+
+// RETURNS A MESSAGE STATUS BASED ON LOBBY/MATCMHAKING STATUS
 const matchMake = async () => {
     // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
     const summonerLobby = await selectFastestTenSummoners()
-    //console.log('summonerLobby length is -->', summonerLobby)
 
     if(summonerLobby.length === 10){
         let answer = ''
@@ -251,20 +244,11 @@ const matchMake = async () => {
             answer += "\n" + (summoner.accepted ? '✅' : '⬛') + summoner.discordName + ' (' + summoner.role + ')'
         })
     
-        //const reactionEmoji = message.guild.emojis.cache.find(emoji => emoji.name === 'greenalert');
-
         let title = "\nThese summoners have to Accept | Decline:"
         let wrapAnswer = "**Queue pop!**" + "```java" + "\n" + title + answer + "\n" + "```"
-         
-        //await dismissAcceptedsOutsideLobby()
-
-        console.log('LobbySize: ', summonerLobby.length)
-
-        // CHECK ACCEPTS ( DEV )
         let countAccepteds = 0
 
         summonerLobby.forEach((lobbySummoner, idx) => {
-            //console.log('lobbysum ' + idx + ' accepted: ' , lobbySummoner.accepted)
             if(lobbySummoner.accepted){
                 countAccepteds += 1
             }
@@ -286,7 +270,6 @@ const matchMake = async () => {
 
             summonersByRoles.forEach(roleArray => {
                 let teamIndex = Math.floor(Math.random() * 2)
-                //console.log('rolearray:', roleArray)
 
                 if(teamIndex === 0){
                     blueTeam.push(roleArray[0].discordName)
@@ -306,30 +289,30 @@ const matchMake = async () => {
                 +  '\nsupport: ' + blueTeam[4] 
 
             let redTeamText = 
-                '\ntop:     ' + redTeam[0] 
-             +  '\njungle:  ' + redTeam[1] 
-             +  '\nmid:     ' + redTeam[2] 
-             +  '\nadc:     ' + redTeam[3] 
-             +  '\nsupport: ' + redTeam[4] 
-
+                    '\ntop:     ' + redTeam[0] 
+                +  '\njungle:  ' + redTeam[1] 
+                +  '\nmid:     ' + redTeam[2] 
+                +  '\nadc:     ' + redTeam[3] 
+                +  '\nsupport: ' + redTeam[4] 
 
             title = '🐵 monke formed superteams!\n'
             answer = 
                     '\n👥 BLUE' 
                 + blueTeamText
-                + '\n\n👥 RED'
+                +   '\n\n👥 RED'
                 +  redTeamText
 
-                + '\n\n____________________________________________________'
-                + '\nRemember to include \'ikkiar\' in Custom Game name ツ.'
-                + '\n\n> Match info disappears in 5 minutes to allow Summoners to queue again'
+                +   '\n\n____________________________________________________'
+                +   '\nRemember to include \'ikkiar\' in Custom Game name ツ.'
+                +   '\n\n> Match info disappears in 5 minutes to allow Summoners to queue again'
+
 
             wrapAnswer = "```" + "java\n" + title + answer + "\n" + "```"
-        }
-
+        }   
         return wrapAnswer
     }
 }
+
 
 // RETURNS QUEUE SIZE
 const checkQueueSize = async () => {
@@ -354,41 +337,21 @@ const queueSummoner = async (user) => {
                 foundUser.role = user.role
                 foundUser.queuedAt = Date.now()
                 await foundUser.save()
-            }
-            // DEV CHANGE OUT TO ROW 294 295
-    
-
-            /*
-
-            const temp = Queuer(user)
-            await temp.save()
-
-            /*
-
-            if(user.role !== foundUser.role){
-                foundUser.role = user.role
-                foundUser.queuedAt = Date.now()
-                await foundUser.save()
-            }
-            /*
-            */
+                }
         }
         else {
             // IF DISCORD USER IS NOT IN ACTIVE QUEUE ALREADY
             const newQueuer = new Queuer(user)
             await newQueuer.save()
-        }
+            }
     }
 }
 
 const unqueueSummoner = async (user) => {
-    // FIND THE USER TO UNQUEUE FROM DB
-
     // AVOID TARGETING SUMMONERS WHO CONFIRMED A MATCH
     if(!user.accepted){
         const foundUser = await Queuer.findOne({ discordId: user.discordId })
         if(foundUser){
-            //console.log('removing from queue: ', foundUser.discordName, 'his accepted status is: ', foundUser.accepted, 'gv: ', user.accepted)
             await foundUser.remove()
         }
     }
@@ -442,9 +405,7 @@ const getTimeStamp = () => {
 const getPriorities = async () => {
     const queuers = await Queuer.find({})
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
-    //console.log('after sort', queuers)
     const queuersSortedByQueuedAt = queuers.map((queuer, idx) =>  idx + '. ' + queuer.discordName)
-    //console.log('after map', queuersSortedByQueuedAt)
     return queuersSortedByQueuedAt
 }
 
@@ -452,7 +413,6 @@ const getPriorities = async () => {
 const getPriorities2 = async () => {
     const queuers = await Queuer.find({})
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
-    //console.log('after sort', queuers)
     return queuers
 }
 
@@ -469,12 +429,9 @@ const enoughSummoners = async () => {
         if(summoner.role === 'support' ) { support += 1 }
     })
     
-    //console.log('roles amounts in checker: ', top, jungle, mid, support, adc)
     if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
-        //console.log('ENOUGH? LOL')
         return true;
     }
-    //console.log('NOT ENOUGH OMEGALUL')
     return false;
 }
 
@@ -523,11 +480,11 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
         content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
         + "\nstatus: " + readyMessage + '\n'
-        + "\n🦏 top:    " + top 
-        + "\n🦥 jungle: " + jungle 
+        + "\n🏝️ top:    " + top 
+        + "\n🐕‍🦺 jungle: " + jungle 
         + "\n🧙 mid:    " + mid 
         + "\n🏹 adc:    " + adc 
-        + "\n⚡ sup:    " + support
+        + "\n⚕️ sup:    " + support
         + "\n"
         + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
@@ -537,17 +494,17 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     else{
         content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
         + "\nstatus: " + readyMessage + '\n'
-        + "\n🦏 top:    " + top 
-        + "\n🦥 jungle: " + jungle 
+        + "\n🏝️ top:    " + top 
+        + "\n🐕‍🦺 jungle: " + jungle 
         + "\n🧙 mid:    " + mid 
         + "\n🏹 adc:    " + adc 
-        + "\n⚡ sup:    " + support
+        + "\n⚕️ sup:    " + support
         + "\n"
         + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
         
         + '\n\n'
-
+        
         + await matchMake()
         + "\n"
     
@@ -555,10 +512,11 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     }
 }
 
-module.exports = { saveMatch, getMatches, getMatchHistoryLength, matchFound,
-                     getUpdatedQueueStatusText, queueSummoner, unqueueSummoner
-                    ,getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
-                    setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
-                    find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState,
-                    getLobbySummonerNamesToTag
-                    }
+module.exports = { 
+    saveMatch, getMatches, getMatchHistoryLength, matchFound,
+    getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
+    getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
+    setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
+    find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState,
+    getLobbySummonerNamesToTag
+}

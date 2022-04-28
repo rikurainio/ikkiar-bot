@@ -1,41 +1,13 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } = require('discord.js');
-const { getUpdatedQueueStatusText, setEveryAccepted, setInitBooleanState } = require('../utils/matchtools')
-
-// MONGO
-//const User = require('../models/user')
-const Queuer = require('../models/queuer')
+const { MessageActionRow, MessageButton } = require('discord.js');
+const { getUpdatedQueueStatusText, setInitBooleanState } = require('../utils/matchtools')
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('modshowqueue')
 		.setDescription('mod tool for showing queue status'),
 
-
 	async execute(interaction) {
-		/*
-        const queuers = await Queuer.find({})
-		let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
-
-		queuers.forEach(summoner => {
-
-			if(summoner.role === 'top'){
-				top += 1
-			}
-			if(summoner.role === 'jungle'){
-				jungle += 1
-			}
-			if(summoner.role === 'mid'){
-				mid += 1
-			}
-			if(summoner.role === 'adc'){
-				adc += 1
-			}
-			if(summoner.role === 'support'){
-				support += 1
-			}
-		})
-		*/
 
         const row = new MessageActionRow()
 			.addComponents(
