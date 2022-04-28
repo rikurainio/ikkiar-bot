@@ -3,21 +3,21 @@ const { updateLeaderBoard } = require('../utils/matchhistorytools');
 const { getLeaderboardData } = require('../utils/summonertools');
 
 const getSpaces = (name) => {
-	while(name.length < 22){
+	while(name.length < 20){
 		name += " "
 	}
 	return name
 }
 
 const getPointSpaces = (points) => {
-	while(points.length < 11){
+	while(points.length < 12){
 		points += " "
 	}
 	return points
 }
 
 const getGamesSpaces = (games) => {
-	while(games.length < 10){
+	while(games.length < 8){
 		games += " "
 	}
 	return games
@@ -43,7 +43,7 @@ module.exports = {
 		let header = '🐵 Apes 🐵           Points     Games     W/R     \n'
 		let message = ''
 		const data = await getLeaderboardData()
-		console.log('data: ', data)
+		//console.log('data: ', data)
 
 		data.forEach((s, idx) => {
 			let totalgames = s.wins + s.losses

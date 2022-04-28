@@ -2,7 +2,7 @@ const Summoner = require("../models/summoner")
 
 // TAKES IN MONGO MATCH AND UPDATES SCORES ETC
 const handleSummonerUpdatesAfterMatch = async (mongoMatch) => {
-    console.log('got mongomatch: ', mongoMatch)
+    //console.log('got mongomatch: ', mongoMatch)
     const { metadata, teams, summoners } = mongoMatch
     const { participants: puuids } = metadata
 
@@ -105,7 +105,7 @@ const updateSummonerStats = async (puuid, pointsAmount, win) => {
 
 const getPointsByPuuId = async (puuid) => {
     const summoner = await Summoner.findOne({ puuid: puuid })
-    console.log('found sum by puuid:' ,summoner)
+    //console.log('found sum by puuid:' ,summoner)
     if(!summoner){
         return 1000
     }
@@ -153,7 +153,10 @@ const getLeaderboardData = async () => {
     const summoners = await Summoner.find({})
     const formattedSummoners = summoners.map(({ username, points, wins, losses }) => ({ username, points, wins, losses }))
     formattedSummoners.sort((a, b) => (a.points < b.points) ? 1 : -1)
-    return formattedSummoners
+    if(formattedSummoners.length > 30){
+        return formattedSummoners.slice(0, 30)
+    }
+    return formattedSummoners.slice(0,30)
 }
 
 /*

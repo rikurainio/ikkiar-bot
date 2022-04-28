@@ -13,6 +13,7 @@ module.exports = {
 
 
 	async execute(interaction) {
+		/*
         const queuers = await Queuer.find({})
 		let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
 
@@ -34,6 +35,7 @@ module.exports = {
 				support += 1
 			}
 		})
+		*/
 
         const row = new MessageActionRow()
 			.addComponents(

@@ -119,8 +119,8 @@ const find10Accepts = async () => {
 
 const setAccepted = async (user, boolean) => {
     // FIND THE USER TO UNQUEUE FROM DB
-    console.log('[x] setAccepted with boolean and userid:', user.discordId, user.accepted, '\nsetting to -->', boolean, '\n\n')
-    console.log('user discord is:', user.discordId)
+    //console.log('[x] setAccepted with boolean and userid:', user.discordId, user.accepted, '\nsetting to -->', boolean, '\n\n')
+    //console.log('user discord is:', user.discordId)
 
     try {
         await Queuer.updateMany({discordId: user.discordId}, { accepted: boolean })
@@ -264,7 +264,7 @@ const matchMake = async () => {
         let countAccepteds = 0
 
         summonerLobby.forEach((lobbySummoner, idx) => {
-            console.log('lobbysum ' + idx + ' accepted: ' , lobbySummoner.accepted)
+            //console.log('lobbysum ' + idx + ' accepted: ' , lobbySummoner.accepted)
             if(lobbySummoner.accepted){
                 countAccepteds += 1
             }

@@ -1,4 +1,3 @@
-const match = require('../models/match')
 const Match = require('../models/match')
 
 
@@ -48,7 +47,7 @@ const convertRiotMatchToMongoMatch = (match) => {
     let mongoMatch = {}
 
 
-    console.log('got match to parse: ', match)
+    //console.log('got match to parse: ', match)
     const metadata = match.metadata
     const info = match.info
 
@@ -95,12 +94,31 @@ const convertRiotMatchToMongoMatch = (match) => {
         return mongoMatch
 }
 
+/*
+const updateMatchHistory = async (mongoMatch) => {
+
+}
+*/
+
+// Returns last 20 matches at max
+const getMatchHistoryData = async () => {
+    const matches = await Match.find({})
+    //console.log('mh data: ', matches)
+    matches.sort((a,b,) => (a.gameData.gameCreation < b.gameData.gameCreation) ? 1 : -1)
+
+    if(matches.length > 20){
+        const lastTwenty = matches.splice(0, 20)
+        return lastTwenty
+    }
+    return matches
+}
+
 
 const updateLeaderBoard = async () => {
-    console.log('update leaderboard called.')
+    //console.log('update leaderboard called.')
 }
 
 module.exports = { getMatches, updateLeaderBoard, convertRiotMatchToMongoMatch,
-                    matchAlreadySaved
+                    matchAlreadySaved, getMatchHistoryData
 
 }
