@@ -148,8 +148,25 @@ const findSummonerByDiscordId = async (discordId) => {
     return foundSummoner
 }
 
+// get first 20 summoners by score
+const getLeaderboardData = async () => {
+    const summoners = await Summoner.find({})
+    const formattedSummoners = summoners.map(({ username, points, wins, losses }) => ({ username, points, wins, losses }))
+    formattedSummoners.sort((a, b) => (a.points < b.points) ? 1 : -1)
+    return formattedSummoners
+}
+
+/*
+const getLeaderboardText = async () => {
+    const data = getLeaderboardData()
+    let message = ''
+
+
+}
+*/
+
 module.exports = { 
     getSummoners, resetSummoners, createSummoner, deleteSummoner, updateSummoner,
     findSummonerByPuuId, findSummonerByName, findSummonerByDiscordId,
-    handleSummonerUpdatesAfterMatch, clearSummoners
+    handleSummonerUpdatesAfterMatch, clearSummoners, getLeaderboardData
 }
