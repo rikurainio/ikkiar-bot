@@ -40,7 +40,7 @@ module.exports = {
 		let nav = "```\n"
 		let fot = "\n```"
 		let title ='                 👑 LEADERBOARD 👑\n\n'
-		let header = '🐵 Apes 🐵           Points     Games     W/R     Role\n'
+		let header = '🐵 Apes 🐵           Points     Games     W/R     \n'
 		let message = ''
 		const data = await getLeaderboardData()
 		console.log('data: ', data)
