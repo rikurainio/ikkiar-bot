@@ -91,14 +91,14 @@ module.exports = {
 
 				if(summoner.teamId === 100){
 					summonerName = `\`\`\`ini\n👤[${summoner.summonerName}] `
-					let paddedName = fixLength(summonerName, 30)
-					let summonerLine1 = paddedName + "\n" + champion + '\n```'
+					let paddedName = fixLength(summonerName, 17)
+					let summonerLine1 = paddedName + champion + '\n```'
 					blueTexts += summonerLine1 + summonerLine2
 				}
 				if(summoner.teamId === 200){
 					summonerName = `\`\`\`scss\n👤[${summoner.summonerName}] `
-					let paddedName = fixLength(summonerName, 30)
-					let summonerLine1 = paddedName + "\n" + champion + '\n```'
+					let paddedName = fixLength(summonerName, 17)
+					let summonerLine1 = paddedName + champion + '\n```'
 					redTexts += summonerLine1 + summonerLine2
 				}
 
