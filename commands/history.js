@@ -2,6 +2,18 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Message, DiscordAPIError } = require('discord.js');
 const { getMatchHistoryData } = require('../utils/matchhistorytools');
 
+const findWinnerText = (teams) => {
+	wonTeam = ''
+
+	teams.forEach(team => {
+		if(team.win){
+			wonTeam = team.teamId === 100 ? 'Blue win' : 'Red win'
+		}
+	})
+	return wonTeam
+}
+
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('history')
@@ -12,13 +24,25 @@ module.exports = {
 
 		matches = await getMatchHistoryData()
 		await matches.forEach(async (match, idx) => {
-			const { metadata, gameCreation, gameDuration, teams, summoners } = match
-			console.log(metadata)
+			const temp = JSON.stringify(match)
+			const m = JSON.parse(temp)
+			//console.log(Object.keys(m))
+
+			const game = m.gameData
+			//console.log(game)
+
+			const mid = game.metadata.matchId
+			const created = game.gameCreation
+			const duration = game.gameDuration
+			const teams = game.teams
+			const summoners = game.summoners
+
+			console.log(mid, created, duration, teams, summoners)
 
 			const historyEmbed = new MessageEmbed()
 			.setColor('#38b259')
-			.setTitle('EUW1_12314536')
-			.setDescription('blue/red win')
+			.setTitle(mid)
+			.setDescription(findWinnerText(teams))
 			.addField(
 				'gameId', 'matchid'
 			)
