@@ -13,6 +13,15 @@ const findWinnerText = (teams) => {
 	return wonTeam
 }
 
+const findTeamColorText = (teams) => {
+	if(team.teamId === 100){
+		return 'Blue'
+	}
+	else{
+		return 'Red'
+	}
+}
+
 const fixLength = (word, n) => {
 	while(word.toString().length < n){
 		word += " "
@@ -122,9 +131,11 @@ module.exports = {
 			.setColor('#38b259')
 			.setTitle(newdate.toString())
 			.setDescription(findWinnerText(teams) + '\n match id: [' + mid + ']')
+
+
 			.addFields(
-				{ name: 'Red Team', value: blueTexts, inline: true },	
-				{ name: 'Blue Team', value: redTexts, inline: true },
+				{ name: 'Blue Team', value: blueTexts, inline: true },	
+				{ name: 'Red Team', value: redTexts, inline: true },
 				
 			)
 
