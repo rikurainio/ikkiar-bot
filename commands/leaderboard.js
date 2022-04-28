@@ -42,6 +42,7 @@ module.exports = {
 		let title ='                 👑 LEADERBOARD 👑\n\n'
 		let header = '🐵 Apes 🐵           Points     Games     W/R     \n'
 		let message = ''
+
 		const data = await getLeaderboardData()
 		//console.log('data: ', data)
 
@@ -57,6 +58,16 @@ module.exports = {
 				+ getGamesSpaces(totalgames.toString()) + getWRSpaces(wr.toString()) + '\n' 
 		})
 
+		const historyEmbed = new MessageEmbed()
+								.setColor('#38b259')
+								.setTitle(newdate.toString())
+								.setDescription(findWinnerText(teams) + '\n match id: [' + mid + ']')
+								.addFields(
+									{ name: 'Blue Team', value: blueTexts, inline: true },	
+									{ name: 'Red Team', value: redTexts, inline: true })
+
+
+		//await interaction.followUp({ embeds: [historyEmbed] })
 		await updateLeaderBoard()
 		await interaction.reply({ content: nav + title + header + message + fot });
 	},

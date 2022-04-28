@@ -39,173 +39,112 @@ module.exports = {
 		await interaction.reply('🐒🎮')
 
 		matches = await getMatchHistoryData()
-		await matches.forEach(async (match, idx) => {
-			const temp = JSON.stringify(match)
-			const m = JSON.parse(temp)
-			//console.log(Object.keys(m))
+				let matchCount = 0;
+				const handleRunning = async () => {
+					await matches.forEach(async (match, idx) => {
+						matchCount += 1
+						const temp = JSON.stringify(match)
+						const m = JSON.parse(temp)
+						//console.log(Object.keys(m))
 
-			const game = m.gameData
-			//console.log(game)
+						const game = m.gameData
+						//console.log(game)
 
-			const mid = game.metadata.matchId
-			const created = game.gameCreation
-			const duration = game.gameDuration
-			const teams = game.teams
-			const summoners = game.summoners
-			//console.log(mid, created, duration, teams, summoners)
+						const mid = game.metadata.matchId
+						const created = game.gameCreation
+						const duration = game.gameDuration
+						const teams = game.teams
+						const summoners = game.summoners
+						//console.log(mid, created, duration, teams, summoners)
 
-			let summonersTexts = ''
+						let summonersTexts = ''
 
-			let blueTexts = ''
-			let redTexts = ''
+						let blueTexts = ''
+						let redTexts = ''
 
-			
-			// SUMMONE TEXTS
-			summoners.forEach((summoner, idx) => {
+						
+						// SUMMONE TEXTS
+						summoners.forEach((summoner, idx) => {
 
-				let summonerText = ''
-				let summonerName = ''
+							let summonerText = ''
+							let summonerName = ''
+							
+						
+							
+							let champion = summoner.championName + ''
+
+							// SECOND LINE
+							let kda = '💀KDA:'
+							let dmg = '⚔️Dmg:'
+							let gold = '💹Gold:'
+							let vision = '🎆Vision:'
+
+							let paddedk = fixLength(kda, 10)
+							let paddedd = fixLength(dmg, 10)
+							let paddedg = fixLength(gold, 10)
+							let paddedv = fixLength(vision, 10)
+
+							let kdavalue = summoner.kills + ' / ' + summoner.deaths + ' / ' + summoner.assists
+							let dmgvalue = summoner.totalDamageDealtToChampions
+							let goldvalue = summoner.goldEarned
+							let visionvalue = summoner.visionScore
+
+							let paddedkda = fixLength(kdavalue, 15)
+							let paddeddmg = fixLength(dmgvalue, 15)
+							let paddedgold = fixLength(goldvalue, 15)
+							let paddedvision = fixLength(visionvalue, 15)
+
+							let k = paddedk + paddedkda + ""
+							let d = paddedd + paddeddmg
+							let g = paddedg + paddedgold + ""
+							let v = paddedv + paddedvision
+
+							let summonerLine2 = "```css\n" + k + "\n" + d + "\n" + g + "\n" + v + "\n```"
+
+							if(summoner.teamId === 100){
+								summonerName = `\`\`\`ini\n👤[${summoner.summonerName}] `
+								let paddedName = fixLength(summonerName, 17)
+								let summonerLine1 = paddedName + champion + '\n```'
+								blueTexts += summonerLine1 + summonerLine2
+							}
+							if(summoner.teamId === 200){
+								summonerName = `\`\`\`scss\n👤[${summoner.summonerName}] `
+								let paddedName = fixLength(summonerName, 17)
+								let summonerLine1 = paddedName + champion + '\n```'
+								redTexts += summonerLine1 + summonerLine2
+							}
+						})
+
+						let dateObj = new Date(created)
+						var month = dateObj.getMonth() + 1; //months from 1-12
+						var day = dateObj.getDate();
+						var year = dateObj.getFullYear();
+
+						newdate =     day + '/' 
+									+ month + '/' 
+									+ year 
+
+
+						const historyEmbed = new MessageEmbed()
+						.setColor('#38b259')
+						.setTitle(newdate.toString())
+						.setDescription(findWinnerText(teams) + '\n match id: [' + mid + ']')
+						.addFields(
+							{ name: 'Blue Team', value: blueTexts, inline: true },	
+							{ name: 'Red Team', value: redTexts, inline: true },)
+
+						await interaction.followUp({ embeds: [historyEmbed] }).then(msg =>{
+							setTimeout(async () => {
+								await msg.delete()
+							}, 110000)
+						})
+					})
+					
+					setTimeout(async () => {
+						await handleRunning()
+					}, 120000)
+				}		
 				
-			
-				
-				let champion = summoner.championName + ''
-
-				// SECOND LINE
-				let kda = '💀KDA:'
-				let dmg = '⚔️Dmg:'
-				let gold = '💹Gold:'
-				let vision = '🎆Vision:'
-
-				let paddedk = fixLength(kda, 10)
-				let paddedd = fixLength(dmg, 10)
-				let paddedg = fixLength(gold, 10)
-				let paddedv = fixLength(vision, 10)
-
-				let kdavalue = summoner.kills + ' / ' + summoner.deaths + ' / ' + summoner.assists
-				let dmgvalue = summoner.totalDamageDealtToChampions
-				let goldvalue = summoner.goldEarned
-				let visionvalue = summoner.visionScore
-
-				let paddedkda = fixLength(kdavalue, 15)
-				let paddeddmg = fixLength(dmgvalue, 15)
-				let paddedgold = fixLength(goldvalue, 15)
-				let paddedvision = fixLength(visionvalue, 15)
-
-				let k = paddedk + paddedkda + ""
-				let d = paddedd + paddeddmg
-				let g = paddedg + paddedgold + ""
-				let v = paddedv + paddedvision
-
-				let summonerLine2 = "```css\n" + k + "\n" + d + "\n" + g + "\n" + v + "\n```"
-
-				if(summoner.teamId === 100){
-					summonerName = `\`\`\`ini\n👤[${summoner.summonerName}] `
-					let paddedName = fixLength(summonerName, 17)
-					let summonerLine1 = paddedName + champion + '\n```'
-					blueTexts += summonerLine1 + summonerLine2
-				}
-				if(summoner.teamId === 200){
-					summonerName = `\`\`\`scss\n👤[${summoner.summonerName}] `
-					let paddedName = fixLength(summonerName, 17)
-					let summonerLine1 = paddedName + champion + '\n```'
-					redTexts += summonerLine1 + summonerLine2
-				}
-
-
-				//summonerText = summonerLine1 + summonerLine2
-				//summonersTexts += summonerText
-
-			})
-
-			let dateObj = new Date(created)
-			var month = dateObj.getMonth() + 1; //months from 1-12
-			var day = dateObj.getDate();
-			var year = dateObj.getFullYear();
-
-			newdate =     day + '/' 
-						+ month + '/' 
-						+ year 
-
-
-			const historyEmbed = new MessageEmbed()
-			.setColor('#38b259')
-			.setTitle(newdate.toString())
-			.setDescription(findWinnerText(teams) + '\n match id: [' + mid + ']')
-
-
-			.addFields(
-				{ name: 'Blue Team', value: blueTexts, inline: true },	
-				{ name: 'Red Team', value: redTexts, inline: true },
-				
-			)
-
-			//historyEmbed.addField('Summoners', summonersTexts, true)
-				
-			//historyEmbed.addField(blueTexts, redTexts, true)
-
-			/*
-			historyEmbed.addField(`\`\`\`ini
-			'Developer'
-\`\`\``,  'Asuka#1290')
-*/
-
-			await interaction.followUp({ embeds: [historyEmbed] })
-		})
+				await handleRunning()
 	},
 };
-
-
-
-
-
-/*
-			matches = await getMatchHistoryData()
-			//console.log('matches in history: ', matches)
-			console.log(historyEmbed)
-
-
-			matches.forEach((match, idx) => {
-				let gameHeader = ''
-				let summonersTexts = ''
-
-				let { metadata, gameDuration, teams, summoners, gameCreation: timeStamp } = match
-				
-				console.log(metadata, gameDuration, teams, summoners, timeStamp)
-
-				let gameLength = (gameDuration / 60).toString()
-				let gameId = metadata.matchId.toString()
-				let date = timeStamp.toString()
-
-				gameHeader += gameId + '> ' + date
-
-				summoners.forEach((summoner, idx) => {
-					let summonerText = ''
-					let summonerName = ''
-					
-					if(summoner.teamId === 100){
-						summonerName = '```ini\n' + '[' + summoner.summonerName + '] '
-					}
-					if(summoner.teamId === 200){
-						summonerName = '```scss\n' + '[' + summoner.summonerName + '] '
-					}
-					
-					let champion = summoner.champion + ' | '
-
-					// SECOND LINE
-					let kda = 'KDA: ' + summoner.kills +'/' + summoner.deaths + '/' + summoner.assists + ' | '
-					let dmg = 'Dmg: ' + summoner.totalDamageDealtToChampions + ' | '
-					let gold = 'Gold : ' + summoner.goldEarned + ' | '
-					let vision = 'Vision: ' + summoner.visionScore
-
-					let summonerLine1 = summonerName + champion + '\n'
-					let summonerLine2 = kda + dmg + gold + vision
-
-					summonerText = summonerLine1 + summonerLine2 + `\n`
-					summonersTexts += summonerText
-				})
-
-				let matchText = gameHeader + summonersTexts
-				historyEmbed.addField('asd', matchText)
-				
-			})
-			*/
