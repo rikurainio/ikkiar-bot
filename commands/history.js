@@ -62,14 +62,10 @@ module.exports = {
 				let champion = summoner.championName + ''
 
 				// SECOND LINE
-
-				
-
-
-				let kda = 'KDA:'
-				let dmg = 'Dmg:'
-				let gold = 'Gold:'
-				let vision = 'Vision:'
+				let kda = '💀KDA:'
+				let dmg = '⚔️Dmg:'
+				let gold = '💹Gold:'
+				let vision = '🎆Vision:'
 
 				let paddedk = fixLength(kda, 10)
 				let paddedd = fixLength(dmg, 10)
@@ -94,13 +90,15 @@ module.exports = {
 				let summonerLine2 = "```css\n" + k + "\n" + d + "\n" + g + "\n" + v + "\n```"
 
 				if(summoner.teamId === 100){
-					summonerName = `\`\`\`ini\n[${summoner.summonerName}] `
-					let summonerLine1 = summonerName + champion + '\n```'
+					summonerName = `\`\`\`ini\n👤[${summoner.summonerName}] `
+					let paddedName = fixLength(summonerName, 30)
+					let summonerLine1 = paddedName + "\n" + champion + '\n```'
 					blueTexts += summonerLine1 + summonerLine2
 				}
 				if(summoner.teamId === 200){
-					summonerName = `\`\`\`scss\n[${summoner.summonerName}] `
-					let summonerLine1 = summonerName + champion + '\n```'
+					summonerName = `\`\`\`scss\n👤[${summoner.summonerName}] `
+					let paddedName = fixLength(summonerName, 30)
+					let summonerLine1 = paddedName + "\n" + champion + '\n```'
 					redTexts += summonerLine1 + summonerLine2
 				}
 
@@ -110,10 +108,20 @@ module.exports = {
 
 			})
 
+			let dateObj = new Date(created)
+			var month = dateObj.getMonth() + 1; //months from 1-12
+			var day = dateObj.getDate();
+			var year = dateObj.getFullYear();
+
+			newdate =     day + '/' 
+						+ month + '/' 
+						+ year 
+
+
 			const historyEmbed = new MessageEmbed()
 			.setColor('#38b259')
-			.setTitle(mid)
-			.setDescription(findWinnerText(teams))
+			.setTitle(newdate.toString())
+			.setDescription(findWinnerText(teams) + '\n match id: [' + mid + ']')
 			.addFields(
 				{ name: 'Red Team', value: blueTexts, inline: true },	
 				{ name: 'Blue Team', value: redTexts, inline: true },
