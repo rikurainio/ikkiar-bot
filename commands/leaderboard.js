@@ -45,13 +45,15 @@ module.exports = {
 		const data = await getLeaderboardData()
 		console.log('data: ', data)
 
-		data.forEach(s => {
+		data.forEach((s, idx) => {
 			let totalgames = s.wins + s.losses
 			let winratio = s.wins/totalgames
 			let wr = winratio * 100
 
 			message 
-				+= getSpaces(s.username) + getPointSpaces(s.points.toString())
+				+= (idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' 
+					: (idx > 9 ? '🐒' :'🏅'))))
+				+ getSpaces(s.username) + getPointSpaces(s.points.toString())
 				+ getGamesSpaces(totalgames.toString()) + getWRSpaces(wr.toString()) + '\n' 
 		})
 
