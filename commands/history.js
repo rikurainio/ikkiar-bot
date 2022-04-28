@@ -13,6 +13,13 @@ const findWinnerText = (teams) => {
 	return wonTeam
 }
 
+const fixLength = (word, n) => {
+	while(word.toString().length < n){
+		word += " "
+	}
+	return word
+}
+
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -40,40 +47,83 @@ module.exports = {
 
 			let summonersTexts = ''
 
+			let blueTexts = ''
+			let redTexts = ''
+
+			
 			// SUMMONE TEXTS
 			summoners.forEach((summoner, idx) => {
+
 				let summonerText = ''
 				let summonerName = ''
 				
-				if(summoner.teamId === 100){
-					summonerName = `\`\`\`ini\n[${summoner.summonerName}] `
-				}
-				if(summoner.teamId === 200){
-					summonerName = `\`\`\`scss\n[${summoner.summonerName}] `
-				}
+			
 				
 				let champion = summoner.championName + ''
 
 				// SECOND LINE
-				let kda = 'KDA: ' + summoner.kills +'/' + summoner.deaths + '/' + summoner.assists + ' | '
-				let dmg = 'Dmg: ' + summoner.totalDamageDealtToChampions + ' | '
-				let gold = 'Gold : ' + summoner.goldEarned + ' | '
-				let vision = 'Vision: ' + summoner.visionScore
 
-				let sumonerLine1 = summonerName + champion + '\n'
-				let summonerLine2 = kda + dmg + gold + vision + "\n```"
+				
 
-				summonerText = sumonerLine1 + summonerLine2
-				summonersTexts += summonerText
+
+				let kda = 'KDA:'
+				let dmg = 'Dmg:'
+				let gold = 'Gold:'
+				let vision = 'Vision:'
+
+				let paddedk = fixLength(kda, 10)
+				let paddedd = fixLength(dmg, 10)
+				let paddedg = fixLength(gold, 10)
+				let paddedv = fixLength(vision, 10)
+
+				let kdavalue = summoner.kills + ' / ' + summoner.deaths + ' / ' + summoner.assists
+				let dmgvalue = summoner.totalDamageDealtToChampions
+				let goldvalue = summoner.goldEarned
+				let visionvalue = summoner.visionScore
+
+				let paddedkda = fixLength(kdavalue, 15)
+				let paddeddmg = fixLength(dmgvalue, 15)
+				let paddedgold = fixLength(goldvalue, 15)
+				let paddedvision = fixLength(visionvalue, 15)
+
+				let k = paddedk + paddedkda + ""
+				let d = paddedd + paddeddmg
+				let g = paddedg + paddedgold + ""
+				let v = paddedv + paddedvision
+
+				let summonerLine2 = "```css\n" + k + "\n" + d + "\n" + g + "\n" + v + "\n```"
+
+				if(summoner.teamId === 100){
+					summonerName = `\`\`\`ini\n[${summoner.summonerName}] `
+					let summonerLine1 = summonerName + champion + '\n```'
+					blueTexts += summonerLine1 + summonerLine2
+				}
+				if(summoner.teamId === 200){
+					summonerName = `\`\`\`scss\n[${summoner.summonerName}] `
+					let summonerLine1 = summonerName + champion + '\n```'
+					redTexts += summonerLine1 + summonerLine2
+				}
+
+
+				//summonerText = summonerLine1 + summonerLine2
+				//summonersTexts += summonerText
+
 			})
-
 
 			const historyEmbed = new MessageEmbed()
 			.setColor('#38b259')
 			.setTitle(mid)
 			.setDescription(findWinnerText(teams))
+			.addFields(
+				{ name: 'Red Team', value: blueTexts, inline: true },	
+				{ name: 'Blue Team', value: redTexts, inline: true },
+				
+			)
 
-			historyEmbed.addField('Summoners', summonersTexts, true)
+			//historyEmbed.addField('Summoners', summonersTexts, true)
+				
+			//historyEmbed.addField(blueTexts, redTexts, true)
+
 			/*
 			historyEmbed.addField(`\`\`\`ini
 			'Developer'
@@ -128,10 +178,10 @@ module.exports = {
 					let gold = 'Gold : ' + summoner.goldEarned + ' | '
 					let vision = 'Vision: ' + summoner.visionScore
 
-					let sumonerLine1 = summonerName + champion + '\n'
+					let summonerLine1 = summonerName + champion + '\n'
 					let summonerLine2 = kda + dmg + gold + vision
 
-					summonerText = sumonerLine1 + summonerLine2 + `\n`
+					summonerText = summonerLine1 + summonerLine2 + `\n`
 					summonersTexts += summonerText
 				})
 
