@@ -106,9 +106,8 @@ const getMatchHistoryData = async () => {
     //console.log('mh data: ', matches)
     matches.sort((a,b,) => (a.gameData.gameCreation < b.gameData.gameCreation) ? 1 : -1)
 
-    if(matches.length > 20){
-        const lastTwenty = matches.splice(0, 20)
-        return lastTwenty
+    if(matches.length > 10){
+        return matches.slice(0, 10)
     }
     return matches
 }

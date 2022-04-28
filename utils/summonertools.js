@@ -156,7 +156,7 @@ const getLeaderboardData = async () => {
     if(formattedSummoners.length > 30){
         return formattedSummoners.slice(0, 30)
     }
-    return formattedSummoners.slice(0,30)
+    return formattedSummoners
 }
 
 /*
