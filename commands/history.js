@@ -3,7 +3,7 @@ const { MessageEmbed, Message, DiscordAPIError } = require('discord.js');
 const { getMatchHistoryData } = require('../utils/matchhistorytools');
 
 const findWinnerText = (teams) => {
-	wonTeam = ''
+	var wonTeam = ''
 
 	teams.forEach(team => {
 		if(team.win){
@@ -36,16 +36,49 @@ module.exports = {
 			const duration = game.gameDuration
 			const teams = game.teams
 			const summoners = game.summoners
+			//console.log(mid, created, duration, teams, summoners)
 
-			console.log(mid, created, duration, teams, summoners)
+			let summonersTexts = ''
+
+			// SUMMONE TEXTS
+			summoners.forEach((summoner, idx) => {
+				let summonerText = ''
+				let summonerName = ''
+				
+				if(summoner.teamId === 100){
+					summonerName = `\`\`\`ini\n[${summoner.summonerName}] `
+				}
+				if(summoner.teamId === 200){
+					summonerName = `\`\`\`scss\n[${summoner.summonerName}] `
+				}
+				
+				let champion = summoner.championName + ''
+
+				// SECOND LINE
+				let kda = 'KDA: ' + summoner.kills +'/' + summoner.deaths + '/' + summoner.assists + ' | '
+				let dmg = 'Dmg: ' + summoner.totalDamageDealtToChampions + ' | '
+				let gold = 'Gold : ' + summoner.goldEarned + ' | '
+				let vision = 'Vision: ' + summoner.visionScore
+
+				let sumonerLine1 = summonerName + champion + '\n'
+				let summonerLine2 = kda + dmg + gold + vision + "\n```"
+
+				summonerText = sumonerLine1 + summonerLine2
+				summonersTexts += summonerText
+			})
+
 
 			const historyEmbed = new MessageEmbed()
 			.setColor('#38b259')
 			.setTitle(mid)
 			.setDescription(findWinnerText(teams))
-			.addField(
-				'gameId', 'matchid'
-			)
+
+			historyEmbed.addField('Summoners', summonersTexts, true)
+			/*
+			historyEmbed.addField(`\`\`\`ini
+			'Developer'
+\`\`\``,  'Asuka#1290')
+*/
 
 			await interaction.followUp({ embeds: [historyEmbed] })
 		})
