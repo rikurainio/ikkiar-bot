@@ -196,6 +196,7 @@ client.on('interactionCreate', async interaction => {
 			await message.edit({ content: newMessageContent, components: [row3, row4] })
 
 			const handleRunning = async () => {
+				let lobbyDeclined = false
 				let matchFormed = false
 
 				if(await enoughSummoners()){
@@ -248,7 +249,7 @@ client.on('interactionCreate', async interaction => {
 
 						// HANDLE DECLINE LOBBY
 						if(reaction.emoji.name == '❌'){
-
+							let lobbyDeclined = true
 							// RESOLVE IN TWO WAYS
 							// EITHER WE WENT UNDER 2 SUMMONERS PER EACH ROLE
 							// OR THE STACK IS STILL VALID AND LOBBY FORMING CAN CONTINUE
@@ -269,33 +270,34 @@ client.on('interactionCreate', async interaction => {
 					});
 
 					collector.on('end', async (collected) => {
-						console.log('c: pop exists?', popMessageExists)
-						if(popMessageExists){
-							console.log('c: deleted popmsg')
-							await popMsg.delete()
-							popMessageExists = false;
-						}
-
-						// IF NO REACTION WAS GIVEN JUST UNQUEUE THOSE PPL
-						console.log('collector 2 minutes passe, unq afk called:')
-						await unqueueAFKs()
-						
-						if(!matchFormed){
-
-							await message.edit({ components: [row3, row4]})
+						if(!lobbyDeclined){
+							console.log('c: pop exists?', popMessageExists)
+							if(popMessageExists){
+								console.log('c: deleted popmsg')
+								await popMsg.delete()
+								popMessageExists = false;
+							}
+	
+							// IF NO REACTION WAS GIVEN JUST UNQUEUE THOSE PPL
+							console.log('collector 2 minutes passe, unq afk called:')
+							await unqueueAFKs()
 							
-							if(await enoughSummoners()){
-								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'unqueued afks. new lobby:')
-								await message.edit({ content: newMessageContent })
-								await handleRunning()
-							}
-							else{
-								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'Someone didn\'t react in time')
-								await message.edit({ content: newMessageContent })
-								await handleRunning()
+							if(!matchFormed){
+	
+								await message.edit({ components: [row3, row4]})
+								
+								if(await enoughSummoners()){
+									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'unqueued afks. new lobby:')
+									await message.edit({ content: newMessageContent })
+									await handleRunning()
+								}
+								else{
+									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'Someone didn\'t react in time')
+									await message.edit({ content: newMessageContent })
+									await handleRunning()
+								}
 							}
 						}
-						
 					});
 				}
 				else { return }
