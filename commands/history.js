@@ -48,6 +48,7 @@ module.exports = {
 						summoners.forEach((summoner, idx) => {
 							let summonerName = ''
 							let champion = summoner.championName + ''
+							console.log(summoner)
 
 							// SECOND LINE
 							let kda = '💀KDA:'
@@ -64,6 +65,7 @@ module.exports = {
 							let dmgvalue = summoner.totalDamageDealtToChampions
 							let goldvalue = summoner.goldEarned
 							let visionvalue = summoner.visionScore
+							let cs = summoner.cs
 
 							let paddedkda = fixLength(kdavalue, 15)
 							let paddeddmg = fixLength(dmgvalue, 15)
@@ -73,7 +75,7 @@ module.exports = {
 							let k = paddedk + paddedkda + ""
 							let d = paddedd + paddeddmg
 							let g = paddedg + paddedgold + ""
-							let v = paddedv + paddedvision
+							let v = paddedv + paddedvision + '\n(' + cs + ' cs)'
 
 							let summonerLine2 = "```css\n" + k + "\n" + d + "\n" + g + "\n" + v + "\n```"
 

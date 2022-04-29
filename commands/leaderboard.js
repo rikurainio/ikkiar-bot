@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { updateLeaderBoard } = require('../utils/matchhistorytools');
 const { getLeaderboardData } = require('../utils/summonertools');
 
 const getSpaces = (name) => {

@@ -44,6 +44,7 @@ const convertRiotMatchToMongoMatch = (match) => {
             usefulSummoner.assists  = p.assists
             usefulSummoner.kda = p.challenges['kda']
             usefulSummoner.kpa = p.challenges['killParticipation']
+            usefulSummoner.cs = p.totalMinionsKilled
             usefulSummoner.firstBaron = p.challenges["earliestBaron"] === undefined ? 0 : p.challenges["earliestBaron"]
             usefulSummoner.goldEarned = p.goldEarned
             usefulSummoner.totalDamageDealtToChampions = p.totalDamageDealtToChampions

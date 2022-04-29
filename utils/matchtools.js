@@ -1,7 +1,4 @@
-const { TimestampStyles } = require('@discordjs/builders')
 const axios = require('axios')
-const { UserContextMenuInteraction } = require('discord.js')
-
 // MONGO
 //const User = require('../models/user')
 const Match = require('../models/match')
@@ -25,7 +22,7 @@ const saveMatch = async (matchId) => {
 
     // HAS TO BE OVER 15 MINUTES
 
-    /* DEV HANDLE TO GET PASS
+    // /* DEV HANDLE TO GET PASS
 
     if(response.data.info.gameDuration < 900){
         return '🙊 Ikkiar will not save games under 15 minutes!'
@@ -43,7 +40,8 @@ const saveMatch = async (matchId) => {
         return '🙊 Ikkiar will only save games that had 10 players!'
     }
 
-    */
+    // */
+
     // MATCH HAS TO HAVE 'ikkiar' in its name
     if(!((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
         const mongoMatch = convertRiotMatchToMongoMatch(response.data)
@@ -53,7 +51,7 @@ const saveMatch = async (matchId) => {
         // IT WILL COLLECT DATA FOR SUMMONERS ABOUT THE GAME THEY PLAYED
         await handleSummonerUpdatesAfterMatch(mongoMatch)
 
-        const savedMatch = await newMatch.save()
+        await newMatch.save()
         return '🐵 Ikkiar remembers this match now :).'
     }
     else{
@@ -84,10 +82,8 @@ const dismissAcceptedsOutsideLobby = async () => {
 
     summoners.forEach(async summoner => {
         if(!summoner.inLobby){
-            //console.log('summoner was not in lobby? {', summoner.inLobby,'}, his accepted value was:', summoner.accepted)
             summoner.accepted = false
             await summoner.save()
-            //console.log('summoner was not in lobby, his accepted value is now disabled:', summoner.accepted)
         }
     })
 }
@@ -103,7 +99,7 @@ const setInitBooleanState = async (boolean) => {
 
 const find10Accepts = async () => {
     let acceptCount = 0
-    const summoners = await Queuer.find({})
+    const summoners = await Queuer.find({}).lean()
 
     summoners.forEach(summoner => {
         if(summoner.accepted === true){
@@ -128,7 +124,7 @@ const setAccepted = async (user, boolean) => {
 }
 
 const matchFound = async () => {
-    const queuers = await Queuer.find({})
+    const queuers = await Queuer.find({}).lean()
 		let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
 
 		queuers.forEach(summoner => {
@@ -303,9 +299,8 @@ const matchMake = async () => {
                 +  redTeamText
 
                 +   '\n\n____________________________________________________'
-                +   '\nRemember to include \'ikkiar\' in Custom Game name ツ.'
-                +   '\n\n> Match info disappears in 5 minutes to allow Summoners to queue again'
-
+                +   '\nCreate a custom game and include \'ikkiar\' in the name ツ.'
+                +   '\n\n> Match info disappears in 5 minutes to allow Summoners to use the queue'
 
             wrapAnswer = "```" + "java\n" + title + answer + "\n" + "```"
         }   
