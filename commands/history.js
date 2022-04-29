@@ -38,6 +38,7 @@ module.exports = {
 						const mid = game.metadata.matchId
 						const created = game.gameCreation
 						const duration = game.gameDuration
+						const durationMinutes = (Math.floor(duration / 60)).toString()
 						const teams = game.teams
 						const summoners = game.summoners
 
@@ -103,7 +104,7 @@ module.exports = {
 						const historyEmbed = new MessageEmbed()
 						.setColor('#38b259')
 						.setTitle(newdate.toString())
-						.setDescription(findWinnerText(teams) + '\n match id: [' + mid + ']')
+						.setDescription(durationMinutes + ' minutes | ' + findWinnerText(teams))
 						.addFields(
 							{ name: 'Blue Team', value: blueTexts, inline: true },	
 							{ name: 'Red Team', value: redTexts, inline: true },)
