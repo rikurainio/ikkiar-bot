@@ -1,11 +1,11 @@
 require('dotenv').config()
 const fs = require('node:fs');
 const mongoose = require('mongoose')
-const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } = require('discord.js');
+const { MessageActionRow, MessageButton, } = require('discord.js');
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
-		summonerCanAcceptGame, setAccepted, setEveryAccepted, unqueueAFKs,
-		 enoughSummoners, unqueueAFKsDuplicates, find10Accepts, removeMatchedSummonersFromQueue, getLobbySummonerNamesToTag} = require('./utils/matchtools')
+		summonerCanAcceptGame, setAccepted, unqueueAFKs,
+		 enoughSummoners, find10Accepts, removeMatchedSummonersFromQueue, getLobbySummonerNamesToTag} = require('./utils/matchtools')
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -18,9 +18,6 @@ mongoose.connect(process.env.MONGO_URI)
 
 // DISCORD.JS CLASSES
 const { Client, Collection, Intents} = require('discord.js');
-const { ButtonBuilder } = require('@discordjs/builders');
-const { error } = require('node:console');
-const { handle } = require('express/lib/application');
 
 // CREATE NEW CLIENT
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
@@ -43,17 +40,9 @@ client.once('ready', () => {
 	console.log('Ready!');
 });
 
-client.on('message', message => {
-	//console.log(message)
-	// if (!message.content.startsWith(prefix) || message.author.bot) return;
-	//const args = message.content.slice(prefix.length).trim().split(' ');
-	// const command = args.shift().toLowerCase();
-});
-
 // GETS CALLED WHEN THE CLIENT INTERACTS
 client.on('interactionCreate', async interaction => {
 
-	
 	// TODO: MOVE THESE BUTTON HANDLERS TO THEIR OWN MODULES
 	if (interaction.isButton()){
 		let deferred = false;
@@ -217,12 +206,13 @@ client.on('interactionCreate', async interaction => {
 					)
 
 			let resolvingLobby = false;
+
 			await message.edit({ components: [row, row2]})
 			setTimeout(async () => {
 				if(!resolvingLobby){
 					await message.edit({ components: [row3, row4]})
 				}
-			}, 2500)
+			}, 4000)
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			await queueSummoner(newQueueUser)
@@ -236,7 +226,6 @@ client.on('interactionCreate', async interaction => {
 
 				if(await enoughSummoners()){
 					resolvingLobby = true;
-					let lobbyResolved = false;
 					let tagSummonersContent = await getLobbySummonerNamesToTag()
 
 					//DISABLE QUEUE BUTTONS WHILE SITUATION IS RESOLVED
@@ -246,52 +235,38 @@ client.on('interactionCreate', async interaction => {
 					await popMsg.react('❌')
 					
 
-
-					/////////////////////////////////////////////////////////////////////////////////////////////////
-					// COLLECTOR //////////////////////////////////////////////////////////////////////////////////
-					/////////////////////// USER HAS 1 MINUTE ATM TO REACT!!!!! ///////////////////////////////////
+					// COLLECTOR
 					const filter = (reaction, user) => {
 						return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
 					};
 					const collector = popMsg.createReactionCollector({ filter, time: 120000 });
 
-
 					collector.on('collect', async (reaction, user) => {
+
 						// HANDLE ACCEPT MATCH/GAME
 						if(reaction.emoji.name == '✅'){
-							//console.log('user accepts')
+
 							await setAccepted({ discordId: user.id}, true)
 
-							// ONLY WHILE DEV
-							//await setEveryAccepted(true)
+							const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
+							await message.edit(newMessageContent)
 
 							if(await find10Accepts()){
-								
+							
 								// REMOVE POPMSG AND DISABLE BUTTONS IF MATCH IS MADE
 								await popMsg.delete()
+
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
 								await message.edit({ content: newMessageContent, compontents: [row, row2]})
 
 								await removeMatchedSummonersFromQueue()
-								removedMMSFromQueue = true
-
-								// 5 MIN SHOW QUEUE AGAIN NORMALLY. QUEUE SIZE SHOULD BE -10 NOW AFTER LAST MM
+								// AFTER 5 MIN UNREEZE QUEUEING
 								setTimeout(async () => {
 									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'scouting for new lobbies to form:')
-									if(message){
-										try{
-											await message.edit({ content: newMessageContent, components: [row3, row4]})
-										} 	catch(err){console.log('error enabling buttons after 5 minutes. ', err)}
-									}
+									await message.edit({ content: newMessageContent, components: [row3, row4]})
 								}, 300000)
-								
-							}
-							if(!removedMMSFromQueue){
-								const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
-								await message.edit(newMessageContent)
 							}
 						}
-
 
 						// HANDLE DECLINE LOBBY
 						if(reaction.emoji.name == '❌'){
@@ -299,53 +274,44 @@ client.on('interactionCreate', async interaction => {
 							// RESOLVE IN TWO WAYS
 							// EITHER WE WENT UNDER 2 SUMMONERS PER EACH ROLE
 							// OR THE STACK IS STILL VALID AND LOBBY FORMING CAN CONTINUE
+							await unqueueSummoner({ discordId: user.id })
+							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
+							await message.edit(newMessageContent)
+							await popMsg.delete()
 
-							if(await enoughSummoners()){
-								await unqueueSummoner({ discordId: user.id })
-								const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
-								await message.edit(newMessageContent)
-								await popMsg.delete()
-
-								let enough = await enoughSummoners()
-
-								if(!enough){
-									await message.edit({ components: [row3, row4]})	
-								}
+							let enough = await enoughSummoners()
+							if(enough){
 								await handleRunning()
 							}
-							else{
-								await unqueueSummoner({ discordId: user.id })
-								const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
-								await message.edit({content: newMessageContent, components: [row3, row4]})
-								await popMsg.delete()
-							}
-						}});
-
-					collector.on('end', async (collected) => {
-
-						await unqueueAFKs()
-						await message.edit({ components: [row3, row4]})
-						if(await enoughSummoners()){
-							handleRunning()
-						}
-						else{
-							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
-							await message.edit({ content: newMessageContent, components: [row3, row4]})
+							await message.edit({ components: [row3, row4]})	
 						}
 					});
 
+					collector.on('end', async (collected) => {
+						if(!popMsg === undefined){
+							await popMsg.delete()
+						}
 
-
+						// IF NO REACTION WAS GIVEN JUST UNQUEUE THOSE PPL
+						await unqueueAFKs()
+						await message.edit({ components: [row3, row4]})
+						if(await enoughSummoners()) {
+							handleRunning()
+						}
+						else {
+							if(!resolvingLobby){
+								const newMessageContent = await getUpdatedQueueStatusText('someone', 'didn\'t react in time')
+								await message.edit({ content: newMessageContent, components: [row3, row4]})
+							}
+						}
+					});
 				}
 				else { return }
-				
 			}
 			await handleRunning()
 		}
 	}
 
-
-	
 	// IF INTERACTION WAS NOT A BUTTON INTERACTION ==>
 	if (!interaction.isCommand()) return;
 
