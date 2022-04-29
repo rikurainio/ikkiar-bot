@@ -3,14 +3,14 @@ const Match = require('../models/match')
 
 // RETURNS ALL IKKIAR MATCHES PLAYED
 const getMatches = async () => {
-    const matches = await Match.find({})
+    const matches = await Match.find({}).lean()
 
     if (matches) { return matches }
     else { return [] }
 }
 
 const matchAlreadySaved = async (matchId) => {
-    const matchFound = await Match.find({ gameData: { metadata: { matchId: matchId }} })
+    const matchFound = await Match.find({ gameData: { metadata: { matchId: matchId }} }).lean()
     console.log('matchound: ', matchFound)
     if(matchFound && matchFound === []){
         return true
@@ -63,7 +63,7 @@ const convertRiotMatchToMongoMatch = (match) => {
 
 // Returns last 20 matches at max
 const getMatchHistoryData = async () => {
-    const matches = await Match.find({})
+    const matches = await Match.find({}).lean()
     matches.sort((a,b,) => (a.gameData.gameCreation < b.gameData.gameCreation) ? 1 : -1)
 
     if(matches.length > 10){

@@ -66,7 +66,7 @@ const getMatches = () => {
 }
 
 const getMatchHistoryLength = async () => {
-    const response = await Match.find({})
+    const response = await Match.find({}).lean()
     return response.length
 }
 
@@ -316,7 +316,7 @@ const matchMake = async () => {
 
 // RETURNS QUEUE SIZE
 const checkQueueSize = async () => {
-    const queuers = await Queuer.find({})
+    const queuers = await Queuer.find({}).lean()
     const queueSize = queuers.length
     return queueSize ? queueSize : 0
 }
@@ -403,7 +403,7 @@ const getTimeStamp = () => {
 
 // GIVES QUICK REPRESENTABLE FORM
 const getPriorities = async () => {
-    const queuers = await Queuer.find({})
+    const queuers = await Queuer.find({}).lean()
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
     const queuersSortedByQueuedAt = queuers.map((queuer, idx) =>  idx + '. ' + queuer.discordName)
     return queuersSortedByQueuedAt
@@ -411,7 +411,7 @@ const getPriorities = async () => {
 
 // GIVES FULL OBJECTS
 const getPriorities2 = async () => {
-    const queuers = await Queuer.find({})
+    const queuers = await Queuer.find({}).lean()
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
     return queuers
 }
@@ -420,7 +420,7 @@ const getPriorities2 = async () => {
 const enoughSummoners = async () => {
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
 
-    const queuers = await Queuer.find({})
+    const queuers = await Queuer.find({}).lean()
     queuers.forEach(summoner => {
         if(summoner.role === 'top')      { top += 1}
         if(summoner.role === 'jungle')   { jungle += 1 }
