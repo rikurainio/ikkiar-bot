@@ -3,6 +3,7 @@ const { MessageEmbed } = require('discord.js');
 const { getMatchHistoryData } = require('../utils/matchhistorytools');
 const { getChampionNameById } = require('../utils/champion')
 
+
 const findWinnerText = (teams) => {
 	var wonTeam = ''
 	teams.forEach(team => {
@@ -22,8 +23,8 @@ const fixLength = (word, n) => {
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('history2')
-		.setDescription('show ikkiar match history'),
+		.setName('history')
+		.setDescription('displays ikkiar match history'),
 
 	async execute(interaction) {
 		await interaction.reply('🐒🎮')
@@ -144,9 +145,9 @@ module.exports = {
                         .setColor('#38b259')
                         //.setTitle(newdate.toString())
                         .setDescription('**' + newdate.toString() + '**' + ' | ' + durationMinutes + ' minutes | ' + findWinnerText(teams))
-                        .addField('𝔅𝔩𝔲𝔢 𝔱𝔢𝔞𝔪', blueSummoners, true)
-                        .addField('ℜ𝔢𝔡 𝔱𝔢𝔞𝔪', redSummoners, true)
-                        .addField('𝔅𝔞𝔫𝔰', allBans, true)
+                        .addField('Blue Team', blueSummoners, true)
+                        .addField('Red Team', redSummoners, true)
+                        .addField('Bans (blue first)', allBans, true)
 
                         .addField('bluestats', BS)
                         .addField('redstats', RS)

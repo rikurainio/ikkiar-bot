@@ -88,7 +88,7 @@ const calculateTeamSkillDifference = async (blueTeam, redTeam) => {
 }
 
 const getSummoners = async () => {
-    const summoners = await Summoner.find({}).lean()
+    const summoners = await Summoner.find({})
     return summoners
 }
 
@@ -147,7 +147,7 @@ const findSummonerByDiscordId = async (discordId) => {
 
 // get first 20 summoners by score
 const getLeaderboardData = async () => {
-    const summoners = await Summoner.find({}).lean()
+    const summoners = await Summoner.find({})
     const formattedSummoners = summoners.map(({ username, points, wins, losses }) => ({ username, points, wins, losses }))
     formattedSummoners.sort((a, b) => (a.points < b.points) ? 1 : -1)
     if(formattedSummoners.length > 30){

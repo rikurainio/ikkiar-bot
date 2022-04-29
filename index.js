@@ -5,7 +5,104 @@ const { MessageActionRow, MessageButton, } = require('discord.js');
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		summonerCanAcceptGame, setAccepted, unqueueAFKs,
-		 enoughSummoners, find10Accepts, removeMatchedSummonersFromQueue, getLobbySummonerNamesToTag} = require('./utils/matchtools')
+		 enoughSummoners, find10Accepts, removeMatchedSummonersFromQueue, 
+		 getLobbySummonerNamesToTag, setEveryAccepted, setEveryDuplicateAccepted} = require('./utils/matchtools')
+
+// QUEUE SYSTEM BUTTON CONSTS ( COMP ROWS )
+const row = new MessageActionRow()
+.addComponents(
+	new MessageButton()
+		.setCustomId('topbutton')
+		.setLabel('top')
+		.setStyle('SECONDARY')
+		.setEmoji('967566780295950416')
+		.setDisabled(true),
+
+	new MessageButton()
+		.setCustomId('junglebutton')
+		.setLabel('jungle')
+		.setStyle('SECONDARY')
+		.setEmoji('967566779998146660')
+		.setDisabled(true),
+
+	new MessageButton()
+		.setCustomId('midbutton')
+		.setLabel('mid')
+		.setStyle('SECONDARY')
+		.setEmoji('967566780090421288')
+		.setDisabled(true),
+
+	new MessageButton()
+		.setCustomId('adcbutton')
+		.setLabel('adc')
+		.setStyle('SECONDARY')
+		.setEmoji('967566779515826218')
+		.setDisabled(true),
+
+	new MessageButton()
+		.setCustomId('supportbutton')
+		.setLabel('support')
+		.setStyle('SECONDARY')
+		.setEmoji('967566780274999326')
+		.setDisabled(true),
+);
+const row2 = new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('cancelbutton')
+				.setLabel('leave')
+				.setStyle('SECONDARY')
+				.setEmoji('✖')
+				.setDisabled(true)
+		)
+
+//RECREATE ENABLED ROWS BECAUSE MONKE
+const row3 = new MessageActionRow()
+.addComponents(
+	new MessageButton()
+		.setCustomId('topbutton')
+		.setLabel('top')
+		.setStyle('SECONDARY')
+		.setEmoji('967566780295950416')
+		.setDisabled(false),
+
+	new MessageButton()
+		.setCustomId('junglebutton')
+		.setLabel('jungle')
+		.setStyle('SECONDARY')
+		.setEmoji('967566779998146660')
+		.setDisabled(false),
+
+	new MessageButton()
+		.setCustomId('midbutton')
+		.setLabel('mid')
+		.setStyle('SECONDARY')
+		.setEmoji('967566780090421288')
+		.setDisabled(false),
+
+	new MessageButton()
+		.setCustomId('adcbutton')
+		.setLabel('adc')
+		.setStyle('SECONDARY')
+		.setEmoji('967566779515826218')
+		.setDisabled(false),
+
+	new MessageButton()
+		.setCustomId('supportbutton')
+		.setLabel('support')
+		.setStyle('SECONDARY')
+		.setEmoji('967566780274999326')
+		.setDisabled(false),
+);
+const row4 = new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('cancelbutton')
+				.setLabel('leave')
+				.setStyle('SECONDARY')
+				.setEmoji('✖')
+				.setDisabled(false)
+		)
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -43,21 +140,12 @@ client.once('ready', () => {
 // GETS CALLED WHEN THE CLIENT INTERACTS
 client.on('interactionCreate', async interaction => {
 
-	// TODO: MOVE THESE BUTTON HANDLERS TO THEIR OWN MODULES
+	// TODO: MOVE THESE BUTTON HANDLERS TO THEIR OWN MODULES MAYBE
 	if (interaction.isButton()){
-		let deferred = false;
-		let removedMMSFromQueue = false;
-
-		setTimeout(async () => {
-			if(!deferred){
-				try{
-					if(interaction){
-						await interaction.deferUpdate()
-						deferred = true
-					}
-				} catch(err){console.log('error ROW 67')}
-			}
-		}, 0)
+		// ACCESS THE MSG
+		// DISABLE BUTTONS FOR A WHILE
+		const message = interaction.message
+		await message.edit({ components: [row, row2]})
 
 		// GET PRESSER DISCORD USER DETAILS
 		const id = interaction.user.id
@@ -65,8 +153,6 @@ client.on('interactionCreate', async interaction => {
 		const timeNow = Date.now()
 		let role = ''
 
-		// DEV HELP
-		const message = interaction.message
 
 		const newQueueUser = {
 			discordName: name,
@@ -77,18 +163,14 @@ client.on('interactionCreate', async interaction => {
 		}
 		
 		if(interaction.customId === 'cancelbutton'){
+			await interaction.reply({ content: 'Took you out of queue 🐒', ephemeral: true })
 			await unqueueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'left')
-			await message.edit(newMessageContent)
-			
-			if(!deferred){ 
-				deferred = true
-				await interaction.deferUpdate()
-			}
+			await message.edit({ content: newMessageContent, components: [row3, row4] })
 		}
 		else {
+			await interaction.reply({ content: 'You are in! 🐵', ephemeral: true })
 			if(interaction.customId === 'topbutton'){
-				interaction.component.setStyle('SUCCESS')
 				role = 'top'
 				newQueueUser.role = 'top'
 			}
@@ -108,124 +190,16 @@ client.on('interactionCreate', async interaction => {
 				role = 'support'
 				newQueueUser.role = 'support'
 			}
-			
-			//RECREATE DISABLED ROWS BECAUSE MONKE
-			const row = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('topbutton')
-					.setLabel('top')
-					.setStyle('SECONDARY')
-					.setEmoji('967566780295950416')
-					.setDisabled(true),
-
-				new MessageButton()
-					.setCustomId('junglebutton')
-					.setLabel('jungle')
-					.setStyle('SECONDARY')
-					.setEmoji('967566779998146660')
-					.setDisabled(true),
-
-				new MessageButton()
-					.setCustomId('midbutton')
-					.setLabel('mid')
-					.setStyle('SECONDARY')
-					.setEmoji('967566780090421288')
-					.setDisabled(true),
-
-				new MessageButton()
-					.setCustomId('adcbutton')
-					.setLabel('adc')
-					.setStyle('SECONDARY')
-					.setEmoji('967566779515826218')
-					.setDisabled(true),
-
-				new MessageButton()
-					.setCustomId('supportbutton')
-					.setLabel('support')
-					.setStyle('SECONDARY')
-					.setEmoji('967566780274999326')
-					.setDisabled(true),
-			);
-			const row2 = new MessageActionRow()
-					.addComponents(
-						new MessageButton()
-							.setCustomId('cancelbutton')
-							.setLabel('leave')
-							.setStyle('SECONDARY')
-							.setEmoji('✖')
-							.setDisabled(true)
-					)
-
-			//RECREATE ENABLED ROWS BECAUSE MONKE
-			const row3 = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('topbutton')
-					.setLabel('top')
-					.setStyle('SECONDARY')
-					.setEmoji('967566780295950416')
-					.setDisabled(false),
-
-				new MessageButton()
-					.setCustomId('junglebutton')
-					.setLabel('jungle')
-					.setStyle('SECONDARY')
-					.setEmoji('967566779998146660')
-					.setDisabled(false),
-
-				new MessageButton()
-					.setCustomId('midbutton')
-					.setLabel('mid')
-					.setStyle('SECONDARY')
-					.setEmoji('967566780090421288')
-					.setDisabled(false),
-
-				new MessageButton()
-					.setCustomId('adcbutton')
-					.setLabel('adc')
-					.setStyle('SECONDARY')
-					.setEmoji('967566779515826218')
-					.setDisabled(false),
-
-				new MessageButton()
-					.setCustomId('supportbutton')
-					.setLabel('support')
-					.setStyle('SECONDARY')
-					.setEmoji('967566780274999326')
-					.setDisabled(false),
-			);
-			const row4 = new MessageActionRow()
-					.addComponents(
-						new MessageButton()
-							.setCustomId('cancelbutton')
-							.setLabel('leave')
-							.setStyle('SECONDARY')
-							.setEmoji('✖')
-							.setDisabled(false)
-					)
-
-			let resolvingLobby = false;
-
-			await message.edit({ components: [row, row2]})
-			setTimeout(async () => {
-				if(!resolvingLobby){
-					await message.edit({ components: [row3, row4]})
-				}
-			}, 4000)
-
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
-
-			if(message){
-				await message.edit(newMessageContent)
-			}
+			await message.edit({ content: newMessageContent, components: [row3, row4] })
 
 			const handleRunning = async () => {
+				let matchFormed = false
 
 				if(await enoughSummoners()){
-					resolvingLobby = true;
+					let popMessageExists = false;
 					let tagSummonersContent = await getLobbySummonerNamesToTag()
 
 					//DISABLE QUEUE BUTTONS WHILE SITUATION IS RESOLVED
@@ -233,7 +207,7 @@ client.on('interactionCreate', async interaction => {
 					const popMsg = await interaction.channel.send(tagSummonersContent + '\n**Accept** | **Decline**\n')
 					await popMsg.react('✅')
 					await popMsg.react('❌')
-					
+					popMessageExists = true
 
 					// COLLECTOR
 					const filter = (reaction, user) => {
@@ -246,15 +220,19 @@ client.on('interactionCreate', async interaction => {
 						// HANDLE ACCEPT MATCH/GAME
 						if(reaction.emoji.name == '✅'){
 
-							await setAccepted({ discordId: user.id}, true)
+							//await setAccepted({ discordId: user.id}, true)
+							console.log('user before setting his accepted:', user)
+							await setEveryDuplicateAccepted(user.id, true)
 
 							const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
 							await message.edit(newMessageContent)
 
 							if(await find10Accepts()){
-							
+								matchFormed = true
+
 								// REMOVE POPMSG AND DISABLE BUTTONS IF MATCH IS MADE
 								await popMsg.delete()
+								popMessageExists = false
 
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
 								await message.edit({ content: newMessageContent, compontents: [row, row2]})
@@ -274,10 +252,13 @@ client.on('interactionCreate', async interaction => {
 							// RESOLVE IN TWO WAYS
 							// EITHER WE WENT UNDER 2 SUMMONERS PER EACH ROLE
 							// OR THE STACK IS STILL VALID AND LOBBY FORMING CAN CONTINUE
+							console.log('user obj before deletion:', user)
+
 							await unqueueSummoner({ discordId: user.id })
 							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
 							await message.edit(newMessageContent)
 							await popMsg.delete()
+							popMessageExists = false
 
 							let enough = await enoughSummoners()
 							if(enough){
@@ -288,22 +269,33 @@ client.on('interactionCreate', async interaction => {
 					});
 
 					collector.on('end', async (collected) => {
-						if(!popMsg === undefined){
+						console.log('c: pop exists?', popMessageExists)
+						if(popMessageExists){
+							console.log('c: deleted popmsg')
 							await popMsg.delete()
+							popMessageExists = false;
 						}
 
 						// IF NO REACTION WAS GIVEN JUST UNQUEUE THOSE PPL
+						console.log('collector 2 minutes passe, unq afk called:')
 						await unqueueAFKs()
-						await message.edit({ components: [row3, row4]})
-						if(await enoughSummoners()) {
-							handleRunning()
-						}
-						else {
-							if(!resolvingLobby){
-								const newMessageContent = await getUpdatedQueueStatusText('someone', 'didn\'t react in time')
-								await message.edit({ content: newMessageContent, components: [row3, row4]})
+						
+						if(!matchFormed){
+
+							await message.edit({ components: [row3, row4]})
+							
+							if(await enoughSummoners()){
+								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'unqueued afks. new lobby:')
+								await message.edit({ content: newMessageContent })
+								await handleRunning()
+							}
+							else{
+								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'Someone didn\'t react in time')
+								await message.edit({ content: newMessageContent })
+								await handleRunning()
 							}
 						}
+						
 					});
 				}
 				else { return }

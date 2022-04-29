@@ -64,8 +64,19 @@ const getMatches = () => {
 }
 
 const getMatchHistoryLength = async () => {
-    const response = await Match.find({}).lean()
+    const response = await Match.find({})
     return response.length
+}
+
+const setEveryDuplicateAccepted = async (id, boolean) => {
+    try {
+        const foundSmmoners = await Queuer.find({ discordId: id})
+        foundSmmoners.forEach(async (summoner) => {
+            summoner.accepted = true
+            await summoner.save()
+        })
+    }
+    catch (error){console.log('set every dupliate error',err)}
 }
 
 const setEveryAccepted = async (boolean) => {
@@ -99,7 +110,7 @@ const setInitBooleanState = async (boolean) => {
 
 const find10Accepts = async () => {
     let acceptCount = 0
-    const summoners = await Queuer.find({}).lean()
+    const summoners = await Queuer.find({})
 
     summoners.forEach(summoner => {
         if(summoner.accepted === true){
@@ -124,7 +135,7 @@ const setAccepted = async (user, boolean) => {
 }
 
 const matchFound = async () => {
-    const queuers = await Queuer.find({}).lean()
+    const queuers = await Queuer.find({})
 		let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
 
 		queuers.forEach(summoner => {
@@ -311,7 +322,7 @@ const matchMake = async () => {
 
 // RETURNS QUEUE SIZE
 const checkQueueSize = async () => {
-    const queuers = await Queuer.find({}).lean()
+    const queuers = await Queuer.find({})
     const queueSize = queuers.length
     return queueSize ? queueSize : 0
 }
@@ -327,12 +338,19 @@ const queueSummoner = async (user) => {
         const foundUser = await Queuer.findOne({ discordId: user.discordId})
         if(foundUser){
 
+            const newQueuer = new Queuer(user)
+            await newQueuer.save()
+
+            /*
+
             // IF HE WANTED TO CHANGE THE ROLE
             if(user.role !== foundUser.role){
                 foundUser.role = user.role
                 foundUser.queuedAt = Date.now()
                 await foundUser.save()
                 }
+
+            */
         }
         else {
             // IF DISCORD USER IS NOT IN ACTIVE QUEUE ALREADY
@@ -398,7 +416,7 @@ const getTimeStamp = () => {
 
 // GIVES QUICK REPRESENTABLE FORM
 const getPriorities = async () => {
-    const queuers = await Queuer.find({}).lean()
+    const queuers = await Queuer.find({})
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
     const queuersSortedByQueuedAt = queuers.map((queuer, idx) =>  idx + '. ' + queuer.discordName)
     return queuersSortedByQueuedAt
@@ -406,7 +424,7 @@ const getPriorities = async () => {
 
 // GIVES FULL OBJECTS
 const getPriorities2 = async () => {
-    const queuers = await Queuer.find({}).lean()
+    const queuers = await Queuer.find({})
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
     return queuers
 }
@@ -415,7 +433,7 @@ const getPriorities2 = async () => {
 const enoughSummoners = async () => {
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
 
-    const queuers = await Queuer.find({}).lean()
+    const queuers = await Queuer.find({})
     queuers.forEach(summoner => {
         if(summoner.role === 'top')      { top += 1}
         if(summoner.role === 'jungle')   { jungle += 1 }
@@ -513,5 +531,5 @@ module.exports = {
     getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
     setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
     find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState,
-    getLobbySummonerNamesToTag
+    getLobbySummonerNamesToTag, setEveryDuplicateAccepted
 }
