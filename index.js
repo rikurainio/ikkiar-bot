@@ -279,7 +279,7 @@ client.on('interactionCreate', async interaction => {
 							}
 	
 							// IF NO REACTION WAS GIVEN JUST UNQUEUE THOSE PPL
-							console.log('collector 2 minutes passe, unq afk called:')
+							console.log('collector 2 minutes passed, unq afk called:')
 							await unqueueAFKs()
 							
 							if(!matchFormed){
