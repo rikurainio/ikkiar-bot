@@ -338,19 +338,16 @@ const queueSummoner = async (user) => {
         const foundUser = await Queuer.findOne({ discordId: user.discordId})
         if(foundUser){
 
-            const newQueuer = new Queuer(user)
-            await newQueuer.save()
-
-            /*
+            //const newQueuer = new Queuer(user)
+            //await newQueuer.save()
 
             // IF HE WANTED TO CHANGE THE ROLE
             if(user.role !== foundUser.role){
                 foundUser.role = user.role
                 foundUser.queuedAt = Date.now()
                 await foundUser.save()
-                }
+            }
 
-            */
         }
         else {
             // IF DISCORD USER IS NOT IN ACTIVE QUEUE ALREADY
