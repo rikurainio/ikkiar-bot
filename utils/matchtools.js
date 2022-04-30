@@ -16,12 +16,12 @@ const saveMatch = async (matchId) => {
     }
     const response = await
          axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/' + searchParam, config)
+    const match = response.data
+    
 
 
     // REQUIREMENTS AFTER MATCH HAS BEEN FOUND BY ID ===>
-
     // HAS TO BE OVER 15 MINUTES
-
     // /* DEV HANDLE TO GET PASS
 
     if(response.data.info.gameDuration < 900){
@@ -39,17 +39,16 @@ const saveMatch = async (matchId) => {
     if(response.data.metadata.participants.length !== 10){
         return '🙊 Ikkiar will only save games that had 10 players!'
     }
-
     // */
 
     // MATCH HAS TO HAVE 'ikkiar' in its name
     if(!((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
-        const mongoMatch = convertRiotMatchToMongoMatch(response.data)
-        const newMatch = new Match({ gameData: mongoMatch})
+        //const mongoMatch = convertRiotMatchToMongoMatch(response.data)
+        const newMatch = new Match({gameData: match})
 
         // PASS MONGOMATCH TO SUMMONER UTIL
         // IT WILL COLLECT DATA FOR SUMMONERS ABOUT THE GAME THEY PLAYED
-        await handleSummonerUpdatesAfterMatch(mongoMatch)
+        await handleSummonerUpdatesAfterMatch(match)
 
         await newMatch.save()
         return '🐵 Ikkiar remembers this match now :).'
@@ -340,7 +339,6 @@ const queueSummoner = async (user) => {
 
             //const newQueuer = new Queuer(user)
             //await newQueuer.save()
-
             // IF HE WANTED TO CHANGE THE ROLE
             if(user.role !== foundUser.role){
                 foundUser.role = user.role

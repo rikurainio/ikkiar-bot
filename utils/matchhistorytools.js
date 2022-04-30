@@ -24,7 +24,7 @@ const convertRiotMatchToMongoMatch = (match) => {
     let mongoMatch = {}
     const metadata = match.metadata
     const info = match.info
-
+        console.log('future mongomatch:', match)
         // participants = Array of 10 summoners and their data
         // gameDuration
         // gameCreation = Epoch timestamp I think

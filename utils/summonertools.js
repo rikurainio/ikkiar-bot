@@ -3,15 +3,18 @@ const Summoner = require("../models/summoner")
 
 // TAKES IN MONGO MATCH AND UPDATES SCORES ETC
 const handleSummonerUpdatesAfterMatch = async (mongoMatch) => {
-    const { metadata, summoners } = mongoMatch
+
+    console.log('MATCH', mongoMatch)
+    const participants = mongoMatch.info.participants
+    const { metadata } = mongoMatch
     const { participants: puuids } = metadata
 
     // COMPARE TEAMS THAT PLAYED
-    const blueTeam = getBlueTeam(summoners)
-    const redTeam = getRedTeam(summoners)
+    const blueTeam = getBlueTeam(participants)
+    const redTeam = getRedTeam(participants)
     const betterTeam = calculateTeamSkillDifference(blueTeam, redTeam)
 
-    summoners.forEach(async (summoner, idx) => {
+    participants.forEach(async (summoner, idx) => {
         // we need to create a new summoner document if its his/her first game in ikkiar
         // puuids and summoners are in same order so their indexes SHOULD match
         const found = await findSummonerByPuuId(puuids[idx])

@@ -56,6 +56,9 @@ module.exports = {
 				+ getSpaces(s.username) + getPointSpaces(s.points.toString())
 				+ getGamesSpaces(totalgames.toString()) + getWRSpaces(wr.toString()) + additionalNewLine
 		})
-		await interaction.reply({ content: nav + title + header + message + fot });
+		
+		interaction.reply({ content: nav + title + header + message + fot }).then((message) => {
+			console.log('lol?:',message)
+		})
 	},
 };
