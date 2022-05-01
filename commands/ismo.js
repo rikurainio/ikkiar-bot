@@ -21,6 +21,7 @@ const QUOTES = [
     "Ih-hah-haa, ih-hah-haa, heevoohirrnaAHH..",
     "Mulla vaan jotenki päässä naksahti..",
     "Mulla vaan jotenki pimeni päässä..",
+    "Laitetaan kaikki punaselle."
 ]
 
 module.exports = {
