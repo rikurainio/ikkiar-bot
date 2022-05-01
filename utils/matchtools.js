@@ -40,12 +40,10 @@ const saveMatch = async (matchId) => {
         return '🙊 Ikkiar will only save games that had 10 players!'
     }
     // */
-
     // MATCH HAS TO HAVE 'ikkiar' in its name
-    if(!((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
+    if(((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
         //const mongoMatch = convertRiotMatchToMongoMatch(response.data)
         const newMatch = new Match({gameData: match})
-
         // PASS MONGOMATCH TO SUMMONER UTIL
         // IT WILL COLLECT DATA FOR SUMMONERS ABOUT THE GAME THEY PLAYED
         await handleSummonerUpdatesAfterMatch(match)
@@ -295,7 +293,7 @@ const matchMake = async () => {
                 +  '\nsupport: ' + blueTeam[4] 
 
             let redTeamText = 
-                    '\ntop:     ' + redTeam[0] 
+                   '\ntop:     ' + redTeam[0] 
                 +  '\njungle:  ' + redTeam[1] 
                 +  '\nmid:     ' + redTeam[2] 
                 +  '\nadc:     ' + redTeam[3] 
@@ -310,6 +308,7 @@ const matchMake = async () => {
 
                 +   '\n\n____________________________________________________'
                 +   '\nCreate a custom game and include \'ikkiar\' in the name ツ.'
+                +   '\nSubmit the match with its\' match id by using /submitmatch after the match.'
                 +   '\n\n> Match info disappears in 5 minutes to allow Summoners to use the queue'
 
             wrapAnswer = "```" + "java\n" + title + answer + "\n" + "```"
