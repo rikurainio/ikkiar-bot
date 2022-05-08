@@ -11,6 +11,7 @@ const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		 getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch, checkIfReplayAlreadySaved} = require('./utils/matchtools')
 
 const { matchParser, matchParserKEKW } = require('./utils/matchparser');
+const{createPostGameMessage} = require('./utils/postgamemsg');
 
 
 // QUEUE SYSTEM BUTTON CONSTS ( COMP ROWS )
@@ -169,7 +170,9 @@ client.on('messageCreate', async (message) => {
 				matchData['matchId'] = fileNameParsed
 	
 				await saveReplayFileMatch(matchData)
+
 				message.channel.send('🐵 Match saved!')
+				message.channel.send(createPostGameMessage(matchData.statsJson));
 			}
 		}
 		catch (err) { console.log('err in file handling' , err) }
