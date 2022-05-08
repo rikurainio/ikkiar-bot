@@ -9,7 +9,7 @@ const createPostGameMessage = (json) => {
         player.kills = json.CHAMPIONS_KILLED;
         player.assists = json.ASSISTS;
         player.deaths = json.NUM_DEATHS;
-        return players
+        return player
     })
     players.sort(function (a, b) {
         return a.name.localeCompare(b.name);
