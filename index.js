@@ -154,11 +154,12 @@ client.on('messageCreate', async (message) => {
 	if(await checkIfReplayAlreadySaved(fileNameParsed)){
 		message.channel.send('🙉 This match has already been saved!')
 	}
-	else if(fileName.includes('EUW-') && fileName.includes('.rofl')){
+	else if(fileName.includes('EUW1-') && fileName.includes('.rofl')){
+		console.log('trying to save euw rofl file')
 		try {
 			const response = await axios.get(file)
 			//console.log('res:', response.data)
-			const json = matchParserKEKW(await response.data)
+			const json = matchParserKEKW(response.data)
 			console.log('type of axios get res data:', typeof(json))
 	
 			if(json){
