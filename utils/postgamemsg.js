@@ -11,9 +11,7 @@ const createPostGameMessage = (json) => {
         player.deaths = json.NUM_DEATHS;
         return player
     })
-    players.sort(function (a, b) {
-        return a.name.localeCompare(b.name);
-    });
+    players.sort((a, b) => a.team.localeCompare(b.name));
 
     let top = players.filter(function (e) {
         return role === "TOP";
