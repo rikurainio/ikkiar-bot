@@ -1,12 +1,17 @@
 require('dotenv').config()
 const fs = require('node:fs');
 const mongoose = require('mongoose')
+const axios = require('axios')
+
 const { MessageActionRow, MessageButton, } = require('discord.js');
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
-		summonerCanAcceptGame, setAccepted, unqueueAFKs,
+		summonerCanAcceptGame, unqueueAFKs,
 		 enoughSummoners, find10Accepts, removeMatchedSummonersFromQueue, 
-		 getLobbySummonerNamesToTag, setEveryAccepted, setEveryDuplicateAccepted} = require('./utils/matchtools')
+		 getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch} = require('./utils/matchtools')
+
+const { matchParser, matchParserKEKW } = require('./utils/matchparser');
+
 
 // QUEUE SYSTEM BUTTON CONSTS ( COMP ROWS )
 const row = new MessageActionRow()
@@ -15,35 +20,35 @@ const row = new MessageActionRow()
 		.setCustomId('topbutton')
 		.setLabel('top')
 		.setStyle('SECONDARY')
-		.setEmoji('967566780295950416')
+		.setEmoji('851440899144548352')
 		.setDisabled(true),
 
 	new MessageButton()
 		.setCustomId('junglebutton')
 		.setLabel('jungle')
 		.setStyle('SECONDARY')
-		.setEmoji('967566779998146660')
+		.setEmoji('851440898989359174')
 		.setDisabled(true),
 
 	new MessageButton()
 		.setCustomId('midbutton')
 		.setLabel('mid')
 		.setStyle('SECONDARY')
-		.setEmoji('967566780090421288')
+		.setEmoji('851440898729836595')
 		.setDisabled(true),
 
 	new MessageButton()
 		.setCustomId('adcbutton')
 		.setLabel('adc')
 		.setStyle('SECONDARY')
-		.setEmoji('967566779515826218')
+		.setEmoji('851440927146770492')
 		.setDisabled(true),
 
 	new MessageButton()
 		.setCustomId('supportbutton')
 		.setLabel('support')
 		.setStyle('SECONDARY')
-		.setEmoji('967566780274999326')
+		.setEmoji('851440898948071494')
 		.setDisabled(true),
 );
 const row2 = new MessageActionRow()
@@ -63,35 +68,35 @@ const row3 = new MessageActionRow()
 		.setCustomId('topbutton')
 		.setLabel('top')
 		.setStyle('SECONDARY')
-		.setEmoji('967566780295950416')
+		.setEmoji('851440899144548352')
 		.setDisabled(false),
 
 	new MessageButton()
 		.setCustomId('junglebutton')
 		.setLabel('jungle')
 		.setStyle('SECONDARY')
-		.setEmoji('967566779998146660')
+		.setEmoji('851440898989359174')
 		.setDisabled(false),
 
 	new MessageButton()
 		.setCustomId('midbutton')
 		.setLabel('mid')
 		.setStyle('SECONDARY')
-		.setEmoji('967566780090421288')
+		.setEmoji('851440898729836595')
 		.setDisabled(false),
 
 	new MessageButton()
 		.setCustomId('adcbutton')
 		.setLabel('adc')
 		.setStyle('SECONDARY')
-		.setEmoji('967566779515826218')
+		.setEmoji('851440927146770492')
 		.setDisabled(false),
 
 	new MessageButton()
 		.setCustomId('supportbutton')
 		.setLabel('support')
 		.setStyle('SECONDARY')
-		.setEmoji('967566780274999326')
+		.setEmoji('851440898948071494')
 		.setDisabled(false),
 );
 const row4 = new MessageActionRow()
@@ -117,7 +122,7 @@ mongoose.connect(process.env.MONGO_URI)
 const { Client, Collection, Intents} = require('discord.js');
 
 // CREATE NEW CLIENT
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 client.commands = new Collection();
 
 const commandFiles = fs
@@ -136,6 +141,35 @@ for(const file of commandFiles){
 client.once('ready', () => {
 	console.log('Ready!');
 });
+
+client.on('messageCreate', async (message) => {
+	console.log('onmsg')
+	if(message.author.bot) return;
+
+	const file = message.attachments.first()?.url
+	console.log('file url: ', file)
+
+	if(!file){return}
+
+	try {
+		message.channel.send('Reading the replay file. Fetching data...')
+		const response = await axios.get(file)
+		//console.log('res:', response.data)
+		const json = matchParserKEKW(await response.data)
+		console.log('type of axios get res data:', typeof(json))
+
+		if(json){
+			let matchData = json
+			matchData['statsJson'] = JSON.parse(json['statsJson'])
+			matchData['createdAt'] = Date.now()
+
+			await saveReplayFileMatch(matchData)
+			message.channel.send('🐵 match saved')
+		}
+	}
+	catch (err) { console.log('err in file handling' , err) }
+})
+
 
 // GETS CALLED WHEN THE CLIENT INTERACTS
 client.on('interactionCreate', async interaction => {
@@ -225,7 +259,7 @@ client.on('interactionCreate', async interaction => {
 							console.log('user before setting his accepted:', user)
 							await setEveryDuplicateAccepted(user.id, true)
 
-							const newMessageContent = await getUpdatedQueueStatusText(name, 'accepted match')
+							const newMessageContent = await getUpdatedQueueStatusText(user.username, 'accepted match')
 							await message.edit(newMessageContent)
 
 							if(await find10Accepts()){
@@ -256,7 +290,7 @@ client.on('interactionCreate', async interaction => {
 							console.log('user obj before deletion:', user)
 
 							await unqueueSummoner({ discordId: user.id })
-							const newMessageContent = await getUpdatedQueueStatusText(name, 'declined match')
+							const newMessageContent = await getUpdatedQueueStatusText(user.username, 'declined match')
 							await message.edit(newMessageContent)
 							await popMsg.delete()
 							popMessageExists = false

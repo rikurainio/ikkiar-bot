@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "matchtest": "node ./utils/matchtest.js" ,
+    "matchtest": "node ./utils/matchtest.js",
     "start": "node index.js",
     "depc": "node ./deploy-commands.js"
   },
@@ -20,6 +20,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "heroku": "^7.60.1",
-    "mongoose": "^6.3.1"
+    "mongoose": "^6.3.1",
+    "node-fetch": "^3.2.4"
   }
 }

@@ -15,31 +15,31 @@ module.exports = {
 					.setCustomId('topbutton')
 					.setLabel('top')
 					.setStyle('SECONDARY')
-					.setEmoji('967566780295950416'),
+					.setEmoji('851440899144548352'),
 
 				new MessageButton()
 					.setCustomId('junglebutton')
 					.setLabel('jungle')
 					.setStyle('SECONDARY')
-					.setEmoji('967566779998146660'),
+					.setEmoji('851440898989359174'),
 
 				new MessageButton()
 					.setCustomId('midbutton')
 					.setLabel('mid')
 					.setStyle('SECONDARY')
-					.setEmoji('967566780090421288'),
+					.setEmoji('851440898729836595'),
 
 				new MessageButton()
 					.setCustomId('adcbutton')
 					.setLabel('adc')
 					.setStyle('SECONDARY')
-					.setEmoji('967566779515826218'),
+					.setEmoji('851440927146770492'),
 
 				new MessageButton()
 					.setCustomId('supportbutton')
 					.setLabel('support')
 					.setStyle('SECONDARY')
-					.setEmoji('967566780274999326'),
+					.setEmoji('851440898948071494'),
 			);
 
 		const row2 = new MessageActionRow()

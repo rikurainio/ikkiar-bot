@@ -6,6 +6,11 @@ const Queuer = require('../models/queuer')
 const { convertRiotMatchToMongoMatch } = require('./matchhistorytools')
 const { handleSummonerUpdatesAfterMatch } = require('./summonertools')
 
+const saveReplayFileMatch = async (match) => {
+    const newMatch = new Match({gameData: match})
+    await newMatch.save()
+}
+
 const saveMatch = async (matchId) => {
     // AXIOS GET SETUPS
     const searchParam = 'EUW1_' + matchId
@@ -20,25 +25,6 @@ const saveMatch = async (matchId) => {
     
 
 
-    // REQUIREMENTS AFTER MATCH HAS BEEN FOUND BY ID ===>
-    // HAS TO BE OVER 15 MINUTES
-    // /* DEV HANDLE TO GET PASS
-
-    if(response.data.info.gameDuration < 900){
-        return '🙊 Ikkiar will not save games under 15 minutes!'
-    }
-    // NEEDS TO BE A CUSTOM GAME
-    if(response.data.info.gameType !== 'CUSTOM_GAME'){
-        return '🙊 Ikkiar will only save Custom Games!'
-    }
-    // MAP NEEDS TO BE SR
-    if(response.data.info.mapId !== 11){
-        return '🙊 Ikkiar will only save Summoners Rift games!'
-    }
-    // NEEDS TO BE 5v5
-    if(response.data.metadata.participants.length !== 10){
-        return '🙊 Ikkiar will only save games that had 10 players!'
-    }
     // */
     // MATCH HAS TO HAVE 'ikkiar' in its name
     if(((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
@@ -525,5 +511,5 @@ module.exports = {
     getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
     setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
     find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState,
-    getLobbySummonerNamesToTag, setEveryDuplicateAccepted
+    getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch
 }

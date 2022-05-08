@@ -1,11 +1,14 @@
 var lineReader = require('readline').createInterface({
-    input: require('fs').createReadStream("./utils/r.rofl"),
+    input: require('fs').createReadStream("./match.rofl"),
 });
 var lineCounter = 0; var match = [];
 lineReader.on('line', function (line) {
-    lineCounter++;
-    if (lineCounter === 2) match.push(line);
-    if (lineCounter === 2) { lineReader.close(); }
+    //lineCounter++;
+    if (line.includes('{')) 
+    {
+        match.push(line);
+        lineReader.close();
+    }
 });
 lineReader.on('close', function () {
     match = match.toString();
