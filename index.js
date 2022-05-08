@@ -281,7 +281,7 @@ client.on('interactionCreate', async interaction => {
 								popMessageExists = false
 
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
-								await message.edit({ content: newMessageContent, compontents: [row, row2]})
+								await message.edit({ content: newMessageContent, components: [row, row2]})
 
 								await removeMatchedSummonersFromQueue()
 								// AFTER 5 MIN UNREEZE QUEUEING

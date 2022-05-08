@@ -412,12 +412,34 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
     let readyMessage = 'Waiting for more Summoners to queue'
 
+    let topPlayers = ''
+    let junglePlayers = ''
+    let midPlayers = ''
+    let adcPlayers = ''
+    let supportPlayers = ''
+
     queuers.forEach(summoner => {
-        if(summoner.role === 'top')      { top += 1}
-        if(summoner.role === 'jungle')   { jungle += 1 }
-        if(summoner.role === 'mid')      { mid += 1 }
-        if(summoner.role === 'adc')      { adc += 1 }
-        if(summoner.role === 'support' ) { support += 1 }
+        if(summoner.role === 'top'){
+            console.log('top', summoner)
+            top += 1
+            topPlayers += summoner.discordName + ' '
+        }
+        if(summoner.role === 'jungle'){
+            jungle += 1
+            junglePlayers += summoner.discordName + ' '
+        }
+        if(summoner.role === 'mid'){
+            mid += 1
+            midPlayers += summoner.discordName + ' '
+        }
+        if(summoner.role === 'adc'){
+            adc += 1
+            adcPlayers += summoner.discordName + ' '
+        }
+        if(summoner.role === 'support' ){
+            support += 1
+            supportPlayers += summoner.discordName + ' '
+        }
     })
 
     if(top > 1 && jungle > 1 && mid > 1 && adc > 1 && support > 1){
@@ -450,11 +472,11 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
         content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
         + "\nstatus: " + readyMessage + '\n'
-        + "\n🏝️ top:    " + top 
-        + "\n🐕‍🦺 jungle: " + jungle 
-        + "\n🧙 mid:    " + mid 
-        + "\n🏹 adc:    " + adc 
-        + "\n⚕️ sup:    " + support
+        + "\n🏝️ top:    " + top + " " + topPlayers
+        + "\n🐕‍🦺 jungle: " + jungle + " " + junglePlayers
+        + "\n🧙 mid:    " + mid + " " + midPlayers
+        + "\n🏹 adc:    " + adc + " " + adcPlayers
+        + "\n⚕️ sup:    " + support + " " + supportPlayers
         + "\n"
         + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
@@ -464,11 +486,11 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     else{
         content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
         + "\nstatus: " + readyMessage + '\n'
-        + "\n🏝️ top:    " + top 
-        + "\n🐕‍🦺 jungle: " + jungle 
-        + "\n🧙 mid:    " + mid 
-        + "\n🏹 adc:    " + adc 
-        + "\n⚕️ sup:    " + support
+        + "\n🏝️ top:    " + top + " " + topPlayers
+        + "\n🐕‍🦺 jungle: " + jungle + " " + junglePlayers
+        + "\n🧙 mid:    " + mid + " " + midPlayers
+        + "\n🏹 adc:    " + adc + " " + adcPlayers
+        + "\n⚕️ sup:    " + support + " " + supportPlayers
         + "\n"
         + "\n_________________________________________"
         + "\n> [" + name + "] " + actionMessage + '  (' + getTimeStamp() + ')' + "\n```"
