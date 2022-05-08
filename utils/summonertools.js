@@ -1,56 +1,43 @@
 const Summoner = require("../models/summoner")
 
+const scorePlayers = async (match) => {
+    console.log(Object.keys(match))
 
-// TAKES IN MONGO MATCH AND UPDATES SCORES ETC
-const handleSummonerUpdatesAfterMatch = async (mongoMatch) => {
+    const { statsJson: summoners } = match
 
-    console.log('MATCH', mongoMatch)
-    const participants = mongoMatch.info.participants
-    const { metadata } = mongoMatch
-    const { participants: puuids } = metadata
+    summoners.forEach(async summoner => {
 
-    // COMPARE TEAMS THAT PLAYED
-    const blueTeam = getBlueTeam(participants)
-    const redTeam = getRedTeam(participants)
-    const betterTeam = calculateTeamSkillDifference(blueTeam, redTeam)
+        const RID = summoner.ID
+        const found = await findSummonerByRID(RID)
 
-    participants.forEach(async (summoner, idx) => {
-        // we need to create a new summoner document if its his/her first game in ikkiar
-        // puuids and summoners are in same order so their indexes SHOULD match
-        const found = await findSummonerByPuuId(puuids[idx])
         if(!found){
-
             const newSummoner = {
-                username: summoner.summonerName,
+                username: summoner.NAME,
                 points: 1000,
                 wins: 0,
                 losses: 0,
                 elo: 0,
-                puuid: puuids[idx]
+                RID: RID
             }
             await createSummoner(newSummoner)
         }
 
-        // reward wins
-        if(summoner.win){
-            if(summoner.teamId == betterTeam){
-                updateSummonerStats(summoner.puuid, 20, true)
-            }
-            else{
-                updateSummonerStats(summoner.puuid, 21, true)
-            }
+        if(summoner.WIN === 'Win'){
+            await updateSummonerStats(RID, 20, true)
         }
-
-        // punish loss
-        if(!summoner.win){
-            if(summoner.teamId == betterTeam){
-                updateSummonerStats(summoner.puuid, 21, false)
-            }
-            else{
-                updateSummonerStats(summoner.puuid, 20, false)
-            }
+        if(summoner.WIN === 'Fail'){
+            await updateSummonerStats(RID, 20, false)
         }
     })
+}
+
+//RID = id of a summoner in the replay file 
+const findSummonerByRID = async (RID) => {
+    const foundSummoner = await Summoner.findOne({ RID: RID})
+    if(foundSummoner){
+        return true
+    }
+    return false
 }
 
 const getBlueTeam = (summoners) => {
@@ -95,12 +82,12 @@ const getSummoners = async () => {
     return summoners
 }
 
-const updateSummonerStats = async (puuid, pointsAmount, win) => {
+const updateSummonerStats = async (RID, pointsAmount, win) => {
     if(win){
-        await Summoner.findOneAndUpdate({puuid: puuid}, {$inc : { points: pointsAmount, wins: 1 }})
+        await Summoner.findOneAndUpdate({ RID: RID}, {$inc : { points: pointsAmount, wins: 1 }})
     }
     else{
-        await Summoner.findOneAndUpdate({puuid: puuid}, {$inc : { points: -pointsAmount, losses: 1 }})
+        await Summoner.findOneAndUpdate({ RID: RID}, {$inc : { points: -pointsAmount, losses: 1 }})
     }
 }
 
@@ -162,5 +149,62 @@ const getLeaderboardData = async () => {
 module.exports = { 
     getSummoners, resetSummoners, createSummoner, deleteSummoner, updateSummoner,
     findSummonerByPuuId, findSummonerByName, findSummonerByDiscordId,
-    handleSummonerUpdatesAfterMatch, clearSummoners, getLeaderboardData
+    clearSummoners, getLeaderboardData,
+    scorePlayers
 }
+
+
+
+/*
+// TAKES IN MONGO MATCH AND UPDATES SCORES ETC
+const handleSummonerUpdatesAfterMatch = async (mongoMatch) => {
+
+    console.log('MATCH', mongoMatch)
+    const participants = mongoMatch.info.participants
+    const { metadata } = mongoMatch
+    const { participants: puuids } = metadata
+
+    // COMPARE TEAMS THAT PLAYED
+    const blueTeam = getBlueTeam(participants)
+    const redTeam = getRedTeam(participants)
+    const betterTeam = calculateTeamSkillDifference(blueTeam, redTeam)
+
+    participants.forEach(async (summoner, idx) => {
+        // we need to create a new summoner document if its his/her first game in ikkiar
+        // puuids and summoners are in same order so their indexes SHOULD match
+        const found = await findSummonerByPuuId(puuids[idx])
+        if(!found){
+
+            const newSummoner = {
+                username: summoner.summonerName,
+                points: 1000,
+                wins: 0,
+                losses: 0,
+                elo: 0,
+                puuid: puuids[idx]
+            }
+            await createSummoner(newSummoner)
+        }
+
+        // reward wins
+        if(summoner.win){
+            if(summoner.teamId == betterTeam){
+                updateSummonerStats(summoner.puuid, 20, true)
+            }
+            else{
+                updateSummonerStats(summoner.puuid, 21, true)
+            }
+        }
+
+        // punish loss
+        if(!summoner.win){
+            if(summoner.teamId == betterTeam){
+                updateSummonerStats(summoner.puuid, 21, false)
+            }
+            else{
+                updateSummonerStats(summoner.puuid, 20, false)
+            }
+        }
+    })
+}
+*/

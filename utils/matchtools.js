@@ -1,10 +1,7 @@
 const axios = require('axios')
 // MONGO
-//const User = require('../models/user')
 const Match = require('../models/match')
 const Queuer = require('../models/queuer')
-const { convertRiotMatchToMongoMatch } = require('./matchhistorytools')
-const { handleSummonerUpdatesAfterMatch } = require('./summonertools')
 
 const saveReplayFileMatch = async (match) => {
     const newMatch = new Match({gameData: match})
@@ -20,37 +17,6 @@ const checkIfReplayAlreadySaved = async (matchId) => {
     }
     console.log('not a duplicate')
     return false
-}
-
-const saveMatch = async (matchId) => {
-    // AXIOS GET SETUPS
-    const searchParam = 'EUW1_' + matchId
-    let config = {
-        headers: {
-                'X-Riot-Token': process.env.RIOT_API_KEY
-        }
-    }
-    const response = await
-         axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/' + searchParam, config)
-    const match = response.data
-    
-
-
-    // */
-    // MATCH HAS TO HAVE 'ikkiar' in its name
-    if(((response.data.info.gameName).toLowerCase()).includes('ikkiar')){
-        //const mongoMatch = convertRiotMatchToMongoMatch(response.data)
-        const newMatch = new Match({gameData: match})
-        // PASS MONGOMATCH TO SUMMONER UTIL
-        // IT WILL COLLECT DATA FOR SUMMONERS ABOUT THE GAME THEY PLAYED
-        await handleSummonerUpdatesAfterMatch(match)
-
-        await newMatch.save()
-        return '🐵 Ikkiar remembers this match now :).'
-    }
-    else{
-        return '🙈 Ikkiar could not save the match. \n \n> The Custom Game must include ikkiar in its name'
-    }
 }
 
 const getMatches = () => {
@@ -517,7 +483,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 }
 
 module.exports = { 
-    saveMatch, getMatches, getMatchHistoryLength, matchFound,
+    getMatches, getMatchHistoryLength, matchFound,
     getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
     getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
     setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,

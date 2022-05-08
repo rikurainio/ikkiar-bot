@@ -8,7 +8,8 @@ const { MessageActionRow, MessageButton, } = require('discord.js');
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		summonerCanAcceptGame, unqueueAFKs,
 		 enoughSummoners, find10Accepts, removeMatchedSummonersFromQueue, 
-		 getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch, checkIfReplayAlreadySaved} = require('./utils/matchtools')
+		 getLobbySummonerNamesToTag, setEveryDuplicateAccepted,
+		  saveReplayFileMatch, checkIfReplayAlreadySaved} = require('./utils/matchtools')
 
 const { matchParser, matchParserKEKW } = require('./utils/matchparser');
 const{createPostGameMessage} = require('./utils/postgamemsg');
@@ -121,6 +122,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // DISCORD.JS CLASSES
 const { Client, Collection, Intents} = require('discord.js');
+const { scorePlayers } = require('./utils/summonertools');
 
 // CREATE NEW CLIENT
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
@@ -144,7 +146,6 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
-	console.log('onmsg')
 	if(message.author.bot) return;
 
 	const file = message.attachments.first()?.url
@@ -170,6 +171,7 @@ client.on('messageCreate', async (message) => {
 				matchData['matchId'] = fileNameParsed
 	
 				await saveReplayFileMatch(matchData)
+				await scorePlayers(matchData)
 
 				message.channel.send('🐵 Match saved!')
 				message.channel.send(createPostGameMessage(matchData.statsJson));

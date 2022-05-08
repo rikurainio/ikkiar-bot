@@ -38,7 +38,7 @@ const schema = mongoose.Schema({
     default: 0
   },
 
-  puuid: {
+  RID: {
     type: String,
     required: true
   }
