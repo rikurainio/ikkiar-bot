@@ -8,7 +8,7 @@ const { MessageActionRow, MessageButton, } = require('discord.js');
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		summonerCanAcceptGame, unqueueAFKs,
 		 enoughSummoners, find10Accepts, removeMatchedSummonersFromQueue, 
-		 getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch} = require('./utils/matchtools')
+		 getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch, checkIfReplayAlreadySaved} = require('./utils/matchtools')
 
 const { matchParser, matchParserKEKW } = require('./utils/matchparser');
 
@@ -147,27 +147,32 @@ client.on('messageCreate', async (message) => {
 	if(message.author.bot) return;
 
 	const file = message.attachments.first()?.url
-	console.log('file url: ', file)
-
 	if(!file){return}
-
-	try {
-		message.channel.send('Reading the replay file. Fetching data...')
-		const response = await axios.get(file)
-		//console.log('res:', response.data)
-		const json = matchParserKEKW(await response.data)
-		console.log('type of axios get res data:', typeof(json))
-
-		if(json){
-			let matchData = json
-			matchData['statsJson'] = JSON.parse(json['statsJson'])
-			matchData['createdAt'] = Date.now()
-
-			await saveReplayFileMatch(matchData)
-			message.channel.send('🐵 match saved')
-		}
+	const fileName = message.attachments.first()?.name
+	const fileNameParsed = fileName.substring(0, fileName.indexOf('.'))
+	
+	if(await checkIfReplayAlreadySaved(fileNameParsed)){
+		message.channel.send('🙉 This match has already been saved!')
 	}
-	catch (err) { console.log('err in file handling' , err) }
+	else if(fileName.includes('EUW-') && fileName.includes('.rofl')){
+		try {
+			const response = await axios.get(file)
+			//console.log('res:', response.data)
+			const json = matchParserKEKW(await response.data)
+			console.log('type of axios get res data:', typeof(json))
+	
+			if(json){
+				let matchData = json
+				matchData['statsJson'] = JSON.parse(json['statsJson'])
+				matchData['createdAt'] = Date.now()
+				matchData['matchId'] = fileNameParsed
+	
+				await saveReplayFileMatch(matchData)
+				message.channel.send('🐵 Match saved!')
+			}
+		}
+		catch (err) { console.log('err in file handling' , err) }
+	}
 })
 
 

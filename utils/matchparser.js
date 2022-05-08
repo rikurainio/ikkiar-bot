@@ -22,7 +22,7 @@ const matchParser = (file) => {
     });
     lineReader.on('close', function () {
         match = match.toString();
-        match = match.substring(match.indexOf('{'), match.indexOf('}]"}')) + '}]"}'
+        match = match.substring(match.indexOf('{gameLength'), match.indexOf('}]"}')) + '}]"}'
         json = JSON.parse(match);
        // console.log(json);
         process.exit(0);
@@ -33,7 +33,7 @@ const matchParser = (file) => {
 const matchParserKEKW = (file) => {
     console.log(file.length)
     var match = file.toString()
-    match = match.substring(match.indexOf('{'), match.indexOf('}]"}')) + '}]"}'
+    match = match.substring(match.indexOf("{\"gameLength"), match.indexOf('}]"}')) + '}]"}'
     return JSON.parse(match);
 }
 

@@ -11,6 +11,17 @@ const saveReplayFileMatch = async (match) => {
     await newMatch.save()
 }
 
+const checkIfReplayAlreadySaved = async (matchId) => {
+    const foundMatch = await Match.findOne({ 'gameData.matchId': matchId })
+    console.log(await foundMatch)
+    if(await foundMatch){
+        console.log('already saved')
+        return true
+    }
+    console.log('not a duplicate')
+    return false
+}
+
 const saveMatch = async (matchId) => {
     // AXIOS GET SETUPS
     const searchParam = 'EUW1_' + matchId
@@ -511,5 +522,6 @@ module.exports = {
     getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
     setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
     find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState,
-    getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch
+    getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch,
+    checkIfReplayAlreadySaved
 }
