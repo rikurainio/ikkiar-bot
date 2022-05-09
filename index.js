@@ -213,8 +213,7 @@ client.on('interactionCreate', async interaction => {
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'left')
 			await message.edit({ content: newMessageContent, components: [row3, row4] })
 		}
-		else {
-			await interaction.reply({ content: 'You are in! 🐵', ephemeral: true })
+		else if(interaction !== undefined){
 			if(interaction.customId === 'topbutton'){
 				role = 'top'
 				newQueueUser.role = 'top'
@@ -235,6 +234,8 @@ client.on('interactionCreate', async interaction => {
 				role = 'support'
 				newQueueUser.role = 'support'
 			}
+			await interaction.reply({ content: 'You are in! 🐵', ephemeral: true })
+
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
@@ -319,8 +320,12 @@ client.on('interactionCreate', async interaction => {
 							console.log('c: pop exists?', popMessageExists)
 							if(popMessageExists){
 								console.log('c: deleted popmsg')
-								await popMsg.delete()
-								popMessageExists = false;
+								try {
+									if(popmsg !== undefined){
+										await popMsg.delete()
+										popMessageExists = false;
+									}
+								} catch(err){console.log('error deleting popmessage on collector end')}
 							}
 	
 							// IF NO REACTION WAS GIVEN JUST UNQUEUE THOSE PPL
