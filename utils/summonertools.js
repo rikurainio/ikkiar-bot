@@ -1,12 +1,12 @@
 const Summoner = require("../models/summoner")
 
-const eloUpdate = (redTeamElo, blueTeamElo, redTeamWin, Kfactor) => {
-    const Qred = Math.pow(10, redTeamElo/400)
-    const Qblue = Math.pow(10, blueTeamElo/400)
-    const expectedScoreRed = Qred / (Qred + Qblue)
-    const expectedScoreBlue = Qblue / (Qred + Qblue)
-    const redEloChange = Kfactor * (Number(redTeamWin) - expectedScoreRed)
-    const blueEloChange = Kfactor * (Number(!redTeamWin) - expectedScoreBlue)
+const eloUpdate = (redTeamElo, blueTeamElo, redTeamWin, kfactor) => {
+    const qred = Math.pow(10, redTeamElo/400)
+    const qblue = Math.pow(10, blueTeamElo/400)
+    const expectedScoreRed = qred / (qred + qblue)
+    const expectedScoreBlue = qblue / (qred + qblue)
+    const redEloChange = kfactor * (Number(redTeamWin) - expectedScoreRed)
+    const blueEloChange = kfactor * (Number(!redTeamWin) - expectedScoreBlue)
     return {redEloChange, blueEloChange}
 }
 
