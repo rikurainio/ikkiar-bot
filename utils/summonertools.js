@@ -1,5 +1,15 @@
 const Summoner = require("../models/summoner")
 
+const eloUpdate = (redTeamElo, blueTeamElo, redTeamWin, Kfactor) => {
+    const Qred = Math.pow(10, redTeamElo/400)
+    const Qblue = Math.pow(10, blueTeamElo/400)
+    const expectedScoreRed = Qred / (Qred + Qblue)
+    const expectedScoreBlue = Qblue / (Qred + Qblue)
+    const redEloChange = Kfactor * (Number(redTeamWin) - expectedScoreRed)
+    const blueEloChange = Kfactor * (Number(!redTeamWin) - expectedScoreBlue)
+    return {redEloChange, blueEloChange}
+}
+
 const scorePlayers = async (match) => {
     console.log(Object.keys(match))
 
