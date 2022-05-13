@@ -3,113 +3,20 @@ const fs = require('node:fs');
 const mongoose = require('mongoose')
 const axios = require('axios')
 
-const { MessageActionRow, MessageButton, } = require('discord.js');
-
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		summonerCanAcceptGame, unqueueAFKs,
 		 enoughSummoners, find10Accepts, removeMatchedSummonersFromQueue, 
 		 getLobbySummonerNamesToTag, setEveryDuplicateAccepted,
 		  saveReplayFileMatch, checkIfReplayAlreadySaved} = require('./utils/matchtools')
 
-const { matchParser, matchParserKEKW } = require('./utils/matchparser');
-const{createPostGameMessage} = require('./utils/postgamemsg');
+const { matchParserKEKW } = require('./utils/matchparser');
+const{ createPostGameMessage } = require('./utils/postgamemsg');
+const{ toggleButtons } = require('./utils/toggleButtons')
 
-
-// QUEUE SYSTEM BUTTON CONSTS ( COMP ROWS )
-const row = new MessageActionRow()
-.addComponents(
-	new MessageButton()
-		.setCustomId('topbutton')
-		.setLabel('top')
-		.setStyle('SECONDARY')
-		.setEmoji('851440899144548352')
-		.setDisabled(true),
-
-	new MessageButton()
-		.setCustomId('junglebutton')
-		.setLabel('jungle')
-		.setStyle('SECONDARY')
-		.setEmoji('851440898989359174')
-		.setDisabled(true),
-
-	new MessageButton()
-		.setCustomId('midbutton')
-		.setLabel('mid')
-		.setStyle('SECONDARY')
-		.setEmoji('851440898729836595')
-		.setDisabled(true),
-
-	new MessageButton()
-		.setCustomId('adcbutton')
-		.setLabel('adc')
-		.setStyle('SECONDARY')
-		.setEmoji('851440927146770492')
-		.setDisabled(true),
-
-	new MessageButton()
-		.setCustomId('supportbutton')
-		.setLabel('support')
-		.setStyle('SECONDARY')
-		.setEmoji('851440898948071494')
-		.setDisabled(true),
-);
-const row2 = new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('cancelbutton')
-				.setLabel('leave')
-				.setStyle('SECONDARY')
-				.setEmoji('✖')
-				.setDisabled(true)
-		)
-
-//RECREATE ENABLED ROWS BECAUSE MONKE
-const row3 = new MessageActionRow()
-.addComponents(
-	new MessageButton()
-		.setCustomId('topbutton')
-		.setLabel('top')
-		.setStyle('SECONDARY')
-		.setEmoji('851440899144548352')
-		.setDisabled(false),
-
-	new MessageButton()
-		.setCustomId('junglebutton')
-		.setLabel('jungle')
-		.setStyle('SECONDARY')
-		.setEmoji('851440898989359174')
-		.setDisabled(false),
-
-	new MessageButton()
-		.setCustomId('midbutton')
-		.setLabel('mid')
-		.setStyle('SECONDARY')
-		.setEmoji('851440898729836595')
-		.setDisabled(false),
-
-	new MessageButton()
-		.setCustomId('adcbutton')
-		.setLabel('adc')
-		.setStyle('SECONDARY')
-		.setEmoji('851440927146770492')
-		.setDisabled(false),
-
-	new MessageButton()
-		.setCustomId('supportbutton')
-		.setLabel('support')
-		.setStyle('SECONDARY')
-		.setEmoji('851440898948071494')
-		.setDisabled(false),
-);
-const row4 = new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('cancelbutton')
-				.setLabel('leave')
-				.setStyle('SECONDARY')
-				.setEmoji('✖')
-				.setDisabled(false)
-		)
+// DISCORD.JS CLASSES
+const { Client, Collection, Intents} = require('discord.js');
+const { scorePlayers } = require('./utils/summonertools');
+const { assignRoleOnButtonClick } = require('./utils/handleButtons');
 
 //CONNECT TO DB
 mongoose.connect(process.env.MONGO_URI)
@@ -120,14 +27,11 @@ mongoose.connect(process.env.MONGO_URI)
     console.log('error connection to MongoDB:', error.message)
   })
 
-// DISCORD.JS CLASSES
-const { Client, Collection, Intents} = require('discord.js');
-const { scorePlayers } = require('./utils/summonertools');
-
-// CREATE NEW CLIENT
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
+// CREATE NEW CLIENT /////////////////////////////////////////////////////////////////////////
+const client = new Client({ intents: [	Intents.FLAGS.GUILDS, 
+										Intents.FLAGS.GUILD_MESSAGES, 
+										Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 client.commands = new Collection();
-
 const commandFiles = fs
 					.readdirSync('./commands')
 					.filter(file => file.endsWith('.js'))
@@ -139,12 +43,13 @@ for(const file of commandFiles){
 	client.commands.set(command.data.name, command);
 }
 
-
-// WHEN CLIENT IS READY
+// WHEN CLIENT IS READY //////////////////////////////////////////////////////////////////////
 client.once('ready', () => {
 	console.log('Ready!');
 });
 
+
+// GETS CALLED ON EVERY MESSAGE CREATION BY USERS, BOT ///////////////////////////////////////
 client.on('messageCreate', async (message) => {
 	if(message.author.bot) return;
 
@@ -160,7 +65,6 @@ client.on('messageCreate', async (message) => {
 		console.log('trying to save euw rofl file')
 		try {
 			const response = await axios.get(file)
-			//console.log('res:', response.data)
 			const json = matchParserKEKW(response.data)
 			console.log('type of axios get res data:', typeof(json))
 	
@@ -182,23 +86,18 @@ client.on('messageCreate', async (message) => {
 })
 
 
-// GETS CALLED WHEN THE CLIENT INTERACTS
+// GETS CALLED WHEN THE CLIENT INTERACTS ///////////////////////////////////////////////////////
 client.on('interactionCreate', async interaction => {
-
-	// TODO: MOVE THESE BUTTON HANDLERS TO THEIR OWN MODULES MAYBE
 	if (interaction.isButton()){
-		// ACCESS THE MSG
-		// DISABLE BUTTONS FOR A WHILE
+		if(interaction === undefined){ return }
+
 		const message = interaction.message
-		await message.edit({ components: [row, row2]})
+		toggleButtons(message, 'disable')
 
 		// GET PRESSER DISCORD USER DETAILS
 		const id = interaction.user.id
 		const name = interaction.user.username
 		const timeNow = Date.now()
-		let role = ''
-
-
 		const newQueueUser = {
 			discordName: name,
 			discordId: id,
@@ -208,38 +107,24 @@ client.on('interactionCreate', async interaction => {
 		}
 		
 		if(interaction.customId === 'cancelbutton'){
-			await interaction.reply({ content: 'Took you out of queue 🐒', ephemeral: true })
+			try { await interaction.reply({ content: 'Took you out of queue 🐒', ephemeral: true }) }
+			catch (err) { console.log('error sending ephemeral remove queue message.', err) }
+
 			await unqueueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'left')
-			await message.edit({ content: newMessageContent, components: [row3, row4] })
+			toggleButtons(message, newMessageContent, 'enable')
 		}
 		else if(interaction !== undefined){
-			if(interaction.customId === 'topbutton'){
-				role = 'top'
-				newQueueUser.role = 'top'
-			}
-			if(interaction.customId === 'junglebutton'){
-				role = 'jungle'
-				newQueueUser.role = 'jungle'
-			}
-			if(interaction.customId === 'midbutton'){
-				role = 'mid'
-				newQueueUser.role = 'mid'
-			}
-			if(interaction.customId === 'adcbutton'){
-				role = 'adc'
-				newQueueUser.role = 'adc'
-			}
-			if(interaction.customId === 'supportbutton'){
-				role = 'support'
-				newQueueUser.role = 'support'
-			}
-			await interaction.reply({ content: 'You are in! 🐵', ephemeral: true })
+			let role = assignRoleOnButtonClick(interaction)
+			newQueueUser.role = role
+
+			try{ await interaction.reply({ content: 'You are in! 🐵', ephemeral: true }) }
+			catch (err) { console.log('error sending replying with ephemeral message. ', err) }
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
 			await queueSummoner(newQueueUser)
 			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
-			await message.edit({ content: newMessageContent, components: [row3, row4] })
+			toggleButtons(message, newMessageContent, 'enable')
 
 			const handleRunning = async () => {
 				let lobbyDeclined = false
@@ -250,7 +135,7 @@ client.on('interactionCreate', async interaction => {
 					let tagSummonersContent = await getLobbySummonerNamesToTag()
 
 					//DISABLE QUEUE BUTTONS WHILE SITUATION IS RESOLVED
-					await message.edit({ components: [row,row2]})
+					toggleButtons(message, 'disable')
 					const popMsg = await interaction.channel.send(tagSummonersContent + '\n**Accept** | **Decline**\n')
 					await popMsg.react('✅')
 					await popMsg.react('❌')
@@ -275,20 +160,28 @@ client.on('interactionCreate', async interaction => {
 							await message.edit(newMessageContent)
 
 							if(await find10Accepts()){
+
+								try {
+									await popMsg.delete()
+									popMessageExists = false
+
+								} catch (err) { console.log('error deleting popmsg after 10 accepts found.', err) }
 								matchFormed = true
-
-								// REMOVE POPMSG AND DISABLE BUTTONS IF MATCH IS MADE
-								await popMsg.delete()
-								popMessageExists = false
-
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
-								await message.edit({ content: newMessageContent, components: [row, row2]})
-
+								toggleButtons(message, newMessageContent, 'disable')
 								await removeMatchedSummonersFromQueue()
-								// AFTER 5 MIN UNREEZE QUEUEING
+
+								// AFTER 5 MIN UNFREEZE QUEUEING
 								setTimeout(async () => {
 									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'scouting for new lobbies to form:')
-									await message.edit({ content: newMessageContent, components: [row3, row4]})
+
+									try {
+										toggleButtons(message, newMessageContent, 'enable')
+									}
+									catch (err) {
+										console.log('error enabling buttons after waiting 5 minutes on MM', err)
+									}
+
 								}, 300000)
 							}
 						}
@@ -304,14 +197,21 @@ client.on('interactionCreate', async interaction => {
 							await unqueueSummoner({ discordId: user.id })
 							const newMessageContent = await getUpdatedQueueStatusText(user.username, 'declined match')
 							await message.edit(newMessageContent)
-							await popMsg.delete()
-							popMessageExists = false
+
+							try{
+								await popMsg.delete() 
+								popMessageExists = false
+							}
+							catch (err) {
+								console.log('error deleting popmsg after someone reacted X', err)
+							}
+
 
 							let enough = await enoughSummoners()
 							if(enough){
 								await handleRunning()
 							}
-							await message.edit({ components: [row3, row4]})	
+							toggleButtons(message, 'disable')
 						}
 					});
 
@@ -333,8 +233,7 @@ client.on('interactionCreate', async interaction => {
 							await unqueueAFKs()
 							
 							if(!matchFormed){
-	
-								await message.edit({ components: [row3, row4]})
+								toggleButtons(message, 'disable')
 								
 								if(await enoughSummoners()){
 									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'unqueued afks. new lobby:')
