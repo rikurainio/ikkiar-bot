@@ -1,23 +1,23 @@
 
 const assignRoleOnButtonClick = (interaction) => {
     let newQueueUserRole = ''
-    if(interaction.customId === 'topbutton'){
+    if(interaction.customId === 'topbutton' || interaction.customId === 'protopbutton'){
         role = 'top'
         newQueueUserRole = 'top'
     }
-    if(interaction.customId === 'junglebutton'){
+    if(interaction.customId === 'junglebutton' || interaction.customId === 'projunglebutton'){
         role = 'jungle'
         newQueueUserRole = 'jungle'
     }
-    if(interaction.customId === 'midbutton'){
+    if(interaction.customId === 'midbutton' || interaction.customId === 'promidbutton'){
         role = 'mid'
         newQueueUserRole = 'mid'
     }
-    if(interaction.customId === 'adcbutton'){
+    if(interaction.customId === 'adcbutton' || interaction.customId === 'proadcbutton'){
         role = 'adc'
         newQueueUserRole = 'adc'
     }
-    if(interaction.customId === 'supportbutton'){
+    if(interaction.customId === 'supportbutton' || interaction.customId === 'prosupportbutton'){
         role = 'support'
         newQueueUserRole = 'support'
     }
