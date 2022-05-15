@@ -1,5 +1,6 @@
 // QUEUE SYSTEM BUTTON CONSTS ( COMP ROWS )
 const { MessageActionRow, MessageButton, } = require('discord.js');
+
 const row = new MessageActionRow()
 .addComponents(
 	new MessageButton()
@@ -95,7 +96,8 @@ const row4 = new MessageActionRow()
 				.setDisabled(false)
 		)
 
-        
+// METHODS
+
 const toggleButtons = async (message, content, handle) => {
     if(content === undefined){
         if(handle === 'enable') {
