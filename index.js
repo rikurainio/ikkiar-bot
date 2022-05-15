@@ -127,16 +127,9 @@ client.on('interactionCreate', async interaction => {
 			catch (err) { console.log('error sending with ephemeral message. ', err) }
 
 			// KEEP THE BALL ROLLING IF THERE ARE LOBBIES TO MAKE
-			if(cmdn.includes('pro')){
-				await queueSummonerPro(newQueueUser)
-				const newMessageContent = await getUpdatedQueueStatusTextPro(name, 'queued ' + role)
-				await toggleButtonsPro(message, newMessageContent, 'enable')
-			}
-			if(!cmdn.includes('pro')){
-				await queueSummoner(newQueueUser)
-				const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
-				await toggleButtons(message, newMessageContent, 'enable')
-			}
+			await queueSummoner(newQueueUser)
+			const newMessageContent = await getUpdatedQueueStatusText(name, 'queued ' + role)
+			await toggleButtons(message, newMessageContent, 'enable')
 
 			const handleRunning = async () => {
 				let lobbyDeclined = false
