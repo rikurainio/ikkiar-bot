@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
-const { getUpdatedQueueStatusText, setInitBooleanState } = require('../utils/matchtools')
+const { getUpdatedQueueStatusText, setInitBooleanState, setInitBooleanStatePro, getUpdatedQueueStatusTextPro } = require('../utils/promatchtools')
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -52,8 +52,8 @@ module.exports = {
 				)
 
 		// INIT STATE
-		await setInitBooleanState(false)
-		const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'is thinking')
+		await setInitBooleanStatePro(false)
+		const newMessageContent = await getUpdatedQueueStatusTextPro('Ikkiar', 'is thinking')
 		await interaction.reply({ content: newMessageContent, components: [row, row2] }
 		);
 	},
