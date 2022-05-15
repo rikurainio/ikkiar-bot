@@ -311,10 +311,7 @@ const queueSummoner = async (user) => {
 const unqueueSummoner = async (user) => {
     // AVOID TARGETING SUMMONERS WHO CONFIRMED A MATCH
     if(!user.accepted){
-        const foundUser = await Queuer.findOne({ discordId: user.discordId })
-        if(foundUser){
-            await foundUser.remove()
-        }
+        await Queuer.findOneAndRemove({ discordId: user.discordId })
     }
 }
 
