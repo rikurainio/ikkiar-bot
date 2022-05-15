@@ -1,5 +1,3 @@
-const axios = require('axios')
-// MONGO
 const Match = require('../models/match')
 const Queuer = require('../models/queuer')
 
@@ -48,17 +46,6 @@ const setEveryAccepted = async (boolean) => {
     }
 }
 
-const dismissAcceptedsOutsideLobby = async () => {
-    const summoners = await Queuer.find({})
-
-    summoners.forEach(async summoner => {
-        if(!summoner.inLobby){
-            summoner.accepted = false
-            await summoner.save()
-        }
-    })
-}
-
 const setInitBooleanState = async (boolean) => {
     try {
         await Queuer.updateMany({}, { accepted: boolean, inLobby: boolean })
@@ -85,7 +72,6 @@ const find10Accepts = async () => {
 }
 
 const setAccepted = async (user, boolean) => {
-    // FIND THE USER TO UNQUEUE FROM DB
     try {
         await Queuer.updateMany({discordId: user.discordId}, { accepted: boolean })
     }
@@ -173,10 +159,15 @@ const selectFastestTenSummoners = async () => {
             }
 
             if(idx < 10){
-                // GIVE SELECTED SUMMONERS inLOBBY = TRUE
-                const foundSummoner = await Queuer.findById(summoner.id)
-                foundSummoner.inLobby = true
-                await foundSummoner.save()
+                // GIVE SELECTED SUMMONERS inLobby = TRUE
+                try {
+                    const foundSummoner = await Queuer.findById(summoner.id)
+                    foundSummoner.inLobby = true
+                    await foundSummoner.save()
+                }
+                catch (err) {
+                    console.log('error setting 10 summoners in lobby inLobby value to true in matchtools.js.\n', err)
+                }
             }
         }
         
@@ -420,7 +411,6 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
     queuers.forEach(summoner => {
         if(summoner.role === 'top'){
-            console.log('top', summoner)
             top += 1
             topPlayers += summoner.discordName + ' '
         }
