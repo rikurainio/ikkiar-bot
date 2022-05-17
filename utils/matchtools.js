@@ -223,21 +223,10 @@ const matchMake = async () => {
             summonersByRoles.push(tops, jungles, mids, adcs, supports)
 
             // 0 WILL GO TO BLUE TEAM, 1 TO RED
-            let blueTeam = []
-            let redTeam = []
 
-            summonersByRoles.forEach(roleArray => {
-                let teamIndex = Math.floor(Math.random() * 2)
-
-                if(teamIndex === 0){
-                    blueTeam.push(roleArray[0].discordName)
-                    redTeam.push(roleArray[1].discordName)
-                }
-                else{
-                    redTeam.push(roleArray[0].discordName)
-                    blueTeam.push(roleArray[1].discordName)
-                }
-            })
+            const bteams = balanceTeams(summonerByRoles)
+            const blueTeam = bteams[0]
+            const redTeam = bteams[1]
 
             let blueTeamText = 
                    '\ntop:     ' + blueTeam[0] 
@@ -271,6 +260,45 @@ const matchMake = async () => {
     }
 }
 
+
+const teamELO = (team) => {
+    return team.reduce((a, b) => ({points:a.points+b.points}), ({points:0})).points
+}
+
+//takes list of summoners by roles and returns balanced teams
+const balanceTeams = (summonersByRoles) => {
+    const blueTeamTemp = []
+    const redTeamTemp = []
+    const recurseRoles = (blueTT, redTT, i) => {
+
+        const blueTTT1 = [...blueTT, summonersByRoles[i][0]]
+        const redTTT1 = [...redTT, summonersByRoles[i][1]]
+        const blueTTT2 = [...blueTT, summonersByRoles[i][1]]
+        const redTTT2 = [...redTT, summonersByRoles[i][0]]
+        if (i==4) {
+            const g1diff = Math.abs(teamELO(blueTTT1) - teamELO(redTTT1))
+            const g2diff = Math.abs(teamELO(blueTTT2) - teamELO(redTTT2))
+            if (g1diff < g2diff) {
+                return [blueTTT1, redTTT1, g1diff]
+            }
+            else {
+                return [blueTTT2, redTTT2, g2diff]
+            }
+        }
+        else {
+            const r1 = recurseRoles(blueTTT1, redTTT1, i+1)
+            const r2 = recurseRoles(blueTTT2, redTTT2, i+1)
+            if (r1[2] < r2[2]) {
+                return r1
+            }
+            else {
+                return r2
+            }
+        }
+    }
+    const solveTeams = recurseRoles(blueTeamTemp, redTeamTemp, 0)
+    return solveTeams.slice(0, 2)
+}
 
 // RETURNS QUEUE SIZE
 const checkQueueSize = async () => {
