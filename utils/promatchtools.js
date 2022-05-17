@@ -1,63 +1,44 @@
-const Match = require('../models/match')
-const Queuer = require('../models/queuer')
+const ProQueuer = require('../models/proqueuer')
+const ProMatch = require('../models/promatch')
 
-const saveReplayFileMatch = async (match) => {
-    const newMatch = new Match({gameData: match})
-    await newMatch.save()
-}
 
-const checkIfReplayAlreadySaved = async (matchId) => {
-    const foundMatch = await Match.findOne({ 'gameData.matchId': matchId })
-    console.log(await foundMatch)
-    if(await foundMatch){
-        console.log('already saved')
-        return true
-    }
-    console.log('not a duplicate')
-    return false
-}
-
-const getMatches = () => {
-    return ""
-}
-
-const getMatchHistoryLength = async () => {
-    const response = await Match.find({})
+const getMatchHistoryLengthPro = async () => {
+    const response = await ProMatch.find({})
     return response.length
 }
 
-const setEveryDuplicateAccepted = async (id, boolean) => {
+const setEveryDuplicateAcceptedPro = async (id, boolean) => {
     try {
-        const foundSmmoners = await Queuer.find({ discordId: id})
+        const foundSmmoners = await ProQueuer.find({ discordId: id})
         foundSmmoners.forEach(async (summoner) => {
             summoner.accepted = true
             await summoner.save()
         })
     }
-    catch (error){console.log('set every dupliate error',err)}
+    catch (error){console.log('[PRO VER] set every dupliate error',err)}
 }
 
-const setEveryAccepted = async (boolean) => {
+const setEveryAcceptedPro = async (boolean) => {
     try {
-        await Queuer.updateMany({}, { accepted: boolean })
+        await ProQueuer.updateMany({}, { accepted: boolean })
     }
     catch (error) {
         console.log('error setting every single documents accepted values')
     }
 }
 
-const setInitBooleanState = async (boolean) => {
+const setInitBooleanStatePro = async (boolean) => {
     try {
-        await Queuer.updateMany({}, { accepted: boolean, inLobby: boolean })
+        await ProQueuer.updateMany({}, { accepted: boolean, inLobby: boolean })
     }
     catch (error) {
         console.log('error setting every single documents accepted & inLobby values')
     }
 }
 
-const find10Accepts = async () => {
+const find10AcceptsPro = async () => {
     let acceptCount = 0
-    const summoners = await Queuer.find({})
+    const summoners = await ProQueuer.find({})
 
     summoners.forEach(summoner => {
         if(summoner.accepted === true){
@@ -71,17 +52,17 @@ const find10Accepts = async () => {
     return false
 }
 
-const setAccepted = async (user, boolean) => {
+const setAcceptedPro = async (user, boolean) => {
     try {
-        await Queuer.updateMany({discordId: user.discordId}, { accepted: boolean })
+        await ProQueuer.updateMany({discordId: user.discordId}, { accepted: boolean })
     }
     catch (error) {
         console.log('could not change boolean of user.', error)
     }
 }
 
-const matchFound = async () => {
-    const queuers = await Queuer.find({})
+const matchFoundPro = async () => {
+    const queuers = await ProQueuer.find({})
 		let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
 
 		queuers.forEach(summoner => {
@@ -108,9 +89,9 @@ const matchFound = async () => {
         return false
 }
 
-const summonerCanAcceptGame = async (checkId) => {
+const summonerCanAcceptGamePro = async (checkId) => {
     let can = false;
-    const summoners = await selectFastestTenSummoners()
+    const summoners = await selectFastestTenSummonersPro()
 
     summoners.forEach(summoner => {
         if(summoner['discordId'].toString() === checkId.toString()){ can = true }
@@ -118,8 +99,10 @@ const summonerCanAcceptGame = async (checkId) => {
     return can
 }
 
-const selectFastestTenSummoners = async () => {
-    const summonersByQueueTime = await getPriorities2()
+
+
+const selectFastestTenSummonersPro = async () => {
+    const summonersByQueueTime = await getPriorities2Pro()
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
     const selected = []
 
@@ -161,12 +144,12 @@ const selectFastestTenSummoners = async () => {
             if(idx < 10){
                 // GIVE SELECTED SUMMONERS inLobby = TRUE
                 try {
-                    const foundSummoner = await Queuer.findById(summoner.id)
+                    const foundSummoner = await ProQueuer.findById(summoner.id)
                     foundSummoner.inLobby = true
                     await foundSummoner.save()
                 }
                 catch (err) {
-                    console.log('error setting 10 summoners in lobby inLobby value to true in matchtools.js.\n', err)
+                    console.log('[PRO VER] error setting 10 summoners in lobby inLobby value to true in matchtools.js.\n', err)
                 }
             }
         }
@@ -180,9 +163,9 @@ const selectFastestTenSummoners = async () => {
     }
 }
 
-const getLobbySummonerNamesToTag = async () => {
+const getLobbySummonerNamesToTagPro = async () => {
     let tagMessageContent = ''
-    const fastestSummoners = await selectFastestTenSummoners()
+    const fastestSummoners = await selectFastestTenSummonersPro()
     
     fastestSummoners.forEach(summoner => {
         tagMessageContent += '<@'+ summoner.discordId +'> '
@@ -191,10 +174,9 @@ const getLobbySummonerNamesToTag = async () => {
 }
 
 
-// RETURNS A MESSAGE STATUS BASED ON LOBBY/MATCMHAKING STATUS
-const matchMake = async () => {
+const matchMakePro = async () => {
     // GET GUYS IN LOBBY THAT WILL GET MATCHED IF THEY ALL ACCEPT
-    const summonerLobby = await selectFastestTenSummoners()
+    const summonerLobby = await selectFastestTenSummonersPro()
 
     if(summonerLobby.length === 10){
         let answer = ''
@@ -209,10 +191,10 @@ const matchMake = async () => {
         summonerLobby.forEach((lobbySummoner, idx) => {
             if(lobbySummoner.accepted){
                 countAccepteds += 1
-            }
+            }   
         })
 
-        if(countAccepteds === 10){
+        if(countAccepteds === 10){t
             let tops = summonerLobby.filter(summoner => summoner.role === 'top')
             let jungles = summonerLobby.filter(summoner => summoner.role === 'jungle')
             let mids = summonerLobby.filter(summoner => summoner.role === 'mid')
@@ -271,23 +253,21 @@ const matchMake = async () => {
     }
 }
 
-
-// RETURNS QUEUE SIZE
-const checkQueueSize = async () => {
-    const queuers = await Queuer.find({})
+const checkQueueSizePro = async () => {
+    const queuers = await ProQueuer.find({})
     const queueSize = queuers.length
     return queueSize ? queueSize : 0
 }
 
-const queueSummoner = async (user) => {
+const queueSummonerPro = async (user) => {
     // IF QUEUE IS FULL
-    if(await checkQueueSize() === 40){
+    if(await checkQueueSizePro() === 40){
         console.log('queue is full')
     }
     else{
 
         // IF DISCORD USER IS ALREADY ACTIVE IN QUEUE
-        const foundUser = await Queuer.findOne({ discordId: user.discordId})
+        const foundUser = await ProQueuer.findOne({ discordId: user.discordId})
         if(foundUser){
 
             //const newQueuer = new Queuer(user)
@@ -302,41 +282,44 @@ const queueSummoner = async (user) => {
         }
         else {
             // IF DISCORD USER IS NOT IN ACTIVE QUEUE ALREADY
-            const newQueuer = new Queuer(user)
+            const newQueuer = new ProQueuer(user)
             await newQueuer.save()
             }
     }
 }
 
-const unqueueSummoner = async (user) => {
+const unqueueSummonerPro = async (user) => {
     // AVOID TARGETING SUMMONERS WHO CONFIRMED A MATCH
     if(!user.accepted){
-        await Queuer.findOneAndRemove({ discordId: user.discordId })
+        const foundUser = await ProQueuer.findOne({ discordId: user.discordId })
+        if(foundUser){
+            await foundUser.remove()
+        }
     }
 }
 
-const unqueueAFKsDuplicates = async () => {
-    const lobby = await selectFastestTenSummoners()
+const unqueueAFKsDuplicatesPro = async () => {
+    const lobby = await selectFastestTenSummonersPro()
     lobby.forEach(async summoner => {
         if(summoner.accepted === false){
-            await Queuer.deleteMany({ discordId: summoner.discordId })
+            await ProQueuer.deleteMany({ discordId: summoner.discordId })
         }
     })
 }
 
-const unqueueAFKs = async () => {
-    const lobby = await selectFastestTenSummoners()
+const unqueueAFKsPro = async () => {
+    const lobby = await selectFastestTenSummonersPro()
     lobby.forEach(async summoner => {
         if(summoner.accepted === false){
-            await unqueueSummoner(summoner)
+            await unqueueSummonerPro(summoner)
         }
     })
 }
 
-const removeMatchedSummonersFromQueue = async () => {
-    const matchMade = await find10Accepts()
+const removeMatchedSummonersFromQueuePro = async () => {
+    const matchMade = await find10AcceptsPro()
     if(matchMade){
-        await Queuer.deleteMany({ accepted: true })
+        await ProQueuer.deleteMany({ accepted: true })
     }
 }
 
@@ -359,26 +342,16 @@ const getTimeStamp = () => {
     return returnText
 }
 
-// GIVES QUICK REPRESENTABLE FORM
-const getPriorities = async () => {
-    const queuers = await Queuer.find({})
-    queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
-    const queuersSortedByQueuedAt = queuers.map((queuer, idx) =>  idx + '. ' + queuer.discordName)
-    return queuersSortedByQueuedAt
-}
-
-// GIVES FULL OBJECTS
-const getPriorities2 = async () => {
-    const queuers = await Queuer.find({})
+const getPriorities2Pro = async () => {
+    const queuers = await ProQueuer.find({})
     queuers.sort((a,b) => (a.queuedAt > b.queuedAt) ? 1 : ((b.queuedAt > a.queuedAt) ? -1 : 0))
     return queuers
 }
 
-// RETURNS TRUE IF THERE ARE AT LEAST 2 OF EVERY ROLE
-const enoughSummoners = async () => {
+const enoughSummonersPro = async () => {
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
 
-    const queuers = await Queuer.find({})
+    const queuers = await ProQueuer.find({})
     queuers.forEach(summoner => {
         if(summoner.role === 'top')      { top += 1}
         if(summoner.role === 'jungle')   { jungle += 1 }
@@ -393,8 +366,8 @@ const enoughSummoners = async () => {
     return false;
 }
 
-const getUpdatedQueueStatusText = async (name, actionMessage) => {
-    const queuers = await Queuer.find({})
+const getUpdatedQueueStatusTextPro = async (name, actionMessage) => {
+    const queuers = await ProQueuer.find({})
     let matchReady = false
     let content = ''
     let top = 0; let jungle = 0; let mid = 0; let adc = 0; let support = 0;
@@ -408,6 +381,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
 
     queuers.forEach(summoner => {
         if(summoner.role === 'top'){
+            console.log('top', summoner)
             top += 1
             topPlayers += summoner.discordName + ' '
         }
@@ -455,7 +429,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     }
 
     if(!matchReady){
-        await setEveryAccepted(false)
+        await setEveryAcceptedPro(false)
 
         content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
         + "\nstatus: " + readyMessage + '\n'
@@ -484,19 +458,33 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         
         + '\n\n'
         
-        + await matchMake()
+        + await matchMakePro()
         + "\n"
     
         return content
     }
 }
 
-module.exports = { 
-    getMatches, getMatchHistoryLength, matchFound,
-    getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
-    getPriorities, enoughSummoners, matchMake, summonerCanAcceptGame,
-    setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
-    find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState,
-    getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch,
-    checkIfReplayAlreadySaved
+module.exports = {
+
+    getMatchHistoryLengthPro,
+    setEveryDuplicateAcceptedPro,
+    setEveryAcceptedPro,
+    setInitBooleanStatePro,
+    find10AcceptsPro,
+    setAcceptedPro,
+    matchFoundPro,
+    summonerCanAcceptGamePro,
+    selectFastestTenSummonersPro,
+    getLobbySummonerNamesToTagPro,
+    matchMakePro,
+    checkQueueSizePro,
+    queueSummonerPro,
+    unqueueSummonerPro,
+    unqueueAFKsDuplicatesPro,
+    unqueueAFKsPro,
+    removeMatchedSummonersFromQueuePro,
+    getPriorities2Pro,
+    getUpdatedQueueStatusTextPro,
+
 }
