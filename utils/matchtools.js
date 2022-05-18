@@ -233,9 +233,9 @@ const matchMake = async () => {
 
             // 0 WILL GO TO BLUE TEAM, 1 TO RED
 
-            const bteams = balanceTeams(summonerByRoles)
-            const blueTeam = bteams[0]
-            const redTeam = bteams[1]
+            const bteams = balanceTeams(summonersByRoles)
+            const blueTeam = bteams[0].map(s => s.discordName)
+            const redTeam = bteams[1].map(s => s.discordName)
 
             let blueTeamText = 
                    '\ntop:     ' + blueTeam[0] 
@@ -254,7 +254,7 @@ const matchMake = async () => {
             title = '🐵 monke formed superteams!\n'
             answer = 
                     '\n👥 BLUE' 
-                + blueTeamText
+                +  blueTeamText
                 +   '\n\n👥 RED'
                 +  redTeamText
 

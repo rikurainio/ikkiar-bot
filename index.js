@@ -128,6 +128,7 @@ client.on('interactionCreate', async interaction => {
 			await message.edit({ content: newMessageContent, components: [row3, row4]})
 
 			const handleRunning = async () => {
+				await message.edit({ components: [row3, row4]})
 				let lobbyDeclined = false
 				let matchFormed = false
 
@@ -146,9 +147,9 @@ client.on('interactionCreate', async interaction => {
 						return ['✅', '❌'].includes(reaction.emoji.name) && summonerCanAcceptGame(user.id)
 					};
 					const collector = popMsg.createReactionCollector({ filter, time: 120000 });
+					let acceptCounter = 0
 
 					collector.on('collect', async (reaction, user) => {
-						let acceptCounter = 0
 
 						if(reaction.emoji.name == '✅'){
 							acceptCounter += 1
@@ -157,17 +158,15 @@ client.on('interactionCreate', async interaction => {
 							const newMessageContent = await getUpdatedQueueStatusText(user.username, 'accepted match')
 							await message.edit(newMessageContent)
 
-							console.log('accept counter :', acceptCounter)
 							if(acceptCounter === 10){
-								// DISABLE BUTTONS ON 10
+								console.log('match counter 10')
+
 								matchFormed = true
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
 								await message.edit({ content: newMessageContent })
 
-								console.log('calling remove matched summoners from queue -->')
-								//await removeMatchedSummonersFromQueue()
-								await clearQueue()
-								console.log('should have removed mm summoners from queue by now')
+								await removeMatchedSummonersFromQueue()
+								//await clearQueue()
 
 								try {
 									await popMsg.delete()
@@ -190,6 +189,7 @@ client.on('interactionCreate', async interaction => {
 								}, 300000)
 							}
 						}
+						
 						if(reaction.emoji.name == '❌'){
 							lobbyDeclined = true
 							await unqueueSummoner({ discordId: user.id })
@@ -227,7 +227,7 @@ client.on('interactionCreate', async interaction => {
 							await unqueueAFKs()
 							
 							if(!matchFormed){
-								await message.edit({ components: [row, row2]})
+								await message.edit({ components: [row3, row4]})
 								
 								if(await enoughSummoners()){
 									const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'unqueued afks. new lobby:')
