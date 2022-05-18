@@ -135,7 +135,6 @@ const findSummonerByDiscordId = async (discordId) => {
     return foundSummoner
 }
 
-// get first 20 summoners by score
 const getLeaderboardData = async () => {
     const summoners = await Summoner.find({})
     const formattedSummoners = summoners.map(({ username, points, wins, losses }) => ({ username, points, wins, losses }))
@@ -152,59 +151,3 @@ module.exports = {
     clearSummoners, getLeaderboardData,
     scorePlayers
 }
-
-
-
-/*
-// TAKES IN MONGO MATCH AND UPDATES SCORES ETC
-const handleSummonerUpdatesAfterMatch = async (mongoMatch) => {
-
-    console.log('MATCH', mongoMatch)
-    const participants = mongoMatch.info.participants
-    const { metadata } = mongoMatch
-    const { participants: puuids } = metadata
-
-    // COMPARE TEAMS THAT PLAYED
-    const blueTeam = getBlueTeam(participants)
-    const redTeam = getRedTeam(participants)
-    const betterTeam = calculateTeamSkillDifference(blueTeam, redTeam)
-
-    participants.forEach(async (summoner, idx) => {
-        // we need to create a new summoner document if its his/her first game in ikkiar
-        // puuids and summoners are in same order so their indexes SHOULD match
-        const found = await findSummonerByPuuId(puuids[idx])
-        if(!found){
-
-            const newSummoner = {
-                username: summoner.summonerName,
-                points: 1000,
-                wins: 0,
-                losses: 0,
-                elo: 0,
-                puuid: puuids[idx]
-            }
-            await createSummoner(newSummoner)
-        }
-
-        // reward wins
-        if(summoner.win){
-            if(summoner.teamId == betterTeam){
-                updateSummonerStats(summoner.puuid, 20, true)
-            }
-            else{
-                updateSummonerStats(summoner.puuid, 21, true)
-            }
-        }
-
-        // punish loss
-        if(!summoner.win){
-            if(summoner.teamId == betterTeam){
-                updateSummonerStats(summoner.puuid, 21, false)
-            }
-            else{
-                updateSummonerStats(summoner.puuid, 20, false)
-            }
-        }
-    })
-}
-*/

@@ -96,25 +96,4 @@ const row4 = new MessageActionRow()
 				.setDisabled(false)
 		)
 
-// METHODS
-
-const toggleButtons = async (message, content, handle) => {
-    if(content === undefined){
-        if(handle === 'enable') {
-            await message.edit({ components: [row3, row4]})
-        }
-        if(handle === 'disable') {
-            await message.edit({ components: [row, row2]})
-        }
-    }
-    else{
-        if(handle === 'enable') {
-            await message.edit({ content: content, components: [row3, row4]})
-        }
-        if(handle === 'disable') {
-            await message.edit({ content: content, components: [row, row2]})
-        }
-    }
-}
-
-module.exports = { toggleButtons }
+module.exports = { row, row2, row3, row4 }

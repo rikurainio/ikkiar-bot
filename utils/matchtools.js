@@ -26,6 +26,15 @@ const getMatchHistoryLength = async () => {
     return response.length
 }
 
+const setSingleAccepted = async (id, boolean) => {
+    try {
+        await Queuer.findOneAndUpdate({ discordId: id}, { accepted: boolean })
+    }
+    catch (err) {
+        console.log('findOneAndUpdate error in setting accepteds: ', err)
+    }
+}
+
 const setEveryDuplicateAccepted = async (id, boolean) => {
     try {
         const foundSmmoners = await Queuer.find({ discordId: id})
@@ -261,11 +270,11 @@ const matchMake = async () => {
                 +  redTeamText
 
                 +   '\n\n____________________________________________________'
-                +   '\nCreate a custom game and include \'ikkiar\' in the name ツ.'
-                +   '\nSubmit the match with its\' match id by using /submitmatch after the match.'
+                +   '\nCreate a custom game and include \'ikkiar\' in the name'
+                +   '\nSave the played match by dropping the replay .rofl file to #submitmatch channel'
                 +   '\n\n> Match info disappears in 5 minutes to allow Summoners to use the queue'
 
-            wrapAnswer = "```" + "java\n" + title + answer + "\n" + "```"
+            wrapAnswer = "```" + "\n" + title + answer + "\n" + "```"
         }   
         return wrapAnswer
     }
@@ -334,11 +343,14 @@ const unqueueAFKs = async () => {
 }
 
 const removeMatchedSummonersFromQueue = async () => {
-    const matchMade = await find10Accepts()
-    if(matchMade){
-        await Queuer.deleteMany({ accepted: true })
-    }
+    const deleteCount = await Queuer.deleteMany({ accepted: true })
+    console.log('unqueued', deleteCount, 'summoners that accepted the game.')
 }
+
+const clearQueue = async () => {
+    await Queuer.deleteMany({})
+}
+
 
 const getTimeStamp = () => {
     const time = new Date()
@@ -498,5 +510,5 @@ module.exports = {
     setAccepted, setEveryAccepted, unqueueAFKs, unqueueAFKsDuplicates,
     find10Accepts, removeMatchedSummonersFromQueue, setInitBooleanState,
     getLobbySummonerNamesToTag, setEveryDuplicateAccepted, saveReplayFileMatch,
-    checkIfReplayAlreadySaved
+    checkIfReplayAlreadySaved, setSingleAccepted, clearQueue
 }
