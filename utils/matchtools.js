@@ -469,7 +469,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
     if(!matchReady){
         await setEveryAccepted(false)
 
-        content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
+        content = "**Press role icon below to queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
         + "\nstatus: " + readyMessage + '\n'
         + "\n🏝️ top:    " + top + " " + topPlayers
         + "\n🐕‍🦺 jungle: " + jungle + " " + junglePlayers
@@ -483,7 +483,7 @@ const getUpdatedQueueStatusText = async (name, actionMessage) => {
         return content
     }
     else{
-        content = "**Press wanted role icon below to Queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
+        content = "**Press role icon below to queue**" + "```" + "ini\n" + "[" + queuers.length + " Summoners in queue]"
         + "\nstatus: " + readyMessage + '\n'
         + "\n🏝️ top:    " + top + " " + topPlayers
         + "\n🐕‍🦺 jungle: " + jungle + " " + junglePlayers
