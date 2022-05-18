@@ -12,32 +12,54 @@ const eloUpdate = (redTeamElo, blueTeamElo, redTeamWin, kfactor) => {
 
 const scorePlayers = async (match) => {
     console.log(Object.keys(match))
-
-    const redTeamWin = getRedTeam(summoners)[0].WIN === 'Win'
-    const avgEloBlue = getBlueTeam(summoners).reduce((a, b) => a.points + b.points)/5
-    const avgEloRed = getRedTeam(summoners).reduce((a, b) => a.points + b.points)/5
-    const eloChange = eloUpdate(avgEloRed, avgEloBlue, redTeamWin, 40)
-
     const { statsJson: summoners } = match
 
-    summoners.forEach(async summoner => {
+    
 
-        const RID = summoner.ID
-        const found = await findSummonerByRID(RID)
+    const summonerPromises = summoners.map(async summoner => {
 
-        if(!found){
+        const foundSummoner = await findSummonerByRID2(summoner.ID)
+        console.log('foundsummoner: ', foundSummoner)
+
+        if(foundSummoner === null){
             const newSummoner = {
                 username: summoner.NAME,
                 points: 1000,
                 wins: 0,
                 losses: 0,
-                elo: 0,
-                RID: RID
+                RID: summoner.ID
             }
             await createSummoner(newSummoner)
+            return { points: newSummoner.points, team: summoner.TEAM }
         }
+        else {
+            const foundSummonerScore = foundSummoner.points
+            console.log('score:', typeof parseFloat(foundSummonerScore.toString()))
+            return { points: parseFloat(foundSummonerScore.toString()), team: summoner.TEAM }
+        }
+    })
 
-        const summonerEloUpdate = summoner.teamId == '100' ? eloChange.blue : eloChange.red
+    const readySummoners = await Promise.all(summonerPromises)
+    let blueTeamElos = readySummoners.filter((s) => s.team === '100').map((s) => s.points)
+    let redTeamElos = readySummoners.filter((s) => s.team === '200').map((s) => s.points)
+
+    console.log('elos pre', blueTeamElos, redTeamElos)
+
+    const redTeamWin = getRedTeam(summoners)[0].WIN === 'Win'
+    const avgEloBlue = blueTeamElos.reduce((a,b) => a + b, 0) / 5
+    const avgEloRed = redTeamElos.reduce((a,b) => a + b, 0) / 5
+    const eloChange = eloUpdate(avgEloRed, avgEloBlue, redTeamWin, 40)
+
+    console.log('red team win:', redTeamWin)
+    console.log('elo avgs:', avgEloBlue, '\n', avgEloRed)
+
+    summoners.forEach(async summoner => {
+
+        const RID = summoner.ID
+
+        console.log('elo changes:', eloChange)
+        const summonerEloUpdate = summoner.TEAM === '100' ? eloChange.blue : eloChange.red
+        console.log('elo update:', summonerEloUpdate)
 
         if(summoner.WIN === 'Win'){
             await updateSummonerStats(RID, summonerEloUpdate, true)
@@ -57,13 +79,21 @@ const findSummonerByRID = async (RID) => {
     return false
 }
 
+const findSummonerByRID2 = async (RID) => {
+    const foundSummoner = await Summoner.findOne({ RID: RID})
+    if(foundSummoner){
+        return foundSummoner
+    }
+    return null
+}
+
 const getBlueTeam = (summoners) => {
-    const blueTeam = summoners.filter(summoner => summoner.teamId === '100')
+    const blueTeam = summoners.filter(summoner => summoner.TEAM === '100')
     return blueTeam
 }
 
 const getRedTeam = (summoners) => {
-    const redTeam = summoners.filter(summoner => summoner.teamId === '200')
+    const redTeam = summoners.filter(summoner => summoner.TEAM === '200')
     return redTeam
 }
 
@@ -104,7 +134,7 @@ const updateSummonerStats = async (RID, pointsAmount, win) => {
         await Summoner.findOneAndUpdate({ RID: RID}, {$inc : { points: pointsAmount, wins: 1 }})
     }
     else{
-        await Summoner.findOneAndUpdate({ RID: RID}, {$inc : { points: -pointsAmount, losses: 1 }})
+        await Summoner.findOneAndUpdate({ RID: RID}, {$inc : { points: pointsAmount, losses: 1 }})
     }
 }
 

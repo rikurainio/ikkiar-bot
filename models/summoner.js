@@ -18,7 +18,7 @@ const schema = mongoose.Schema({
   },
 
   points: {
-    type: Number,
+    type: mongoose.Schema.Types.Decimal128,
     required: true,
     default: 1000
   },
@@ -31,11 +31,6 @@ const schema = mongoose.Schema({
   losses: {
     type: Number,
     required: true
-  },
-
-  elo: {
-    type: Number,
-    default: 0
   },
 
   RID: {
