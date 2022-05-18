@@ -1,7 +1,22 @@
 const Summoner = require("../models/summoner")
 
+const eloUpdate = (redTeamElo, blueTeamElo, redTeamWin, kfactor) => {
+    const qred = Math.pow(10, redTeamElo/400)
+    const qblue = Math.pow(10, blueTeamElo/400)
+    const expectedScoreRed = qred / (qred + qblue)
+    const expectedScoreBlue = qblue / (qred + qblue)
+    const redEloChange = kfactor * (Number(redTeamWin) - expectedScoreRed)
+    const blueEloChange = kfactor * (Number(!redTeamWin) - expectedScoreBlue)
+    return {red:redEloChange, blue:blueEloChange}
+}
+
 const scorePlayers = async (match) => {
     console.log(Object.keys(match))
+
+    const redTeamWin = getRedTeam(summoners)[0].WIN === 'Win'
+    const avgEloBlue = getBlueTeam(summoners).reduce((a, b) => a.points + b.points)/5
+    const avgEloRed = getRedTeam(summoners).reduce((a, b) => a.points + b.points)/5
+    const eloChange = eloUpdate(avgEloRed, avgEloBlue, redTeamWin, 40)
 
     const { statsJson: summoners } = match
 
@@ -22,11 +37,13 @@ const scorePlayers = async (match) => {
             await createSummoner(newSummoner)
         }
 
+        const summonerEloUpdate = summoner.teamId == '100' ? eloChange.blue : eloChange.red
+
         if(summoner.WIN === 'Win'){
-            await updateSummonerStats(RID, 20, true)
+            await updateSummonerStats(RID, summonerEloUpdate, true)
         }
         if(summoner.WIN === 'Fail'){
-            await updateSummonerStats(RID, 20, false)
+            await updateSummonerStats(RID, summonerEloUpdate, false)
         }
     })
 }
@@ -41,12 +58,12 @@ const findSummonerByRID = async (RID) => {
 }
 
 const getBlueTeam = (summoners) => {
-    const blueTeam = summoners.filter(summoner => summoner.teamId == 100)
+    const blueTeam = summoners.filter(summoner => summoner.teamId === '100')
     return blueTeam
 }
 
 const getRedTeam = (summoners) => {
-    const redTeam = summoners.filter(summoner => summoner.teamId == 200)
+    const redTeam = summoners.filter(summoner => summoner.teamId === '200')
     return redTeam
 }
 
