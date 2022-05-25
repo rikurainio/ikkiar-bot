@@ -14,11 +14,10 @@ const scorePlayers = async (match) => {
     console.log(Object.keys(match))
     const { statsJson: summoners } = match
 
-    
 
     const summonerPromises = summoners.map(async summoner => {
 
-        const foundSummoner = await findSummonerByRID2(summoner.ID)
+        const foundSummoner = await findSummonerByName(summoner.NAME)
         console.log('foundsummoner: ', foundSummoner)
 
         if(foundSummoner === null){

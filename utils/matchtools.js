@@ -1,5 +1,6 @@
 const Match = require('../models/match')
 const Queuer = require('../models/queuer')
+const { findSummonerByDiscordId} = require('./summonertools')
 
 const saveReplayFileMatch = async (match) => {
     const newMatch = new Match({gameData: match})
@@ -221,12 +222,30 @@ const matchMake = async () => {
             }
         })
 
+        const summonerPromises = summonerLobby.map(async summoner => {
+            console.log(typeof(summoner))
+            console.log(summoner)
+            const newSummoner = structuredClone(summoner.toObject())
+            riotSummoner = await findSummonerByDiscordId(summoner.discordId)
+            if (riotSummoner === null){
+                newSummoner.points = 1000
+            }
+            else {
+                newSummoner.points = parseFloat(riotSummoner.points.toString())
+            }
+            console.log(newSummoner)
+            return newSummoner
+        })
+
+        const readyLobby = await Promise.all(summonerPromises)
+        console.log(readyLobby)
+
         if(countAccepteds === 10){
-            let tops = summonerLobby.filter(summoner => summoner.role === 'top')
-            let jungles = summonerLobby.filter(summoner => summoner.role === 'jungle')
-            let mids = summonerLobby.filter(summoner => summoner.role === 'mid')
-            let adcs = summonerLobby.filter(summoner => summoner.role === 'adc')
-            let supports = summonerLobby.filter(summoner => summoner.role === 'support')
+            let tops = readyLobby.filter(summoner => summoner.role === 'top')
+            let jungles = readyLobby.filter(summoner => summoner.role === 'jungle')
+            let mids = readyLobby.filter(summoner => summoner.role === 'mid')
+            let adcs = readyLobby.filter(summoner => summoner.role === 'adc')
+            let supports = readyLobby.filter(summoner => summoner.role === 'support')
 
             let summonersByRoles = []
             summonersByRoles.push(tops, jungles, mids, adcs, supports)
@@ -236,6 +255,8 @@ const matchMake = async () => {
             const bteams = balanceTeams(summonersByRoles)
             const blueTeam = bteams[0].map(s => s.discordName)
             const redTeam = bteams[1].map(s => s.discordName)
+
+            console.log(bteams)
 
             let blueTeamText = 
                    '\ntop:     ' + blueTeam[0] 
