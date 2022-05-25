@@ -12,7 +12,7 @@ const createPostGameMessage = (json) => {
         return player
     })
     players.sort((a, b) => (a.team < b.team) ? 1 : 0);
-    let message;
+    let message = '';
 
     players.forEach(player => {
         message += '\n' + player.role + ' ' + player.name + ' ' + player.champion + ' ' + player.kills + '/' + player.deaths + '/' + player.assists
