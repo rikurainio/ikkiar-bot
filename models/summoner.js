@@ -35,7 +35,7 @@ const schema = mongoose.Schema({
 
   RID: {
     type: String,
-    required: true
+    required: false
   }
   
 })
