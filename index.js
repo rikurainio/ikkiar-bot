@@ -13,6 +13,7 @@ const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 const { matchParser2 } = require('./utils/matchparser');
 const{ createPostGameMessage } = require('./utils/postgamemsg');
 const{ row, row2, row3, row4 } = require('./utils/toggleButtons')
+const { findSummonerByDiscordId } = require('./utils/summonertools')
 
 // DISCORD.JS CLASSES
 const { Client, Collection, Intents} = require('discord.js');
@@ -92,12 +93,12 @@ client.on('interactionCreate', async interaction => {
 	if (interaction.isButton()){
 		if(interaction === undefined){ return }
 
-		const message = interaction.message
-		let cmdn = message.interaction.commandName
-
 		// GET PRESSER DISCORD USER DETAILS
+		const message = interaction.message
 		const id = interaction.user.id
 		const name = interaction.user.username
+		const foundSummoner = await findSummonerByDiscordId(id)
+		console.log('foundsum:', foundSummoner)
 		const timeNow = Date.now()
 		const newQueueUser = {
 			discordName: name,
@@ -108,7 +109,6 @@ client.on('interactionCreate', async interaction => {
 		}
 		
 		if(interaction.customId === 'readyverifybutton'){
-			// GET SUMMONER ICON ID FROM RIOT API
 			const config = {
 				headers: {
 					"X-Riot-Token": process.env.RIOT_API_KEY
@@ -118,11 +118,8 @@ client.on('interactionCreate', async interaction => {
 			const response = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName, config)
 			const summoner = response.data
 			const summonerIconIdInUse = summoner.profileIconId
-
 			const msg = interaction.message.content
 			const verifyIconId = msg.substring(msg.indexOf('[') + 1, msg.indexOf(']'))
-
-			console.log(verifyIconId)
 
 			if(verifyIconId.toString() === summonerIconIdInUse.toString()){
 
@@ -135,8 +132,8 @@ client.on('interactionCreate', async interaction => {
 						losses: 0,
 						discordId: interaction.user.id
 					}
-				summonerDat = new Summoner(newSummoner)
-				await summonerDat.save()
+					summonerDat = new Summoner(newSummoner)
+					await summonerDat.save()
         		}
 				else {
 					await Summoner.findOneAndUpdate({username:summonerName},{discordId:interaction.user.id})
@@ -152,7 +149,7 @@ client.on('interactionCreate', async interaction => {
 			await interaction.reply({ content: 'Verification cancelled \nYou can dismiss these messages', ephemeral: true })
 		}
 
-		if(interaction.customId === 'cancelbutton' || interaction.customId === 'procancelbutton'){
+		if(interaction.customId === 'cancelbutton' && foundSummoner){
 			try { await interaction.reply({ content: 'Took you out of queue 🐒', ephemeral: true }) }
 			catch (err) { console.log('error sending ephemeral remove queue message.', err) }
 
@@ -161,8 +158,17 @@ client.on('interactionCreate', async interaction => {
 			await message.edit({ content: newMessageContent, components: [row3, row4]})
 		}
 
+		// HANDLE ROLE BUTTON INTERACTION.CUSTOMIDS AND SAVE THE ROLENAME
 		let role = assignRoleOnButtonClick(interaction)
-		if(interaction !== undefined && role.length > 0){
+
+		if(interaction.customId === 'cancelbutton' && foundSummoner === null){
+			await interaction.reply({ content: 'You have to register first (#register channel)' , ephemeral: true })
+		}
+		if(interaction !== undefined && role.length > 0 && foundSummoner === null){
+			await interaction.reply({ content: 'You have to register first (#register channel)' , ephemeral: true })
+		}
+
+		if(interaction !== undefined && role.length > 0 && foundSummoner){
 			newQueueUser.role = role
 
 			try { await interaction.reply({ content: 'You are in! 🐵', ephemeral: true }) }
@@ -204,8 +210,6 @@ client.on('interactionCreate', async interaction => {
 							await message.edit(newMessageContent)
 
 							if(acceptCounter === 10){
-								console.log('match counter 10')
-
 								matchFormed = true
 								const newMessageContent = await getUpdatedQueueStatusText('Ikkiar', 'match created:')
 								await message.edit({ content: newMessageContent })
@@ -247,7 +251,6 @@ client.on('interactionCreate', async interaction => {
 								console.log('error deleting popmsg after someone reacted X', err)
 							}
 							let enough = await enoughSummoners()
-							console.log('enough summoners=?', enough)
 							if(enough){
 								await handleRunning()
 							}
@@ -257,17 +260,14 @@ client.on('interactionCreate', async interaction => {
 
 					collector.on('end', async (collected) => {
 						if(!lobbyDeclined){
-							console.log('c: pop exists?', popMessageExists)
 							if(popMessageExists){
-								console.log('c: deleting popmsg')
 								try {
 									await popMsg.delete()
 									popMessageExists = false;
-								} catch(err){console.log('c: error deleting popmessage on collector end')}
+								} catch(err){console.log('c: error deleting pop message on collector end')}
 							}
 	
 							// IF NO REACTION WAS GIVEN JUST UNQUEUE THOSE PPL
-							console.log('c: 2 minutes passed, unqueueAFKs called:')
 							await unqueueAFKs()
 							
 							if(!matchFormed){
