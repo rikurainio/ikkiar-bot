@@ -30,11 +30,11 @@ const matchParser = (file) => {
     return json
 }
 
-const matchParserKEKW = (file) => {
+const matchParser2 = (file) => {
     console.log(file.length)
     var match = file.toString()
     match = match.substring(match.indexOf("{\"gameLength"), match.indexOf('}]"}')) + '}]"}'
     return JSON.parse(match);
 }
 
-module.exports = { matchParser, matchParserKEKW }
+module.exports = { matchParser, matchParser2 }
