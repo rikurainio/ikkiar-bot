@@ -42,7 +42,7 @@ module.exports = {
         const imageEmbed = new MessageEmbed().setImage(imageSource)
 
         await interaction.reply({
-            content: `To verify your EUW league account, login to Summoner [${summonerName}]\nand change your icon to [${imageId}]: \n \n`
+            content: `To verify your EUW league account, login to Summoner: ${summonerName}\nand change your icon to [${imageId}]: \n \n`
             + 'Click verify when you have changed the icon in the League client. \n',
             embeds: [imageEmbed],
             ephemeral: true,
