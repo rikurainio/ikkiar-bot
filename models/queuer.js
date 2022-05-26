@@ -5,8 +5,6 @@ const schema = mongoose.Schema({
     discordName: { type: String, required: true },
     discordId: { type: String, required: true, unique: false },
     role: { type: String, required: true },
-    rating: { type: Number, default: 1500},
-
     queuedAt: { type: Number, required: true },
     inLobby: { type: Boolean, default: false },
     accepted: { type: Boolean, default: false }
