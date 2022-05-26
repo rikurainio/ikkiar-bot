@@ -343,7 +343,6 @@ const queueSummoner = async (user) => {
         console.log('queue is full')
     }
     else{
-
         // IF DISCORD USER IS ALREADY ACTIVE IN QUEUE
         const foundUser = await Queuer.findOne({ discordId: user.discordId})
         if(foundUser){
@@ -393,7 +392,6 @@ const unqueueAFKs = async () => {
 
 const removeMatchedSummonersFromQueue = async () => {
     const deleteCount = await Queuer.deleteMany({ accepted: true })
-    console.log('unqueued', deleteCount, 'summoners that accepted the game.')
 }
 
 const clearQueue = async () => {
