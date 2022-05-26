@@ -109,17 +109,25 @@ client.on('interactionCreate', async interaction => {
 		}
 		
 		if(interaction.customId === 'readyverifybutton'){
+
 			const config = {
 				headers: {
 					"X-Riot-Token": process.env.RIOT_API_KEY
 				}
 			}
 
-			const response = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName, config)
+			const msg = interaction.message.content
+			console.log('msg:', msg)
+			const summonerName = msg.substring(msg.indexOf('<') +1, msg.indexOf('>'))
+			const verifyIconId = msg.substring(msg.indexOf('[') + 1, msg.indexOf(']'))
+			const summonerNameNoSpaces = summonerName.replace(/^\s+|\s+$/gm,'');
+			console.log('search for:', summonerNameNoSpaces)
+
+			const response = await axios.get(encodeURI(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerNameNoSpaces}`), config)
 			const summoner = response.data
 			const summonerIconIdInUse = summoner.profileIconId
-			const msg = interaction.message.content
-			const verifyIconId = msg.substring(msg.indexOf('[') + 1, msg.indexOf(']'))
+
+			console.log('summoner found:', summoner)
 
 			if(verifyIconId.toString() === summonerIconIdInUse.toString()){
 

@@ -31,7 +31,7 @@ module.exports = {
         summonerName = interaction.options.getString('summonername')
 
         // GET RANDOM ORIGINAL LOL SUMMONER ICON
-        const imageId = Math.floor(Math.random() * 27) + 1
+        let imageId = Math.floor(Math.random() * 27) + 1
         if(imageId === 7 || imageId === 28) imageId = 8
 
         const imageSource = 'https://ddragon.leagueoflegends.com/cdn/12.9.1/img/profileicon/'+ imageId +'.png'
@@ -42,7 +42,7 @@ module.exports = {
         const imageEmbed = new MessageEmbed().setImage(imageSource)
 
         await interaction.reply({
-            content: `To verify your EUW league account, login to Summoner: ${summonerName}\nand change your icon to [${imageId}]: \n \n`
+            content: `To verify your EUW league account, login to Summoner: <${summonerName}>\nand change your icon to [${imageId}]: \n \n`
             + 'Click verify when you have changed the icon in the League client. \n',
             embeds: [imageEmbed],
             ephemeral: true,
