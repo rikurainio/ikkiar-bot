@@ -126,15 +126,16 @@ client.on('interactionCreate', async interaction => {
 			const response = await axios.get(encodeURI(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerNameNoSpaces}`), config)
 			const summoner = response.data
 			const summonerIconIdInUse = summoner.profileIconId
+			const nameToSaveToDb = summoner.name
 
 			console.log('summoner found:', summoner)
 
 			if(verifyIconId.toString() === summonerIconIdInUse.toString()){
 
-				const foundSummoner = await Summoner.findOne({username:summonerName})
+				const foundSummoner = await Summoner.findOne({ username:nameToSaveToDb })
         		if(foundSummoner === null){
 					const newSummoner = {
-						username: summonerName,
+						username: nameToSaveToDb,
 						points: 1000,
 						wins: 0,
 						losses: 0,
@@ -144,9 +145,9 @@ client.on('interactionCreate', async interaction => {
 					await summonerDat.save()
         		}
 				else {
-					await Summoner.findOneAndUpdate({username:summonerName},{discordId:interaction.user.id})
+					await Summoner.findOneAndUpdate({ username:nameToSaveToDb },{discordId:interaction.user.id})
 				}
-				await interaction.reply({ content: summonerName + ' registered and verified!' })
+				await interaction.reply({ content: nameToSaveToDb + ' registered and verified!' })
 			}
 			else{
 				await interaction.reply({ content: 'Could not verify Summoner. \nTry again or dismiss these messages', ephemeral: true })
