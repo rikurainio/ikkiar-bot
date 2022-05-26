@@ -200,7 +200,6 @@ client.on('interactionCreate', async interaction => {
 						if(reaction.emoji.name == '✅'){
 							acceptCounter += 1
 							await setSingleAccepted(user.id, true)
-							//await setEveryDuplicateAccepted(user.id, true)
 							const newMessageContent = await getUpdatedQueueStatusText(user.username, 'accepted match')
 							await message.edit(newMessageContent)
 
@@ -212,7 +211,6 @@ client.on('interactionCreate', async interaction => {
 								await message.edit({ content: newMessageContent })
 
 								await removeMatchedSummonersFromQueue()
-								//await clearQueue()
 
 								try {
 									await popMsg.delete()
