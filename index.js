@@ -141,7 +141,7 @@ client.on('interactionCreate', async interaction => {
 				else {
 					await Summoner.findOneAndUpdate({username:summonerName},{discordId:interaction.user.id})
 				}
-				await interaction.reply({ content: 'Verification successful \nYou can dismiss these messages', ephemeral: true })
+				await interaction.reply({ content: summonerName + ' registered and verified!' })
 			}
 			else{
 				await interaction.reply({ content: 'Could not verify Summoner. \nTry again or dismiss these messages', ephemeral: true })
