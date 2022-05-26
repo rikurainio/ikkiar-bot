@@ -141,15 +141,15 @@ client.on('interactionCreate', async interaction => {
 				else {
 					await Summoner.findOneAndUpdate({username:summonerName},{discordId:interaction.user.id})
 				}
-				await interaction.reply({ content: 'Verification successful', ephemeral: true })
+				await interaction.reply({ content: 'Verification successful \nYou can dismiss these messages', ephemeral: true })
 			}
 			else{
-				await interaction.reply({ content: 'Could not verify Summoner', ephemeral: true })
+				await interaction.reply({ content: 'Could not verify Summoner. \nTry again or dismiss these messages', ephemeral: true })
 			}
 		}
 
 		if(interaction.customId === 'cancelverifybutton'){
-			await interaction.reply({ content: 'Verification cancelled', ephemeral: true })
+			await interaction.reply({ content: 'Verification cancelled \nYou can dismiss these messages', ephemeral: true })
 		}
 
 		if(interaction.customId === 'cancelbutton' || interaction.customId === 'procancelbutton'){
