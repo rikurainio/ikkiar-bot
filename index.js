@@ -123,7 +123,7 @@ client.on('interactionCreate', async interaction => {
 
 			if(verifyIconId.toString() === summonerIconIdInUse.toString()){
 
-				foundSummoner = await Summoner.findOne({username:summonerName})
+				const foundSummoner = await Summoner.findOne({username:summonerName})
         		if(foundSummoner === null){
 					const newSummoner = {
 						username: summonerName,
