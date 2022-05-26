@@ -223,10 +223,10 @@ const matchMake = async () => {
         })
 
         const summonerPromises = summonerLobby.map(async summoner => {
-            const newSummoner = structuredClone(summoner.toObject())
+            const newSummoner = summoner.toObject()
             riotSummoner = await findSummonerByDiscordId(summoner.discordId)
             newSummoner.points = parseFloat(riotSummoner.points.toString())
-
+            console.log('new summoner after adding points: ', newSummoner)
             return newSummoner
         })
 
