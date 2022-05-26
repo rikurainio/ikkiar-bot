@@ -2,6 +2,7 @@ require('dotenv').config()
 const fs = require('node:fs');
 const mongoose = require('mongoose')
 const axios = require('axios')
+const Summoner = require('./models/summoner')
 
 const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		summonerCanAcceptGame, unqueueAFKs,
@@ -106,6 +107,51 @@ client.on('interactionCreate', async interaction => {
 			accepted: false
 		}
 		
+		if(interaction.customId === 'readyverifybutton'){
+			// GET SUMMONER ICON ID FROM RIOT API
+			const config = {
+				headers: {
+					"X-Riot-Token": process.env.RIOT_API_KEY
+				}
+			}
+
+			const response = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName, config)
+			const summoner = response.data
+			const summonerIconIdInUse = summoner.profileIconId
+
+			const msg = interaction.message.content
+			const verifyIconId = msg.substring(msg.indexOf('[') + 1, msg.indexOf(']'))
+
+			console.log(verifyIconId)
+
+			if(verifyIconId.toString() === summonerIconIdInUse.toString()){
+
+				foundSummoner = await Summoner.findOne({username:summonerName})
+        		if(foundSummoner === null){
+					const newSummoner = {
+						username: summonerName,
+						points: 1000,
+						wins: 0,
+						losses: 0,
+						discordId: interaction.user.id
+					}
+				summonerDat = new Summoner(newSummoner)
+				await summonerDat.save()
+        		}
+				else {
+					await Summoner.findOneAndUpdate({username:summonerName},{discordId:interaction.user.id})
+				}
+				await interaction.reply({ content: 'Verification successful', ephemeral: true })
+			}
+			else{
+				await interaction.reply({ content: 'Could not verify Summoner', ephemeral: true })
+			}
+		}
+
+		if(interaction.customId === 'cancelverifybutton'){
+			await interaction.reply({ content: 'Verification cancelled', ephemeral: true })
+		}
+
 		if(interaction.customId === 'cancelbutton' || interaction.customId === 'procancelbutton'){
 			try { await interaction.reply({ content: 'Took you out of queue 🐒', ephemeral: true }) }
 			catch (err) { console.log('error sending ephemeral remove queue message.', err) }
@@ -115,8 +161,8 @@ client.on('interactionCreate', async interaction => {
 			await message.edit({ content: newMessageContent, components: [row3, row4]})
 		}
 
-		else if(interaction !== undefined){
-			let role = assignRoleOnButtonClick(interaction)
+		let role = assignRoleOnButtonClick(interaction)
+		if(interaction !== undefined && role.length > 0){
 			newQueueUser.role = role
 
 			try { await interaction.reply({ content: 'You are in! 🐵', ephemeral: true }) }
