@@ -245,8 +245,8 @@ const matchMake = async () => {
             // 0 WILL GO TO BLUE TEAM, 1 TO RED
 
             const bteams = balanceTeams(summonersByRoles)
-            const blueTeam = bteams[0].map(s => `${s.discordName} (${s.points})`)
-            const redTeam = bteams[1].map(s => `${s.discordName} (${s.points})`)
+            const blueTeam = bteams[0].map(s => `${s.discordName} (${s.points.toFixed(0)})`)
+            const redTeam = bteams[1].map(s => `${s.discordName} (${s.points.toFixed(0)})`)
 
             console.log(bteams)
 
