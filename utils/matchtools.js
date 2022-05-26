@@ -223,22 +223,14 @@ const matchMake = async () => {
         })
 
         const summonerPromises = summonerLobby.map(async summoner => {
-            console.log(typeof(summoner))
-            console.log(summoner)
             const newSummoner = structuredClone(summoner.toObject())
             riotSummoner = await findSummonerByDiscordId(summoner.discordId)
-            if (riotSummoner === null){
-                newSummoner.points = 1000
-            }
-            else {
-                newSummoner.points = parseFloat(riotSummoner.points.toString())
-            }
-            console.log(newSummoner)
+            newSummoner.points = parseFloat(riotSummoner.points.toString())
+
             return newSummoner
         })
 
         const readyLobby = await Promise.all(summonerPromises)
-        console.log(readyLobby)
 
         if(countAccepteds === 10){
             let tops = readyLobby.filter(summoner => summoner.role === 'top')
@@ -253,8 +245,8 @@ const matchMake = async () => {
             // 0 WILL GO TO BLUE TEAM, 1 TO RED
 
             const bteams = balanceTeams(summonersByRoles)
-            const blueTeam = bteams[0].map(s => s.discordName)
-            const redTeam = bteams[1].map(s => s.discordName)
+            const blueTeam = bteams[0].map(s => `${s.discordName} (${s.points})`)
+            const redTeam = bteams[1].map(s => `${s.discordName} (${s.points})`)
 
             console.log(bteams)
 
