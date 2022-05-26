@@ -10,7 +10,7 @@ const { getUpdatedQueueStatusText, queueSummoner, unqueueSummoner,
 		 getLobbySummonerNamesToTag, setEveryDuplicateAccepted,
 		  saveReplayFileMatch, checkIfReplayAlreadySaved, setSingleAccepted, clearQueue } = require('./utils/matchtools')
 
-const { matchParserKEKW } = require('./utils/matchparser');
+const { matchParser2 } = require('./utils/matchparser');
 const{ createPostGameMessage } = require('./utils/postgamemsg');
 const{ row, row2, row3, row4 } = require('./utils/toggleButtons')
 
@@ -66,7 +66,7 @@ client.on('messageCreate', async (message) => {
 		console.log('trying to save euw rofl file')
 		try {
 			const response = await axios.get(file)
-			const json = matchParserKEKW(response.data)
+			const json = matchParser2(response.data)
 			console.log('type of axios get res data:', typeof(json))
 	
 			if(json){
