@@ -62,10 +62,10 @@ const scorePlayers = async (match) => {
         console.log('elo update:', summonerEloUpdate)
 
         if(summoner.WIN === 'Win'){
-            await updateSummonerStats(RID, summonerEloUpdate, true)
+            await updateSummonerStats(summoner.NAME, summonerEloUpdate, true)
         }
         if(summoner.WIN === 'Fail'){
-            await updateSummonerStats(RID, summonerEloUpdate, false)
+            await updateSummonerStats(summoner.NAME, summonerEloUpdate, false)
         }
     })
 }
@@ -129,12 +129,12 @@ const getSummoners = async () => {
     return summoners
 }
 
-const updateSummonerStats = async (RID, pointsAmount, win) => {
+const updateSummonerStats = async (username, pointsAmount, win) => {
     if(win){
-        await Summoner.findOneAndUpdate({ RID: RID}, {$inc : { points: pointsAmount, wins: 1 }})
+        await Summoner.findOneAndUpdate({ username: username}, {$inc : { points: pointsAmount, wins: 1 }})
     }
     else{
-        await Summoner.findOneAndUpdate({ RID: RID}, {$inc : { points: pointsAmount, losses: 1 }})
+        await Summoner.findOneAndUpdate({ username: username}, {$inc : { points: pointsAmount, losses: 1 }})
     }
 }
 
